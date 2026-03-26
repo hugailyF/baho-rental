@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نظام إدارة العقارات — بهو المدينة</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#050a15;--bg2:#0a1128;--bg3:#0e1630;--card:linear-gradient(145deg,rgba(16,24,46,.85),rgba(8,14,30,.9));
+--gold:#c9a96e;--gold2:#a8853a;--gold-g:linear-gradient(135deg,#c9a96e,#e8d5a8);
+--green:#4ade80;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;--purple:#a78bfa;--orange:#fb923c;
+--txt:#e2e8f0;--txt2:#94a3b8;--txt3:#586580;--txt4:#475569;
+--border:rgba(201,169,110,.08);--border2:rgba(201,169,110,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Noto Sans Arabic',sans-serif}
+body{background:var(--bg);color:var(--txt);min-height:100vh;direction:rtl}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:rgba(201,169,110,.15);border-radius:4px}
+
+/* Header */
+.hd{background:linear-gradient(135deg,rgba(12,18,37,.96),rgba(17,27,51,.96));backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.bc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt3)}
+.bc span{cursor:pointer;transition:.2s}.bc span:hover{color:var(--gold)}.bc .on{color:var(--gold);font-weight:700}
+.hd-actions{display:flex;align-items:center;gap:8px}
+
+/* Save Bar */
+.svb{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,rgba(10,15,30,.97),rgba(14,22,42,.97));backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:9px 20px;display:flex;align-items:center;justify-content:space-between;z-index:40;direction:rtl}
+
+/* Main */
+.mn{padding:20px 24px;max-width:1440px;margin:0 auto;padding-bottom:70px}
+
+/* Cards */
+.cd{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;transition:.3s}
+.cd:hover{border-color:var(--border2)}
+.ck{cursor:pointer}.ck:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+
+/* KPI */
+.kpi-grid{display:grid;gap:8px;margin-bottom:18px}
+.kpi{background:linear-gradient(145deg,rgba(16,24,46,.7),rgba(8,14,30,.8));border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center}
+.kpi .kv{font-size:16px;font-weight:800;margin-top:4px}.kpi .kl{font-size:9.5px;color:var(--txt3);letter-spacing:.3px}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{background:rgba(201,169,110,.06);color:var(--gold);padding:9px 7px;font-weight:600;white-space:nowrap;border-bottom:1.5px solid rgba(201,169,110,.12);text-align:center}
+td{padding:7px;border-bottom:1px solid rgba(255,255,255,.02);text-align:center;white-space:nowrap}
+tr:hover td{background:rgba(201,169,110,.02)}
+.tw{overflow:auto;border-radius:10px;border:1px solid var(--border)}
+tfoot td{background:rgba(201,169,110,.04)!important;font-weight:700;border-top:1.5px solid rgba(201,169,110,.12)}
+
+/* Buttons */
+.b{padding:7px 15px;border-radius:7px;border:none;cursor:pointer;font-family:inherit;font-weight:600;font-size:11.5px;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.b:active{transform:scale(.97)}
+.bg_{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--bg)}.bg_:hover{box-shadow:0 4px 18px rgba(201,169,110,.25)}
+.gh{background:rgba(255,255,255,.03);color:var(--gold);border:1px solid var(--border2)}.gh:hover{background:rgba(201,169,110,.06)}
+.rd{background:rgba(220,50,50,.08);color:var(--red);border:1px solid rgba(220,50,50,.1)}
+.gn{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.1)}
+.wa{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none}
+.sv{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none}
+.sm{padding:3px 9px;font-size:10px;border-radius:5px}
+
+/* Badges */
+.bd{padding:3px 9px;border-radius:14px;font-size:9.5px;font-weight:600;display:inline-block}
+.bdg{background:rgba(34,197,94,.1);color:var(--green)}.bdr{background:rgba(239,68,68,.1);color:var(--red)}
+.bdy{background:rgba(234,179,8,.1);color:var(--yellow)}.bdb{background:rgba(59,130,246,.1);color:var(--blue)}
+.bdp{background:rgba(168,85,247,.1);color:var(--purple)}.bdo{background:rgba(249,115,22,.1);color:var(--orange)}
+
+/* Forms */
+input,select,textarea{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--txt);font-family:inherit;font-size:11.5px;width:100%;direction:rtl;transition:border .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:rgba(201,169,110,.4);box-shadow:0 0 0 3px rgba(201,169,110,.06)}
+select option{background:#0d1528;color:var(--txt)}
+textarea{resize:vertical;min-height:90px;line-height:1.7}
+label{font-size:10px;font-weight:600;color:var(--txt3);margin-bottom:3px;display:block;letter-spacing:.3px}
+
+/* Modal */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;justify-content:center}
+.mb{background:linear-gradient(155deg,#111c34,#0a1120);border:1px solid rgba(201,169,110,.12);border-radius:14px;padding:24px;width:92%;max-width:580px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.st{font-size:14px;font-weight:700;color:var(--gold);margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+/* Progress */
+.pg{height:5px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden}
+.pf{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* Tabs */
+.tb{display:flex;gap:3px;background:rgba(255,255,255,.02);border-radius:9px;padding:3px;margin-bottom:16px;border:1px solid var(--border);flex-wrap:wrap}
+.ti{padding:7px 14px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:500;color:var(--txt3);transition:.2s;display:flex;align-items:center;gap:4px}
+.ti:hover{color:var(--gold)}.ti.on{background:linear-gradient(135deg,rgba(201,169,110,.1),rgba(201,169,110,.03));color:var(--gold);font-weight:700}
+
+/* Unit tabs */
+.ut{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.utb{padding:6px 13px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,.015);color:var(--txt3);transition:.2s}
+.utb:hover{color:var(--gold);border-color:var(--border2)}
+.utb.on{background:rgba(201,169,110,.08);color:var(--gold);border-color:rgba(201,169,110,.25)}
+
+/* Installment cards */
+.ic{border:1px solid rgba(255,255,255,.03);border-radius:11px;overflow:hidden;margin-bottom:6px;transition:.2s}
+.ic:hover{border-color:rgba(201,169,110,.12)}
+.ic-f{border-right:3px solid var(--green)}.ic-p{border-right:3px solid var(--yellow)}
+.ic-n{border-right:3px solid #475569}.ic-o{border-right:3px solid var(--red);background:rgba(239,68,68,.015)}
+.ab{border-radius:7px;padding:5px 9px;text-align:center;min-width:68px}
+.ab .al{font-size:8px;opacity:.7}.ab .av{font-size:13px;font-weight:800}
+
+/* Owner/Property cards */
+.oc{border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:.35s;background:linear-gradient(145deg,rgba(14,22,42,.9),rgba(8,13,28,.95))}
+.oc:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.25)}
+.oc-h{padding:16px 20px;background:linear-gradient(135deg,rgba(20,30,55,.9),rgba(12,18,38,.95));border-bottom:1px solid rgba(201,169,110,.05)}
+.oc-b{padding:14px 20px}
+
+/* Maintenance */
+.mt-card{background:rgba(255,255,255,.015);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;transition:.2s}
+.mt-card:hover{border-color:var(--border2)}
+.mt-new{border-right:3px solid var(--blue)}.mt-prog{border-right:3px solid var(--yellow)}
+.mt-done{border-right:3px solid var(--green)}.mt-rej{border-right:3px solid var(--red)}
+
+/* Audit log */
+.log-entry{padding:10px 14px;border-radius:8px;margin-bottom:5px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.02);font-size:11px}
+
+/* Notification bell */
+.bell{position:relative;cursor:pointer}.bell-count{position:absolute;top:-4px;right:-6px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-size:8px;font-weight:800;border-radius:10px;padding:1px 4px;min-width:14px;text-align:center}
+
+/* Print */
+@media print{.hd,.tb,.b,.ut,.svb,.no-print{display:none!important}.mn{padding:0!important}*{color:#000!important;background:#fff!important;border-color:#ddd!important}.kpi{border:1px solid #ddd!important}th{background:#f5f0e0!important;color:#333!important}}
+@media(max-width:768px){.mn{padding:14px 16px;padding-bottom:70px}.fg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ═══════════════════════════════════════════
+   نظام إدارة العقارات — المرحلة الأولى والثانية
+   بهو المدينة للتأسيس والتشغيل العقاري
+   ═══════════════════════════════════════════ */
+
+// ═══ Utilities ═══
+const $=n=>(n||0).toLocaleString('ar-SA');
+const R=n=>`${$(n)} ر.س`;
+const P=n=>`${Math.round((n||0)*100)}%`;
+const DL=e=>{try{return Math.max(0,Math.round((new Date(e)-new Date())/864e5))}catch{return 0}};
+const ID=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const TD=()=>new Date().toISOString().split('T')[0];
+const TS=()=>new Date().toLocaleString('ar-SA',{dateStyle:'short',timeStyle:'short'});
+const iP=i=>(i.py||[]).reduce((s,p)=>s+(p.a||0),0);
+const iR=i=>Math.max(0,(i.am||0)-iP(i));
+const iF=i=>iR(i)<=0;
+const gDD=(s,c)=>{if(!c||!s)return[];const d=new Date(s),v=Math.round(12/c),r=[];for(let i=0;i<c;i++){const x=new Date(d);x.setMonth(x.getMonth()+v*i);r.push(x.toISOString().split('T')[0])}return r};
+const h=s=>s.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ═══ Constants ═══
+const ET=['صيانة','كهرباء','مياه','نظافة','سباكة','دهانات','أجهزة','إدارية','تأمين','أخرى'];
+const PM=['تحويل بنكي','كاش','منصة ايجار','شيك','حوالة'];
+const US=['مستأجرة','شاغرة','صيانة','محجوزة'];
+const PS=['مسدد','غير مسدد','جزئي'];
+const PT=['سكني','تجاري','مكتبي','فندقي','مختلط'];
+const MS=['جديد','قيد التنفيذ','مكتمل','مرفوض']; // Maintenance statuses
+const MP=['عادي','متوسط','عاجل','طارئ']; // Maintenance priority
+
+// ═══ State ═══
+let state = {
+  ow:[{id:'o1',nm:'بهو المدينة',ph:'0500000000',nt:'بهو المدينة للتأسيس والتشغيل العقاري'}],
+  pr:[{id:'p1',oI:'o1',nm:'عمارة الممشى',loc:'المدينة المنورة',tp:'سكني'}],
+  un:[
+    {id:'u1',pI:'p1',nm:'شقة 1',cn:'10135318068',tn:'يوسف الفيروز شركة',us:'مستأجرة',ds:'2026-01-01',de:'2026-12-30',pm:'منصة ايجار',v:22000,ni:1,ph:'509355566'},
+    {id:'u2',pI:'p1',nm:'شقة 2',cn:'10065470490',tn:'أسامة النهاري',us:'مستأجرة',ds:'2026-01-01',de:'2026-12-30',pm:'تحويل بنكي',v:22000,ni:4,ph:'598457112'},
+    {id:'u3',pI:'p1',nm:'شقة 3',cn:'10883046495',tn:'عبدالله احمد',us:'مستأجرة',ds:'2026-01-01',de:'2026-12-30',pm:'منصة ايجار',v:26000,ni:4,ph:''},
+    {id:'u4',pI:'p1',nm:'شقة 4',cn:'10534198899',tn:'حاتم الحربي',us:'مستأجرة',ds:'2026-01-01',de:'2026-12-30',pm:'تحويل بنكي',v:26000,ni:2,ph:''},
+    {id:'u5',pI:'p1',nm:'شقة 5',cn:'',tn:'محمد حسين',us:'مستأجرة',ds:'2026-01-01',de:'2026-12-30',pm:'',v:26000,ni:0,ph:''},
+    {id:'u6',pI:'p1',nm:'شقة 6',cn:'10597253591',tn:'محمد خان',us:'مستأجرة',ds:'2026-01-01',de:'2026-12-30',pm:'منصة ايجار',v:27000,ni:2,ph:''},
+    {id:'u7',pI:'p1',nm:'شقة 7',cn:'',tn:'علي الشمراني',us:'مستأجرة',ds:'2026-01-01',de:'2026-12-30',pm:'',v:27000,ni:0,ph:''},
+  ],
+  ins:[], ex:[
+    {id:'e1',pI:'p1',un:'شقة 1',dt:'2026-02-10',tp:'صيانة',ds:'إصلاح تسريب مياه',am:1500,ps:'مسدد'},
+    {id:'e2',pI:'p1',un:'شقة 1',dt:'2026-02-15',tp:'كهرباء',ds:'تركيب مكيف سبليت',am:3200,ps:'مسدد'},
+    {id:'e3',pI:'p1',un:'شقة 3',dt:'2026-03-01',tp:'سباكة',ds:'صيانة حمام',am:800,ps:'مسدد'},
+    {id:'e4',pI:'p1',un:'شقة 4',dt:'2026-03-05',tp:'دهانات',ds:'دهان صالة',am:2500,ps:'غير مسدد'},
+    {id:'e5',pI:'p1',un:'شقة 6',dt:'2026-03-10',tp:'أجهزة',ds:'سخان مياه',am:1800,ps:'مسدد'},
+    {id:'e6',pI:'p1',un:'شقة 2',dt:'2026-03-15',tp:'نظافة',ds:'تنظيف شامل',am:600,ps:'مسدد'},
+  ],
+  // Phase 2: Maintenance
+  mt:[
+    {id:'m1',pI:'p1',un:'شقة 1',tp:'سباكة',ds:'تسريب مياه في المطبخ',pr:'عاجل',st:'مكتمل',dt:'2026-02-08',dd:'2026-02-10',vnd:'مؤسسة الصيانة',cost:1500,nt:'تم الإصلاح'},
+    {id:'m2',pI:'p1',un:'شقة 4',tp:'دهانات',ds:'دهان صالة الاستقبال',pr:'عادي',st:'قيد التنفيذ',dt:'2026-03-01',dd:'',vnd:'معلم الدهانات',cost:2500,nt:''},
+    {id:'m3',pI:'p1',un:'شقة 6',tp:'كهرباء',ds:'صيانة مكيف سبليت',pr:'متوسط',st:'جديد',dt:'2026-03-18',dd:'',vnd:'',cost:0,nt:'المستأجر أبلغ عن ضعف التبريد'},
+  ],
+  // Phase 2: Audit Log
+  log:[],
+  // Nav
+  vw:'home',aO:null,aP:null,aU:null,pt:'d',
+  ml:null,fm:{},mp:null,eI:null,
+  drt:false,lsv:'',
+};
+
+// Build initial installments
+function buildIns(){
+  const data=[
+    {u:'u1',d:['2026-01-01'],a:22000,p:[[{d:'2026-01-15',a:22000,m:'منصة ايجار'}]]},
+    {u:'u2',d:['2026-01-01','2026-04-01','2026-07-01','2026-10-01'],a:5500,p:[[{d:'2026-01-10',a:5500,m:'تحويل بنكي'}],[],[],[]]},
+    {u:'u3',d:['2026-01-01','2026-04-01','2026-07-01','2026-10-01'],a:6500,p:[[{d:'2026-01-08',a:6500,m:'منصة ايجار'}],[],[],[]]},
+    {u:'u4',d:['2026-01-01','2026-07-01'],a:13000,p:[[{d:'2026-01-05',a:13000,m:'تحويل بنكي'}],[{d:'2026-07-03',a:7000,m:'تحويل بنكي'}]]},
+    {u:'u6',d:['2026-01-01','2026-07-01'],a:13500,p:[[{d:'2026-01-12',a:13500,m:'منصة ايجار'}],[]]},
+  ];
+  const r=[];
+  data.forEach(x=>x.d.forEach((dt,i)=>r.push({id:ID(),uI:x.u,num:i+1,dd:dt,am:x.a,py:x.p[i]||[]})));
+  return r;
+}
+state.ins = buildIns();
+
+// ═══ Storage ═══
+const SK='baho-pms-v3';
+function saveLS(){
+  try{
+    const d={ow:state.ow,pr:state.pr,un:state.un,ins:state.ins,ex:state.ex,mt:state.mt,log:state.log,brk:state.brk,brkLinks:state.brkLinks,prj:state.prj,lsv:TS()};
+    localStorage.setItem(SK,JSON.stringify(d));
+    state.lsv=d.lsv;state.drt=false;
+    return true;
+  }catch(e){return false}
+}
+function loadLS(){
+  try{
+    const s=localStorage.getItem(SK);
+    if(s){const d=JSON.parse(s);if(d.ow){
+      state.ow=d.ow;state.pr=d.pr;state.un=d.un;state.ins=d.ins;state.ex=d.ex;
+      state.mt=d.mt||[];state.log=d.log||[];state.brk=d.brk||[];state.brkLinks=d.brkLinks||[];state.prj=d.prj||[];state.lsv=d.lsv||'';return true;
+    }}
+  }catch(e){}return false;
+}
+
+// Auto-save
+let autoSaveTimer=null;
+function markDirty(){state.drt=true;clearTimeout(autoSaveTimer);autoSaveTimer=setTimeout(()=>{saveLS();render()},90000)}
+
+// ═══ Audit Log (Phase 2) ═══
+function addLog(action, entity, entityId, details){
+  state.log.unshift({id:ID(),dt:TS(),action,entity,entityId,details});
+  if(state.log.length>200) state.log=state.log.slice(0,200); // keep last 200
+}
+
+// ═══ Navigation ═══
+function goH(){state.vw='home';state.aO=null;state.aP=null;state.aU=null;render()}
+function goO(id){state.aO=id;state.aP=null;state.aU=null;state.vw='owner';render()}
+function goP(id){const p=state.pr.find(x=>x.id===id);if(p?.oI)state.aO=p.oI;state.aP=id;state.aU=null;state.vw='prop';state.pt='d';render()}
+function goU(id){const u=state.un.find(x=>x.id===id);if(u){const p=state.pr.find(x=>x.id===u.pI);if(p){state.aP=p.id;if(p.oI)state.aO=p.oI}}state.aU=id;state.vw='unit';state.eI=null;render()}
+
+// ═══ Data Lookups ═══
+const oPs=o=>state.pr.filter(p=>p.oI===o);
+const pUs=p=>state.un.filter(u=>u.pI===p);
+const uIns=u=>state.ins.filter(i=>i.uI===u).sort((a,b)=>a.num-b.num);
+const uTP=u=>uIns(u).reduce((s,i)=>s+iP(i),0);
+const pExs=p=>state.ex.filter(e=>e.pI===p);
+const uExs=(p,n)=>state.ex.filter(e=>e.pI===p&&e.un===n);
+const uExT=(p,n)=>uExs(p,n).reduce((s,e)=>s+e.am,0);
+const pMts=p=>state.mt.filter(m=>m.pI===p);
+const uMts=(p,n)=>state.mt.filter(m=>m.pI===p&&m.un===n);
+
+function pSt(pId){
+  const us=pUs(pId),es=pExs(pId),mts=pMts(pId);
+  const tv=us.reduce((s,u)=>s+u.v,0),tp=us.reduce((s,u)=>s+uTP(u.id),0),te=es.reduce((s,e)=>s+e.am,0);
+  const aI=us.flatMap(u=>uIns(u.id)),fi=aI.filter(iF).length;
+  return{n:us.length,tv,tp,rm:tv-tp,rt:tv?tp/tv:0,te,nt:tp-te,
+    rn:us.filter(u=>u.us==='مستأجرة').length,vc:us.filter(u=>u.us==='شاغرة').length,
+    fi,ti:aI.length,od:aI.filter(i=>!iF(i)&&new Date(i.dd)<new Date()).length,
+    mtn:mts.filter(m=>m.st==='جديد').length,mtp:mts.filter(m=>m.st==='قيد التنفيذ').length,
+    mtd:mts.filter(m=>m.st==='مكتمل').length,mtc:mts.length,
+    pe:es.filter(e=>e.ps==='مسدد').reduce((s,e)=>s+e.am,0),
+    ue:es.filter(e=>e.ps!=='مسدد').reduce((s,e)=>s+e.am,0),ec:es.length};
+}
+function oSt(o){const ps=oPs(o);let tv=0,tp=0,te=0,n=0,rn=0,vc=0;
+  ps.forEach(p=>{const s=pSt(p.id);tv+=s.tv;tp+=s.tp;te+=s.te;n+=s.n;rn+=s.rn;vc+=s.vc});
+  return{pc:ps.length,n,tv,tp,rm:tv-tp,rt:tv?tp/tv:0,te,nt:tp-te,rn,vc}}
+function gS(){
+  const tv=state.un.reduce((s,u)=>s+u.v,0),tp=state.un.reduce((s,u)=>s+uTP(u.id),0),te=state.ex.reduce((s,e)=>s+e.am,0);
+  return{oc:state.ow.length,pc:state.pr.length,uc:state.un.length,tv,tp,rm:tv-tp,rt:tv?tp/tv:0,te,nt:tp-te,
+    rn:state.un.filter(u=>u.us==='مستأجرة').length,vc:state.un.filter(u=>u.us==='شاغرة').length,
+    mtn:state.mt.filter(m=>m.st==='جديد').length,mtp:state.mt.filter(m=>m.st==='قيد التنفيذ').length}}
+function getAlerts(){
+  const r=[];state.un.forEach(u=>{const p=state.pr.find(x=>x.id===u.pI);
+    uIns(u.id).filter(i=>!iF(i)).forEach(i=>{const o=new Date(i.dd)<new Date(),d=o?Math.round((new Date()-new Date(i.dd))/864e5):Math.round((new Date(i.dd)-new Date())/864e5);
+    r.push({...i,tn:u.tn,unm:u.nm,ph:u.ph,pnm:p?.nm||'',pI:u.pI,uId:u.id,o,d,rm2:iR(i),pd2:iP(i)})})});
+  // Contract expiry alerts
+  state.un.forEach(u=>{if(u.de){const days=DL(u.de);if(days<=30&&days>0){const p=state.pr.find(x=>x.id===u.pI);
+    r.push({id:'cx-'+u.id,type:'contract',unm:u.nm,tn:u.tn,pnm:p?.nm||'',days,de:u.de})}}});
+  return r.sort((a,b)=>{if(a.type==='contract')return 1;if(b.type==='contract')return -1;return new Date(a.dd||'9999')-new Date(b.dd||'9999')});
+}
+
+// ═══ CRUD Operations ═══
+function svEntity(t,d,eId){
+  if(t==='o'){if(eId){const idx=state.ow.findIndex(x=>x.id===eId);if(idx>=0){addLog('تعديل','مالك',eId,`تعديل: ${d.nm}`);state.ow[idx]={...d,id:eId}}}else{const nid=ID();state.ow.push({...d,id:nid});addLog('إضافة','مالك',nid,`مالك جديد: ${d.nm}`)}}
+  if(t==='p'){if(eId){const idx=state.pr.findIndex(x=>x.id===eId);if(idx>=0){addLog('تعديل','عقار',eId,`تعديل: ${d.nm}`);state.pr[idx]={...d,id:eId}}}else{const nid=ID();state.pr.push({...d,id:nid});addLog('إضافة','عقار',nid,`عقار جديد: ${d.nm}`)}}
+  if(t==='u'){if(eId){const idx=state.un.findIndex(x=>x.id===eId);if(idx>=0){addLog('تعديل','وحدة',eId,`تعديل: ${d.nm}`);state.un[idx]={...d,id:eId}}}else{const nid=ID();state.un.push({...d,id:nid});gDD(d.ds,d.ni).forEach((dt,i)=>state.ins.push({id:ID(),uI:nid,num:i+1,dd:dt,am:d.ni>0?Math.round(d.v/d.ni):0,py:[]}));addLog('إضافة','وحدة',nid,`وحدة جديدة: ${d.nm}`)}}
+  if(t==='e'){if(eId){const idx=state.ex.findIndex(x=>x.id===eId);if(idx>=0){state.ex[idx]={...d,id:eId};addLog('تعديل','مصروف',eId,d.ds)}}else{const nid=ID();state.ex.push({...d,id:nid});addLog('إضافة','مصروف',nid,`${d.tp}: ${d.ds}`)}}
+  if(t==='mt'){if(eId){const idx=state.mt.findIndex(x=>x.id===eId);if(idx>=0){state.mt[idx]={...d,id:eId};addLog('تعديل','صيانة',eId,d.ds)}}else{const nid=ID();state.mt.push({...d,id:nid});addLog('إضافة','صيانة',nid,`${d.tp}: ${d.ds}`)}}
+  if(t==='brk'){if(eId){const idx=state.brk.findIndex(x=>x.id===eId);if(idx>=0){state.brk[idx]={...d,id:eId};addLog('تعديل','وسيط',eId,d.nm)}}else{const nid=ID();state.brk.push({...d,id:nid});addLog('إضافة','وسيط',nid,d.nm)}}
+  if(t==='bl'){if(eId){const idx=state.brkLinks.findIndex(x=>x.id===eId);if(idx>=0){state.brkLinks[idx]={...d,id:eId}}}else{state.brkLinks.push({...d,id:ID()});addLog('إضافة','عمولة وسيط',d.brkId,`${R(d.commAmt)}`)}}
+  if(t==='prj'){if(eId){const idx=state.prj.findIndex(x=>x.id===eId);if(idx>=0){state.prj[idx]={...d,id:eId};addLog('تعديل','مشروع',eId,d.nm)}}else{const nid=ID();state.prj.push({...d,id:nid,phases:d.phases||[]});addLog('إضافة','مشروع',nid,d.nm)}}
+  state.ml=null;markDirty();render();
+}
+function dlEntity(t,id){
+  if(t==='o'){const pids=state.pr.filter(p=>p.oI===id).map(p=>p.id);const uids=state.un.filter(u=>pids.includes(u.pI)).map(u=>u.id);addLog('حذف','مالك',id,state.ow.find(x=>x.id===id)?.nm);state.ow=state.ow.filter(x=>x.id!==id);state.pr=state.pr.filter(x=>x.oI!==id);state.un=state.un.filter(x=>!pids.includes(x.pI));state.ins=state.ins.filter(x=>!uids.includes(x.uI));state.ex=state.ex.filter(x=>!pids.includes(x.pI));state.mt=state.mt.filter(x=>!pids.includes(x.pI));if(state.aO===id)goH();else{markDirty();render()}}
+  if(t==='p'){const uids=state.un.filter(u=>u.pI===id).map(u=>u.id);addLog('حذف','عقار',id,state.pr.find(x=>x.id===id)?.nm);state.pr=state.pr.filter(x=>x.id!==id);state.un=state.un.filter(x=>x.pI!==id);state.ins=state.ins.filter(x=>!uids.includes(x.uI));state.ex=state.ex.filter(x=>x.pI!==id);state.mt=state.mt.filter(x=>x.pI!==id);if(state.aP===id){state.aO?goO(state.aO):goH()}else{markDirty();render()}}
+  if(t==='u'){addLog('حذف','وحدة',id,state.un.find(x=>x.id===id)?.nm);state.ins=state.ins.filter(x=>x.uI!==id);state.un=state.un.filter(x=>x.id!==id);if(state.aU===id){state.vw='prop';state.aU=null}markDirty();render()}
+  if(t==='e'){addLog('حذف','مصروف',id,'');state.ex=state.ex.filter(x=>x.id!==id);markDirty();render()}
+  if(t==='mt'){addLog('حذف','صيانة',id,'');state.mt=state.mt.filter(x=>x.id!==id);markDirty();render()}
+  if(t==='brk'){state.brkLinks=state.brkLinks.filter(x=>x.brkId!==id);addLog('حذف','وسيط',id,'');state.brk=state.brk.filter(x=>x.id!==id);markDirty();render()}
+  if(t==='bl'){state.brkLinks=state.brkLinks.filter(x=>x.id!==id);markDirty();render()}
+  if(t==='prj'){addLog('حذف','مشروع',id,'');state.prj=state.prj.filter(x=>x.id!==id);markDirty();render()}
+}
+
+// Payment operations
+function addPay(instId,d){
+  const i=state.ins.find(x=>x.id===instId);if(!i)return;
+  const rm=iR(i),a=Math.min(Number(d.amount)||0,rm);if(a<=0)return;
+  if(!i.py)i.py=[];i.py.push({d:d.date||TD(),a,m:d.method||'',n:d.notes||''});
+  addLog('دفعة','دفعة',instId,`${R(a)}`);
+  state.ml=null;markDirty();render();
+}
+function rmPay(instId,idx){const i=state.ins.find(x=>x.id===instId);if(i?.py){i.py.splice(idx,1);addLog('حذف دفعة','دفعة',instId,'');markDirty();render()}}
+function payAll(instId){const i=state.ins.find(x=>x.id===instId);if(i){const rm=iR(i);if(rm>0){if(!i.py)i.py=[];i.py.push({d:TD(),a:rm,m:''});addLog('إكمال دفعة','دفعة',instId,R(rm));markDirty();render()}}}
+function edtAmt(instId,a){const i=state.ins.find(x=>x.id===instId);if(i){i.am=Number(a)||0;state.ml=null;markDirty();render()}}
+function addInst(uId,d){const e=uIns(uId);state.ins.push({id:ID(),uI:uId,num:e.length>0?Math.max(...e.map(x=>x.num))+1:1,dd:d.dueDate,am:Number(d.amount),py:[]});state.ml=null;markDirty();render()}
+function delIns(id){state.ins=state.ins.filter(i=>i.id!==id);markDirty();render()}
+
+// Export/Import
+function expJSON(){
+  const b=new Blob([JSON.stringify({ow:state.ow,pr:state.pr,un:state.un,ins:state.ins,ex:state.ex,mt:state.mt,log:state.log,brk:state.brk,brkLinks:state.brkLinks,prj:state.prj,dt:new Date().toISOString(),v:4},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`عقارات_${TD()}.json`;a.click()}
+function impJSON(e){
+  const f=e.target.files?.[0];if(!f)return;
+  const rd=new FileReader();rd.onload=ev=>{try{const d=JSON.parse(ev.target.result);
+    if(d.ow&&d.pr){if(confirm('سيتم استبدال جميع البيانات. متأكد؟')){
+      state.ow=d.ow;state.pr=d.pr;state.un=d.un||[];state.ins=d.ins||[];state.ex=d.ex||[];state.mt=d.mt||[];state.log=d.log||[];state.brk=d.brk||[];state.brkLinks=d.brkLinks||[];state.prj=d.prj||[];
+      saveLS();render();alert('✓ تم الاستيراد بنجاح')}}
+  }catch{alert('ملف غير صالح')}};rd.readAsText(f);e.target.value=''}
+
+// ═══ KPI Component ═══
+function kpiHTML(items,cols='repeat(auto-fill,minmax(115px,1fr))'){
+  return `<div class="kpi-grid" style="grid-template-columns:${cols}">${items.map(k=>`<div class="kpi"><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('')}</div>`}
+
+// ═══ RENDER ═══
+function render(){
+  const app=document.getElementById('app');
+  const als=getAlerts();
+  const gs=gS();
+  const cO=state.aO?state.ow.find(x=>x.id===state.aO):null;
+  const cP=state.aP?state.pr.find(x=>x.id===state.aP):null;
+  const cU=state.aU?state.un.find(x=>x.id===state.aU):null;
+  const cUs=state.aP?pUs(state.aP):[];
+  const cEs=state.aP?pExs(state.aP):[];
+  const cS=state.aP?pSt(state.aP):{n:0,tv:0,tp:0,rm:0,rt:0,te:0,nt:0,rn:0,vc:0,fi:0,ti:0,od:0,mtn:0,mtp:0,mtd:0,mtc:0};
+
+  let html='';
+
+  // ═══ HEADER ═══
+  html+=`<div class="hd"><div class="bc">
+    <span class="${state.vw==='home'?'on':''}" onclick="goH()">🏠 الرئيسية</span>
+    ${cO?`<span style="color:rgba(201,169,110,.15)">‹</span><span class="${state.vw==='owner'?'on':''}" onclick="goO('${cO.id}')">${h(cO.nm)}</span>`:''}
+    ${cP?`<span style="color:rgba(201,169,110,.15)">‹</span><span class="${state.vw==='prop'?'on':''}" onclick="goP('${cP.id}')">${h(cP.nm)}</span>`:''}
+    ${cU?`<span style="color:rgba(201,169,110,.15)">‹</span><span class="on">${h(cU.nm)}</span>`:''}
+  </div><div class="hd-actions">
+    ${state.drt?'<span style="font-size:9px;color:#facc15;font-weight:600">● غير محفوظ</span>':''}
+    <button class="b sv sm" onclick="saveLS();render()">💾 حفظ</button>
+    <div class="bell" onclick="state.vw='al';render()"><span style="font-size:17px">🔔</span>${als.length>0?`<div class="bell-count">${als.length}</div>`:''}</div>
+  </div></div>`;
+
+  // ═══ SAVE BAR ═══
+  html+=`<div class="svb"><div style="display:flex;align-items:center;gap:10px">
+    <button class="b sv" onclick="saveLS();render()" style="padding:8px 20px;font-size:12px">💾 حفظ البيانات</button>
+    ${state.drt?'<span style="font-size:10px;color:#facc15;font-weight:600">● تغييرات غير محفوظة</span>':state.lsv?`<span style="font-size:10px;color:#4ade80">✓ آخر حفظ: ${state.lsv}</span>`:''}
+  </div><div style="display:flex;gap:5px">
+    <button class="b gh sm" onclick="expJSON()">📥 تصدير</button>
+    <button class="b gh sm" onclick="document.getElementById('impFile').click()">📤 استيراد</button>
+    <input type="file" id="impFile" accept=".json" style="display:none" onchange="impJSON(event)">
+  </div></div>`;
+
+  html+='<div class="mn">';
+
+  // ═══════════════ VIEWS ═══════════════
+
+  // ═══ ALERTS ═══
+  if(state.vw==='al'){
+    const payAlerts=als.filter(a=>!a.type);
+    const cxAlerts=als.filter(a=>a.type==='contract');
+    html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div><h1 style="font-size:20px;font-weight:900;color:var(--gold)">🔔 التنبيهات والتذكيرات</h1>
+      <p style="color:var(--txt3);font-size:11px;margin-top:3px">${als.length} تنبيه</p></div>
+      <button class="b gh" onclick="goH()">→ الرئيسية</button></div>`;
+
+    if(payAlerts.length>0){
+      html+=`<div class="st">💰 دفعات مستحقة (${payAlerts.length})</div>`;
+      payAlerts.forEach(a=>{
+        html+=`<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;margin-bottom:6px;background:${a.o?'rgba(239,68,68,.03)':'rgba(234,179,8,.03)'};border-right:3px solid ${a.o?'var(--red)':'var(--yellow)'};border:1px solid rgba(255,255,255,.02)">
+          <div style="flex:1"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:2px">
+            <b style="color:var(--gold);font-size:11.5px">${h(a.unm)}</b><span style="color:var(--txt4);font-size:10px">|</span><span style="font-size:10.5px;color:var(--txt3)">${h(a.pnm)}</span>
+            <span class="bd ${a.o?'bdr':'bdy'}">${a.o?`⚠ متأخرة ${a.d} يوم`:`بعد ${a.d} يوم`}</span></div>
+          <div style="font-size:10.5px;color:var(--txt2)">${h(a.tn)} • الدفعة ${a.num} • المتبقي: <b style="color:var(--red)">${R(a.rm2)}</b></div></div>
+          <button class="b gn" onclick="state.ml='pp';state.fm={instId:'${a.id}',amount:${a.rm2},date:'${TD()}',method:'',notes:''};render()">💰 دفع</button></div>`;
+      });
+    }
+
+    if(cxAlerts.length>0){
+      html+=`<div class="st" style="margin-top:16px">📋 عقود قاربت على الانتهاء (${cxAlerts.length})</div>`;
+      cxAlerts.forEach(a=>{
+        html+=`<div style="padding:12px 14px;border-radius:10px;margin-bottom:6px;background:rgba(168,85,247,.03);border-right:3px solid var(--purple);border:1px solid rgba(255,255,255,.02)">
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:2px">
+            <b style="color:var(--gold);font-size:11.5px">${h(a.unm)}</b><span style="font-size:10.5px;color:var(--txt3)">${h(a.pnm)}</span>
+            <span class="bd bdp">⏰ ينتهي بعد ${a.days} يوم</span></div>
+          <div style="font-size:10.5px;color:var(--txt2)">${h(a.tn)} • ينتهي: ${a.de}</div></div>`;
+      });
+    }
+
+    if(als.length===0) html+=`<div class="cd" style="text-align:center;padding:30px;color:var(--green);font-weight:700;font-size:14px">✓ لا توجد تنبيهات — كل شيء على ما يرام</div>`;
+  }
+
+  // ═══ HOME ═══
+  else if(state.vw==='home'){
+    html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px">
+      <div><h1 style="font-size:22px;font-weight:900;background:var(--gold-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent">نظام إدارة العقارات</h1>
+      <p style="color:var(--txt4);font-size:11px;margin-top:3px">المرحلة الأولى والثانية — إدارة متكاملة</p></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${als.length>0?`<button class="b wa sm" onclick="state.vw='al';render()">🔔 ${als.length} تنبيه</button>`:''}
+        <button class="b bg_" onclick="state.fm={nm:'',ph:'',nt:''};state.ml='aO';render()">+ مالك</button>
+        <button class="b gh" onclick="state.fm={oI:'',nm:'',loc:'',tp:'سكني'};state.ml='aPr';render()">+ عقار مستقل</button>
+        <button class="b gh" onclick="state.vw='brokers';render()">👥 الوسطاء</button>
+        <button class="b gh" onclick="state.vw='projects';render()">🏗️ المشاريع</button>
+      </div></div>`;
+
+    html+=kpiHTML([
+      {l:'الملاك',v:gs.oc,c:'var(--purple)'},{l:'العقارات',v:gs.pc,c:'var(--blue)'},{l:'الوحدات',v:gs.uc,c:'var(--gold)'},
+      {l:'مستأجرة',v:gs.rn,c:'var(--green)'},{l:'شاغرة',v:gs.vc,c:gs.vc>0?'var(--red)':'var(--green)'},
+      {l:'إجمالي الإيجارات',v:R(gs.tv),c:'var(--gold)'},{l:'المدفوع',v:R(gs.tp),c:'var(--green)'},{l:'المتبقي',v:R(gs.rm),c:'var(--red)'},
+      {l:'المصاريف',v:R(gs.te),c:'var(--orange)'},{l:'صافي الدخل',v:R(gs.nt),c:gs.nt>=0?'var(--green)':'var(--red)'},
+      {l:'طلبات صيانة جديدة',v:gs.mtn,c:gs.mtn>0?'var(--blue)':'var(--green)'},{l:'نسبة التحصيل',v:P(gs.rt),c:'var(--yellow)'}
+    ]);
+
+    // Owners
+    if(state.ow.length>0){
+      html+=`<div class="st">👤 الملاك (${state.ow.length})</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:12px;margin-bottom:24px">`;
+      state.ow.forEach(o=>{const s=oSt(o.id),ps=oPs(o.id);
+        html+=`<div class="oc" onclick="goO('${o.id}')"><div class="oc-h"><div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:16px;font-weight:900;color:var(--gold)">👤 ${h(o.nm)}</div>
+          ${o.nt?`<div style="font-size:10px;color:var(--txt4);margin-top:2px">${h(o.nt)}</div>`:''}
+          <div style="margin-top:5px">${ps.map(p=>`<span class="bd bdb" style="margin-left:3px;font-size:9px">${h(p.nm)}</span>`).join('')}${ps.length===0?'<span style="font-size:10px;color:var(--txt4)">لا توجد عقارات</span>':''}</div></div>
+          <div style="display:flex;gap:3px" onclick="event.stopPropagation()">
+            <button class="b gh sm" onclick="state.fm=${JSON.stringify(o).replace(/'/g,"\\'")}; state.ml='eO';render()">✏️</button>
+            <button class="b rd sm" onclick="if(confirm('حذف المالك وجميع عقاراته؟'))dlEntity('o','${o.id}')">🗑</button></div></div></div>
+          <div class="oc-b"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:10.5px">
+            <div>العقارات: <b style="color:var(--blue)">${s.pc}</b></div><div>الوحدات: <b style="color:var(--gold)">${s.n}</b></div><div>مستأجرة: <b style="color:var(--green)">${s.rn}</b></div>
+            <div>المدفوع: <b style="color:var(--green)">${$(s.tp)}</b></div><div>المتبقي: <b style="color:var(--red)">${$(s.rm)}</b></div><div>الصافي: <b style="color:${s.nt>=0?'var(--green)':'var(--red)'}">${$(s.nt)}</b></div></div>
+            <div class="pg" style="margin-top:8px"><div class="pf" style="width:${s.rt*100}%;background:${s.rt>=1?'linear-gradient(90deg,#4ade80,#22c55e)':'linear-gradient(90deg,#c9a96e,#a8853a)'}"></div></div></div></div>`;
+      });
+      html+=`</div>`;
+    }
+
+    // Standalone properties
+    const standalone=state.pr.filter(p=>!p.oI);
+    if(standalone.length>0){
+      html+=`<div class="st">🏢 عقارات مستقلة (${standalone.length})</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">`;
+      standalone.forEach(p=>{const s=pSt(p.id);
+        html+=`<div class="oc" onclick="goP('${p.id}')"><div class="oc-h"><div style="display:flex;justify-content:space-between"><div><div style="font-size:14px;font-weight:800;color:var(--gold)">${h(p.nm)}</div><div style="font-size:10px;color:var(--txt3)">${h(p.loc)} • ${h(p.tp)}</div></div>
+          <div style="display:flex;gap:3px" onclick="event.stopPropagation()"><button class="b gh sm" onclick="state.fm=${JSON.stringify(p).replace(/'/g,"\\'")}; state.ml='ePr';render()">✏️</button><button class="b rd sm" onclick="if(confirm('حذف؟'))dlEntity('p','${p.id}')">🗑</button></div></div></div>
+          <div class="oc-b"><div style="font-size:10.5px">الوحدات: <b>${s.n}</b> • المدفوع: <b style="color:var(--green)">${$(s.tp)}</b> • المتبقي: <b style="color:var(--red)">${$(s.rm)}</b></div>
+          <div class="pg" style="margin-top:5px"><div class="pf" style="width:${s.rt*100}%;background:linear-gradient(90deg,#c9a96e,#a8853a)"></div></div></div></div>`;
+      });
+      html+=`</div>`;
+    }
+  }
+
+  // ═══ BROKERS (Phase 4) ═══
+  else if(state.vw==='brokers'){
+    html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div><h1 style="font-size:20px;font-weight:900;color:var(--gold)">👥 إدارة الوسطاء والمسوقين</h1>
+      <p style="color:var(--txt3);font-size:11px;margin-top:3px">${state.brk.length} وسيط مسجل</p></div>
+      <div style="display:flex;gap:6px"><button class="b gh" onclick="goH()">→ الرئيسية</button>
+      <button class="b bg_" onclick="state.fm={nm:'',ph:'',email:'',comm:2.5,st:'نشط',nt:''};state.ml='aBrk';render()">+ وسيط جديد</button></div></div>`;
+
+    // Broker KPIs
+    const totalDeals=state.brkLinks.length;
+    const totalComm=state.brkLinks.reduce((s,l)=>s+(l.commAmt||0),0);
+    const paidComm=state.brkLinks.filter(l=>l.commPaid).reduce((s,l)=>s+(l.commAmt||0),0);
+    html+=kpiHTML([
+      {l:'إجمالي الوسطاء',v:state.brk.length,c:'var(--blue)'},{l:'الصفقات',v:totalDeals,c:'var(--gold)'},
+      {l:'إجمالي العمولات',v:R(totalComm),c:'var(--orange)'},{l:'العمولات المدفوعة',v:R(paidComm),c:'var(--green)'},
+      {l:'العمولات المستحقة',v:R(totalComm-paidComm),c:totalComm-paidComm>0?'var(--red)':'var(--green)'}
+    ],'repeat(auto-fill,minmax(130px,1fr))');
+
+    // Broker cards
+    if(state.brk.length===0) html+=`<div class="cd" style="text-align:center;padding:24px;color:var(--txt3)">لا يوجد وسطاء — أضف وسيط جديد</div>`;
+    else{
+      state.brk.forEach(brk=>{
+        const bs=brkStats(brk.id);
+        html+=`<div class="cd" style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div><div style="font-size:14px;font-weight:800;color:var(--gold)">👤 ${h(brk.nm)}</div>
+              <div style="font-size:10.5px;color:var(--txt2);margin-top:2px">${brk.ph?`📱 ${h(brk.ph)}`:''} ${brk.email?`• ✉ ${h(brk.email)}`:''}</div>
+              ${brk.nt?`<div style="font-size:10px;color:var(--txt3);margin-top:2px">${h(brk.nt)}</div>`:''}
+              <div style="margin-top:4px"><span class="bd ${brk.st==='نشط'?'bdg':'bdr'}">${h(brk.st)}</span> <span class="bd bdo">عمولة: ${brk.comm}%</span></div></div>
+            <div style="display:flex;gap:3px">
+              <button class="b gh sm" onclick="state.fm=${JSON.stringify(brk).replace(/'/g,"\\'")}; state.ml='eBrk';render()">✏️</button>
+              <button class="b rd sm" onclick="if(confirm('حذف الوسيط؟'))dlEntity('brk','${brk.id}')">🗑</button></div></div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin-bottom:10px">
+            <div class="kpi" style="padding:8px"><div class="kl">الصفقات</div><div class="kv" style="color:var(--blue);font-size:14px">${bs.deals}</div></div>
+            <div class="kpi" style="padding:8px"><div class="kl">العمولات</div><div class="kv" style="color:var(--orange);font-size:14px">${R(bs.totalComm)}</div></div>
+            <div class="kpi" style="padding:8px"><div class="kl">المدفوع</div><div class="kv" style="color:var(--green);font-size:14px">${R(bs.paidComm)}</div></div>
+            <div class="kpi" style="padding:8px"><div class="kl">المستحق</div><div class="kv" style="color:${bs.unpaidComm>0?'var(--red)':'var(--green)'};font-size:14px">${R(bs.unpaidComm)}</div></div></div>
+
+          ${bs.links.length>0?`<div style="font-size:10.5px;font-weight:700;color:var(--gold);margin-bottom:6px">سجل العمولات:</div>
+            <div class="tw"><table><thead><tr><th>الوحدة</th><th>العمولة</th><th>الحالة</th><th>التاريخ</th><th>ملاحظات</th><th></th></tr></thead><tbody>
+            ${bs.links.map(l=>{const u=state.un.find(x=>x.id===l.uId);return`<tr><td style="color:var(--gold)">${h(u?.nm||'—')}</td><td style="font-weight:600">${R(l.commAmt)}</td>
+              <td><span class="bd ${l.commPaid?'bdg':'bdr'}">${l.commPaid?'مدفوع':'مستحق'}</span></td><td>${l.dt||'—'}</td><td style="font-size:10px">${h(l.nt||'')}</td>
+              <td><button class="b rd sm" onclick="dlEntity('bl','${l.id}')">🗑</button></td></tr>`}).join('')}
+            </tbody></table></div>`:''}
+
+          <button class="b gh sm" style="margin-top:8px" onclick="state.fm={brkId:'${brk.id}',uId:'',commAmt:0,commPaid:false,dt:'${TD()}',nt:''};state.ml='aBL';render()">+ تسجيل عمولة</button>
+        </div>`;
+      });
+    }
+  }
+
+  // ═══ PROJECTS (Phase 4) ═══
+  else if(state.vw==='projects'){
+    html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div><h1 style="font-size:20px;font-weight:900;color:var(--gold)">🏗️ المشاريع تحت التطوير</h1>
+      <p style="color:var(--txt3);font-size:11px;margin-top:3px">${state.prj.length} مشروع</p></div>
+      <div style="display:flex;gap:6px"><button class="b gh" onclick="goH()">→ الرئيسية</button>
+      <button class="b bg_" onclick="state.fm={nm:'',loc:'',st:'تخطيط',budget:0,spent:0,startDt:'',endDt:'',nt:'',phases:[]};state.ml='aPrj';render()">+ مشروع جديد</button></div></div>`;
+
+    // Project KPIs
+    const totalBudget=state.prj.reduce((s,p)=>s+(p.budget||0),0);
+    const totalSpent=state.prj.reduce((s,p)=>{const ps=prjStats(p);return s+ps.spent},0);
+    html+=kpiHTML([
+      {l:'المشاريع',v:state.prj.length,c:'var(--blue)'},{l:'قيد التنفيذ',v:state.prj.filter(p=>p.st==='تنفيذ').length,c:'var(--yellow)'},
+      {l:'إجمالي الميزانيات',v:R(totalBudget),c:'var(--gold)'},{l:'المنصرف',v:R(totalSpent),c:'var(--orange)'},
+      {l:'المتبقي',v:R(totalBudget-totalSpent),c:totalBudget-totalSpent>=0?'var(--green)':'var(--red)'}
+    ],'repeat(auto-fill,minmax(130px,1fr))');
+
+    if(state.prj.length===0) html+=`<div class="cd" style="text-align:center;padding:24px;color:var(--txt3)">لا توجد مشاريع — أضف مشروع جديد</div>`;
+    else{
+      state.prj.forEach(pj=>{
+        const ps=prjStats(pj);
+        const stCls=pj.st==='مكتمل'?'bdg':pj.st==='تنفيذ'?'bdy':pj.st==='متوقف'?'bdr':'bdb';
+        html+=`<div class="cd" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div><div style="font-size:15px;font-weight:800;color:var(--gold)">🏗️ ${h(pj.nm)}</div>
+              <div style="font-size:10.5px;color:var(--txt2);margin-top:2px">📍 ${h(pj.loc||'—')}</div>
+              ${pj.nt?`<div style="font-size:10px;color:var(--txt3);margin-top:2px">${h(pj.nt)}</div>`:''}
+              <div style="margin-top:4px"><span class="bd ${stCls}">${h(pj.st)}</span></div></div>
+            <div style="display:flex;gap:3px">
+              <button class="b gh sm" onclick="state.fm=${JSON.stringify(pj).replace(/'/g,"\\'")}; state.ml='ePrj';render()">✏️</button>
+              <button class="b rd sm" onclick="if(confirm('حذف المشروع؟'))dlEntity('prj','${pj.id}')">🗑</button></div></div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-bottom:12px">
+            <div class="kpi" style="padding:8px"><div class="kl">الميزانية</div><div class="kv" style="color:var(--gold);font-size:14px">${R(pj.budget)}</div></div>
+            <div class="kpi" style="padding:8px"><div class="kl">المنصرف</div><div class="kv" style="color:var(--orange);font-size:14px">${R(ps.spent)}</div></div>
+            <div class="kpi" style="padding:8px"><div class="kl">المتبقي</div><div class="kv" style="color:${ps.remaining>=0?'var(--green)':'var(--red)'};font-size:14px">${R(ps.remaining)}</div></div>
+            <div class="kpi" style="padding:8px"><div class="kl">نسبة الإنجاز</div><div class="kv" style="color:var(--blue);font-size:14px">${P(ps.progress)}</div></div>
+            <div class="kpi" style="padding:8px"><div class="kl">البداية</div><div class="kv" style="color:var(--txt);font-size:12px">${pj.startDt||'—'}</div></div>
+            <div class="kpi" style="padding:8px"><div class="kl">النهاية المتوقعة</div><div class="kv" style="color:var(--txt);font-size:12px">${pj.endDt||'—'}</div></div></div>
+
+          ${pj.phases&&pj.phases.length>0?`<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px">📋 مراحل المشروع:</div>
+            <div style="display:grid;gap:6px">
+            ${pj.phases.map((ph,pi)=>{
+              const phCls=ph.st==='مكتمل'?'bdg':ph.st==='قيد التنفيذ'?'bdy':'bdb';
+              const phBg=ph.st==='مكتمل'?'rgba(34,197,94,.03)':ph.st==='قيد التنفيذ'?'rgba(234,179,8,.03)':'rgba(255,255,255,.01)';
+              return`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:${phBg};border:1px solid var(--border)">
+                <div style="width:26px;height:26px;border-radius:6px;background:${ph.st==='مكتمل'?'rgba(34,197,94,.15)':'rgba(255,255,255,.03)'};color:${ph.st==='مكتمل'?'var(--green)':'var(--txt3)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${ph.st==='مكتمل'?'✓':pi+1}</div>
+                <div style="flex:1"><div style="font-size:11.5px;font-weight:600">${h(ph.nm)}</div></div>
+                <span class="bd ${phCls}">${h(ph.st)}</span>
+                ${ph.cost>0?`<span style="font-size:11px;color:var(--orange);font-weight:600">${R(ph.cost)}</span>`:''}
+              </div>`;
+            }).join('')}</div>`:''}
+
+          <div class="pg" style="margin-top:12px;height:8px"><div class="pf" style="width:${ps.progress*100}%;background:${ps.progress>=1?'linear-gradient(90deg,#4ade80,#22c55e)':'linear-gradient(90deg,#c9a96e,#a8853a)'}"></div></div>
+        </div>`;
+      });
+    }
+  }
+
+  // ═══ OWNER ═══
+  else if(state.vw==='owner'&&cO){
+    const s=oSt(state.aO);
+    html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div><h1 style="font-size:20px;font-weight:900;color:var(--gold)">👤 ${h(cO.nm)}</h1>${cO.nt?`<p style="color:var(--txt3);font-size:11px">${h(cO.nt)}</p>`:''}</div>
+      <button class="b bg_" onclick="state.fm={oI:'${state.aO}',nm:'',loc:'',tp:'سكني'};state.ml='aPr';render()">+ إضافة عقار</button></div>`;
+    html+=kpiHTML([{l:'العقارات',v:s.pc,c:'var(--blue)'},{l:'الوحدات',v:s.n,c:'var(--gold)'},{l:'الإيجارات',v:R(s.tv),c:'var(--gold)'},{l:'المدفوع',v:R(s.tp),c:'var(--green)'},{l:'المتبقي',v:R(s.rm),c:'var(--red)'},{l:'المصاريف',v:R(s.te),c:'var(--orange)'},{l:'الصافي',v:R(s.nt),c:s.nt>=0?'var(--green)':'var(--red)'},{l:'التحصيل',v:P(s.rt),c:'var(--yellow)'}]);
+
+    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">`;
+    oPs(state.aO).forEach(p=>{const s2=pSt(p.id);
+      html+=`<div class="oc" onclick="goP('${p.id}')"><div class="oc-h"><div style="display:flex;justify-content:space-between"><div><div style="font-size:14px;font-weight:800;color:var(--gold)">${h(p.nm)}</div><div style="font-size:10px;color:var(--txt3)">${h(p.loc)} • ${h(p.tp)}</div></div>
+        <div style="display:flex;gap:3px" onclick="event.stopPropagation()"><button class="b gh sm" onclick="state.fm=${JSON.stringify(p).replace(/'/g,"\\'")}; state.ml='ePr';render()">✏️</button><button class="b rd sm" onclick="if(confirm('حذف؟'))dlEntity('p','${p.id}')">🗑</button></div></div></div>
+        <div class="oc-b"><div style="font-size:10.5px">الوحدات: <b>${s2.n}</b> (مستأجرة: <b style="color:var(--green)">${s2.rn}</b>) • المدفوع: <b style="color:var(--green)">${$(s2.tp)}</b></div>
+        <div class="pg" style="margin-top:5px"><div class="pf" style="width:${s2.rt*100}%;background:linear-gradient(90deg,#c9a96e,#a8853a)"></div></div></div></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // ═══ PROPERTY ═══
+  else if(state.vw==='prop'&&cP){
+    html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+      <div><h1 style="font-size:18px;font-weight:900;color:var(--gold)">${h(cP.nm)}</h1>
+      <p style="color:var(--txt3);font-size:10.5px">${h(cP.loc)} • ${h(cP.tp)}${cP.oI?` • ${h(state.ow.find(o=>o.id===cP.oI)?.nm||'')}`:''}</p></div>
+      <button class="b bg_" onclick="state.fm={pI:'${state.aP}',nm:'',cn:'',tn:'',us:'مستأجرة',ds:'',de:'',pm:'تحويل بنكي',v:0,ni:2,ph:''};state.ml='aU';render()">+ وحدة/شقة</button></div>`;
+
+    // Tabs — Phase 2+3
+    html+=`<div class="tb">
+      ${[{id:'d',i:'📊',l:'لوحة التحكم'},{id:'e',i:'💰',l:'المصاريف'},{id:'mt',i:'🔧',l:'الصيانة'},{id:'an',i:'📈',l:'التحليلات'},{id:'cc',i:'🏦',l:'مركز التكلفة'},{id:'fc',i:'🔮',l:'التنبؤ'},{id:'r',i:'📄',l:'التقارير'},{id:'lg',i:'📝',l:'سجل العمليات'}].map(t=>
+        `<div class="ti ${state.pt===t.id?'on':''}" onclick="state.pt='${t.id}';render()">${t.i} ${t.l}</div>`).join('')}</div>`;
+
+    // Dashboard
+    if(state.pt==='d'){
+      html+=kpiHTML([{l:'الوحدات',v:cS.n,c:'var(--blue)'},{l:'مستأجرة',v:cS.rn,c:'var(--green)'},{l:'شاغرة',v:cS.vc,c:cS.vc?'var(--red)':'var(--green)'},{l:'المدفوع',v:R(cS.tp),c:'var(--green)'},{l:'المتبقي',v:R(cS.rm),c:'var(--red)'},{l:'المصاريف',v:R(cS.te),c:'var(--orange)'},{l:'الصافي',v:R(cS.nt),c:cS.nt>=0?'var(--green)':'var(--red)'},{l:'طلبات صيانة',v:cS.mtc,c:'var(--blue)'}]);
+
+      if(cUs.length===0) html+=`<div class="cd" style="text-align:center;padding:28px;color:var(--txt3)">لا توجد وحدات — اضغط <b style="color:var(--gold)">+ وحدة/شقة</b></div>`;
+      else{
+        html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:10px">`;
+        cUs.forEach(u=>{const pd=uTP(u.id),ii=uIns(u.id),fi=ii.filter(iF).length,rt=u.v?pd/u.v:0;
+          html+=`<div class="cd ck" onclick="goU('${u.id}')">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;font-weight:800;color:var(--gold)">${h(u.nm)}</span><span class="bd ${u.us==='مستأجرة'?'bdg':u.us==='شاغرة'?'bdr':'bdy'}">${h(u.us)}</span></div>
+            <div style="font-size:10.5px;color:var(--txt2);margin-bottom:5px">${h(u.tn||'—')}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:10px">
+              <div>الإيجار: <b>${$(u.v)}</b></div><div>المدفوع: <b style="color:var(--green)">${$(pd)}</b></div>
+              <div>المتبقي: <b style="color:${u.v-pd>0?'var(--red)':'var(--green)'}">${$(u.v-pd)}</b></div><div>الدفعات: <b style="color:var(--blue)">${fi}/${ii.length}</b></div></div>
+            <div class="pg" style="margin-top:6px"><div class="pf" style="width:${rt*100}%;background:${rt>=1?'linear-gradient(90deg,#4ade80,#22c55e)':'linear-gradient(90deg,#c9a96e,#a8853a)'}"></div></div></div>`;
+        });
+        html+=`</div>`;
+      }
+    }
+
+    // Expenses
+    else if(state.pt==='e'){
+      html+=`<div style="display:flex;justify-content:space-between;margin-bottom:10px"><div class="st" style="margin:0">💰 المصاريف (${cEs.length})</div>
+        <button class="b bg_" onclick="state.fm={pI:'${state.aP}',un:'',dt:'',tp:'صيانة',ds:'',am:0,ps:'مسدد'};state.ml='aE';render()">+ مصروف</button></div>`;
+      if(cEs.length===0) html+=`<div class="cd" style="text-align:center;padding:20px;color:var(--txt3)">لا توجد مصاريف</div>`;
+      else{
+        html+=`<div class="tw"><table><thead><tr><th>م</th><th>التاريخ</th><th>النوع</th><th>البيان</th><th>الوحدة</th><th>المبلغ</th><th>الحالة</th><th></th></tr></thead><tbody>`;
+        cEs.forEach((e,i)=>{
+          html+=`<tr><td>${i+1}</td><td>${e.dt}</td><td>${h(e.tp)}</td><td style="max-width:130px;overflow:hidden;text-overflow:ellipsis">${h(e.ds)}</td><td style="color:var(--gold);font-weight:600">${h(e.un)}</td><td style="font-weight:600">${$(e.am)}</td><td><span class="bd ${e.ps==='مسدد'?'bdg':'bdr'}">${h(e.ps)}</span></td>
+          <td><div style="display:flex;gap:2px"><button class="b gh sm" onclick="state.fm=${JSON.stringify(e).replace(/'/g,"\\'")}; state.ml='eE';render()">✏️</button><button class="b rd sm" onclick="dlEntity('e','${e.id}')">🗑</button></div></td></tr>`;
+        });
+        html+=`</tbody></table></div>`;
+      }
+    }
+
+    // ═══ MAINTENANCE (Phase 2) ═══
+    else if(state.pt==='mt'){
+      const mts=pMts(state.aP);
+      html+=`<div style="display:flex;justify-content:space-between;margin-bottom:12px"><div class="st" style="margin:0">🔧 طلبات الصيانة (${mts.length})</div>
+        <button class="b bg_" onclick="state.fm={pI:'${state.aP}',un:'',tp:'صيانة',ds:'',pr:'عادي',st:'جديد',dt:'${TD()}',dd:'',vnd:'',cost:0,nt:''};state.ml='aMt';render()">+ طلب صيانة</button></div>`;
+
+      // Maintenance KPIs
+      html+=kpiHTML([
+        {l:'إجمالي الطلبات',v:mts.length,c:'var(--blue)'},{l:'جديد',v:mts.filter(m=>m.st==='جديد').length,c:'var(--blue)'},
+        {l:'قيد التنفيذ',v:mts.filter(m=>m.st==='قيد التنفيذ').length,c:'var(--yellow)'},
+        {l:'مكتمل',v:mts.filter(m=>m.st==='مكتمل').length,c:'var(--green)'},
+        {l:'إجمالي التكاليف',v:R(mts.reduce((s,m)=>s+m.cost,0)),c:'var(--orange)'}
+      ],'repeat(auto-fill,minmax(100px,1fr))');
+
+      if(mts.length===0) html+=`<div class="cd" style="text-align:center;padding:20px;color:var(--txt3)">لا توجد طلبات صيانة</div>`;
+      else{
+        mts.forEach(m=>{
+          const cls=m.st==='جديد'?'mt-new':m.st==='قيد التنفيذ'?'mt-prog':m.st==='مكتمل'?'mt-done':'mt-rej';
+          const stCls=m.st==='جديد'?'bdb':m.st==='قيد التنفيذ'?'bdy':m.st==='مكتمل'?'bdg':'bdr';
+          const prCls=m.pr==='طارئ'||m.pr==='عاجل'?'bdr':m.pr==='متوسط'?'bdy':'bdb';
+          html+=`<div class="mt-card ${cls}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+              <div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
+                <b style="color:var(--gold);font-size:12px">${h(m.un)}</b>
+                <span class="bd ${stCls}">${h(m.st)}</span>
+                <span class="bd ${prCls}">${h(m.pr)}</span>
+                <span class="bd bdo">${h(m.tp)}</span></div>
+                <div style="font-size:12px;font-weight:600;margin-bottom:3px">${h(m.ds)}</div>
+                <div style="font-size:10.5px;color:var(--txt2)">تاريخ الطلب: ${m.dt}${m.dd?` • تاريخ الإنجاز: ${m.dd}`:''}</div>
+                ${m.vnd?`<div style="font-size:10.5px;color:var(--txt2)">المورد: ${h(m.vnd)}</div>`:''}
+                ${m.cost>0?`<div style="font-size:10.5px">التكلفة: <b style="color:var(--orange)">${R(m.cost)}</b></div>`:''}
+                ${m.nt?`<div style="font-size:10px;color:var(--txt3);margin-top:3px">📝 ${h(m.nt)}</div>`:''}
+              </div>
+              <div style="display:flex;gap:3px">
+                <button class="b gh sm" onclick="state.fm=${JSON.stringify(m).replace(/'/g,"\\'")}; state.ml='eMt';render()">✏️</button>
+                <button class="b rd sm" onclick="if(confirm('حذف؟'))dlEntity('mt','${m.id}')">🗑</button>
+              </div></div></div>`;
+        });
+      }
+    }
+
+    // ═══ ANALYTICS (Phase 3) ═══
+    else if(state.pt==='an'){
+      const k=calcKPIs(state.aP);
+      const bm=benchmarkAll();
+      html+=`<div class="st">📈 التحليلات ومؤشرات الأداء — ${h(cP.nm)}</div>`;
+
+      // KPIs
+      html+=`<div style="background:rgba(255,255,255,.015);border-radius:11px;padding:16px;margin-bottom:14px;border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:10px">📊 مؤشرات الأداء الرئيسية (KPIs)</div>`;
+      html+=kpiHTML([
+        {l:'العائد على الاستثمار (ROI)',v:P(k.roi),c:k.roi>0?'var(--green)':'var(--red)'},
+        {l:'معدل الإشغال',v:P(k.occRate),c:k.occRate>=0.8?'var(--green)':k.occRate>=0.5?'var(--yellow)':'var(--red)'},
+        {l:'كفاءة التحصيل',v:P(k.collectionEff),c:k.collectionEff>=0.8?'var(--green)':'var(--yellow)'},
+        {l:'نسبة المصاريف',v:P(k.expenseRatio),c:k.expenseRatio<=0.3?'var(--green)':'var(--red)'},
+        {l:'متوسط الإيجار/وحدة',v:R(k.avgRent),c:'var(--gold)'},
+        {l:'العائد لكل وحدة',v:R(k.revenuePerUnit),c:'var(--blue)'},
+        {l:'صافي الدخل',v:R(k.nt),c:k.nt>=0?'var(--green)':'var(--red)'},
+        {l:'مبالغ متأخرة',v:R(k.odAmt),c:k.odAmt>0?'var(--red)':'var(--green)'},
+        {l:'تكاليف الصيانة',v:R(k.mtCost),c:'var(--orange)'},
+      ],'repeat(auto-fill,minmax(130px,1fr))');
+      html+=`</div>`;
+
+      // Performance analysis per unit
+      html+=`<div style="background:rgba(255,255,255,.015);border-radius:11px;padding:16px;margin-bottom:14px;border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:10px">🏠 أداء الوحدات — ترتيب حسب صافي الدخل</div>
+        <div class="tw"><table><thead><tr><th>الترتيب</th><th>الوحدة</th><th>المستأجر</th><th>الحالة</th><th>الإيجار</th><th>المحصّل</th><th>التحصيل%</th><th>المصاريف</th><th>الصافي</th><th>التقييم</th></tr></thead><tbody>`;
+      const unitPerf=cUs.map(u=>{const pd=uTP(u.id),exp=uExT(state.aP,u.nm),rt=u.v?pd/u.v:0;return{...u,pd,exp,net:pd-exp,rt}}).sort((a,b)=>b.net-a.net);
+      unitPerf.forEach((u,i)=>{
+        const rating=u.rt>=0.9?'⭐⭐⭐':u.rt>=0.6?'⭐⭐':u.rt>0?'⭐':'—';
+        const rColor=u.rt>=0.9?'var(--green)':u.rt>=0.6?'var(--yellow)':'var(--red)';
+        html+=`<tr><td><b style="color:var(--gold)">${i+1}</b></td><td style="font-weight:600;color:var(--gold)">${h(u.nm)}</td><td>${h(u.tn||'—')}</td>
+          <td><span class="bd ${u.us==='مستأجرة'?'bdg':u.us==='شاغرة'?'bdr':'bdy'}">${h(u.us)}</span></td>
+          <td>${$(u.v)}</td><td style="color:var(--green)">${$(u.pd)}</td><td>${P(u.rt)}</td>
+          <td style="color:var(--orange)">${$(u.exp)}</td><td style="color:${u.net>=0?'var(--green)':'var(--red)'};font-weight:700">${$(u.net)}</td>
+          <td style="color:${rColor}">${rating}</td></tr>`;
+      });
+      html+=`</tbody></table></div></div>`;
+
+      // Benchmarking — compare all properties
+      if(bm.length>1){
+        html+=`<div style="background:rgba(255,255,255,.015);border-radius:11px;padding:16px;margin-bottom:14px;border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:10px">📈 مقارنة أداء العقارات (Benchmarking)</div>
+          <div class="tw"><table><thead><tr><th>الترتيب</th><th>العقار</th><th>المالك</th><th>الوحدات</th><th>الإشغال</th><th>الإيجارات</th><th>المحصّل</th><th>التحصيل%</th><th>المصاريف</th><th>الصافي</th><th>ROI</th></tr></thead><tbody>`;
+        bm.forEach((p,i)=>{
+          const isCurrent=p.id===state.aP;
+          html+=`<tr style="${isCurrent?'background:rgba(201,169,110,.05)':''}"><td><b style="color:var(--gold)">${i+1}</b></td>
+            <td style="font-weight:700;color:${isCurrent?'var(--gold)':'var(--txt)'}">${h(p.nm)}${isCurrent?' ◄':''}</td>
+            <td style="color:var(--txt2)">${h(p.owner)}</td><td>${p.n}</td>
+            <td style="color:${p.occRate>=0.8?'var(--green)':'var(--red)'}">${P(p.occRate)}</td>
+            <td>${$(p.tv)}</td><td style="color:var(--green)">${$(p.tp)}</td><td>${P(p.rt)}</td>
+            <td style="color:var(--orange)">${$(p.te)}</td>
+            <td style="color:${p.nt>=0?'var(--green)':'var(--red)'};font-weight:700">${$(p.nt)}</td>
+            <td style="color:${p.roi>0?'var(--green)':'var(--red)'}">${P(p.roi)}</td></tr>`;
+        });
+        html+=`</tbody></table></div></div>`;
+      } else {
+        html+=`<div class="cd" style="text-align:center;padding:16px;color:var(--txt3)">أضف أكثر من عقار لتفعيل المقارنة بين العقارات</div>`;
+      }
+    }
+
+    // ═══ COST CENTER (Phase 3) ═══
+    else if(state.pt==='cc'){
+      const cc=costCenter(state.aP);
+      const totalRev=cc.byUnit.reduce((s,u)=>s+u.paid,0);
+      const totalExp=cc.byUnit.reduce((s,u)=>s+u.totalExp,0);
+
+      html+=`<div class="st">🏦 مركز التكلفة — ${h(cP.nm)}</div>`;
+
+      // Summary
+      html+=kpiHTML([
+        {l:'إجمالي الإيرادات المحصلة',v:R(totalRev),c:'var(--green)'},
+        {l:'إجمالي المصاريف التشغيلية',v:R(cS.te),c:'var(--orange)'},
+        {l:'تكاليف الصيانة',v:R(Object.values(cc.mtByType).reduce((s,v)=>s+v,0)),c:'var(--red)'},
+        {l:'إجمالي التكاليف',v:R(totalExp),c:'var(--red)'},
+        {l:'صافي الربح',v:R(totalRev-totalExp),c:totalRev-totalExp>=0?'var(--green)':'var(--red)'},
+        {l:'هامش الربح',v:P(totalRev>0?(totalRev-totalExp)/totalRev:0),c:totalRev>totalExp?'var(--green)':'var(--red)'},
+      ],'repeat(auto-fill,minmax(130px,1fr))');
+
+      // Revenue & Cost by Unit
+      html+=`<div style="background:rgba(255,255,255,.015);border-radius:11px;padding:16px;margin-bottom:14px;border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:10px">📊 الإيرادات والتكاليف حسب الوحدة</div>
+        <div class="tw"><table><thead><tr><th>الوحدة</th><th>المستأجر</th><th>الحالة</th><th>الإيجار</th><th>المحصّل</th><th>المتبقي</th><th>المصاريف</th><th>صيانة</th><th>إجمالي التكاليف</th><th>صافي الربح</th><th>الهامش</th></tr></thead><tbody>`;
+      cc.byUnit.forEach(u=>{
+        const margin=u.paid>0?(u.net/u.paid):0;
+        html+=`<tr><td style="font-weight:600;color:var(--gold)">${h(u.nm)}</td><td>${h(u.tn||'—')}</td>
+          <td><span class="bd ${u.us==='مستأجرة'?'bdg':u.us==='شاغرة'?'bdr':'bdy'}">${h(u.us)}</span></td>
+          <td>${$(u.rent)}</td><td style="color:var(--green)">${$(u.paid)}</td><td style="color:var(--red)">${$(u.rem)}</td>
+          <td style="color:var(--orange)">${$(u.exp)}</td><td style="color:var(--orange)">${$(u.mtC)}</td>
+          <td style="font-weight:600">${$(u.totalExp)}</td>
+          <td style="color:${u.net>=0?'var(--green)':'var(--red)'};font-weight:700">${$(u.net)}</td>
+          <td style="color:${margin>=0?'var(--green)':'var(--red)'}">${P(margin)}</td></tr>`;
+      });
+      const tNet=totalRev-totalExp;
+      html+=`</tbody><tfoot><tr><td colspan="3">الإجمالي</td><td>${$(cS.tv)}</td><td style="color:var(--green)">${$(totalRev)}</td><td style="color:var(--red)">${$(cS.rm)}</td>
+        <td style="color:var(--orange)">${$(cS.te)}</td><td style="color:var(--orange)">${$(Object.values(cc.mtByType).reduce((s,v)=>s+v,0))}</td><td>${$(totalExp)}</td>
+        <td style="color:${tNet>=0?'var(--green)':'var(--red)'}">${$(tNet)}</td><td>${P(totalRev>0?tNet/totalRev:0)}</td></tr></tfoot></table></div></div>`;
+
+      // Expense breakdown by type
+      const types=Object.entries(cc.byType).sort((a,b)=>b[1]-a[1]);
+      if(types.length>0){
+        html+=`<div style="background:rgba(255,255,255,.015);border-radius:11px;padding:16px;margin-bottom:14px;border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:10px">📋 توزيع المصاريف حسب النوع</div>
+          <div class="tw"><table><thead><tr><th>النوع</th><th>المبلغ</th><th>النسبة</th><th>التوزيع</th></tr></thead><tbody>`;
+        const totalE=types.reduce((s,[,v])=>s+v,0);
+        types.forEach(([t,v])=>{const pct=totalE>0?v/totalE:0;
+          html+=`<tr><td style="font-weight:600">${h(t)}</td><td style="color:var(--orange);font-weight:600">${R(v)}</td><td>${P(pct)}</td>
+            <td><div style="background:rgba(255,255,255,.03);border-radius:3px;height:18px;width:100%;overflow:hidden"><div style="height:100%;width:${pct*100}%;background:linear-gradient(90deg,var(--orange),#f59e0b);border-radius:3px"></div></div></td></tr>`;
+        });
+        html+=`</tbody><tfoot><tr><td>الإجمالي</td><td style="color:var(--orange)">${R(totalE)}</td><td>100%</td><td></td></tr></tfoot></table></div></div>`;
+      }
+
+      // Maintenance cost breakdown
+      const mtTypes=Object.entries(cc.mtByType).sort((a,b)=>b[1]-a[1]);
+      if(mtTypes.length>0){
+        html+=`<div style="background:rgba(255,255,255,.015);border-radius:11px;padding:16px;margin-bottom:14px;border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:10px">🔧 تكاليف الصيانة حسب النوع</div>`;
+        const mtTotal=mtTypes.reduce((s,[,v])=>s+v,0);
+        html+=`<div style="display:flex;flex-wrap:wrap;gap:8px">`;
+        mtTypes.forEach(([t,v])=>{
+          html+=`<div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:120px;text-align:center">
+            <div style="font-size:10px;color:var(--txt3)">${h(t)}</div><div style="font-size:15px;font-weight:800;color:var(--orange);margin-top:2px">${R(v)}</div>
+            <div style="font-size:9px;color:var(--txt4)">${P(mtTotal>0?v/mtTotal:0)}</div></div>`;
+        });
+        html+=`</div></div>`;
+      }
+    }
+
+    // ═══ FORECAST (Phase 3) ═══
+    else if(state.pt==='fc'){
+      const fc=forecast(state.aP,12);
+      html+=`<div class="st">🔮 التنبؤ بالتدفقات النقدية — ${h(cP.nm)}</div>`;
+
+      // Assumptions
+      html+=`<div style="background:rgba(201,169,110,.04);border-radius:11px;padding:16px;margin-bottom:14px;border:1px solid rgba(201,169,110,.1)">
+        <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:8px">📋 أسس التنبؤ</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;font-size:11.5px">
+          <div>الإيجار الشهري المتوقع: <b style="color:var(--gold)">${R(fc.monthlyRent)}</b></div>
+          <div>متوسط المصاريف الشهرية: <b style="color:var(--orange)">${R(fc.monthlyExpAvg)}</b></div>
+          <div>نسبة التحصيل الحالية: <b style="color:var(--yellow)">${P(fc.collRate)}</b></div>
+          <div>صافي التدفق الشهري المتوقع: <b style="color:${fc.monthlyRent*fc.collRate-fc.monthlyExpAvg>=0?'var(--green)':'var(--red)'}">${R(fc.monthlyRent*fc.collRate-fc.monthlyExpAvg)}</b></div>
+        </div></div>`;
+
+      // Forecast table
+      html+=`<div style="background:rgba(255,255,255,.015);border-radius:11px;padding:16px;margin-bottom:14px;border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:10px">📅 التوقعات لـ 12 شهر قادمة</div>
+        <div class="tw"><table><thead><tr><th>الشهر</th><th>الإيرادات المتوقعة</th><th>المصاريف المتوقعة</th><th>صافي الشهر</th><th>الإيرادات التراكمية</th><th>المصاريف التراكمية</th><th>الصافي التراكمي</th><th>الحالة</th></tr></thead><tbody>`;
+      fc.rows.forEach(r=>{
+        html+=`<tr><td style="font-weight:600">${r.mo}</td>
+          <td style="color:var(--green)">${R(Math.round(r.rev))}</td>
+          <td style="color:var(--orange)">${R(Math.round(r.exp))}</td>
+          <td style="color:${r.net>=0?'var(--green)':'var(--red)'};font-weight:700">${R(Math.round(r.net))}</td>
+          <td>${R(Math.round(r.cumRev))}</td><td>${R(Math.round(r.cumExp))}</td>
+          <td style="color:${r.cumNet>=0?'var(--green)':'var(--red)'};font-weight:700">${R(Math.round(r.cumNet))}</td>
+          <td><span class="bd ${r.net>=0?'bdg':'bdr'}">${r.net>=0?'فائض':'عجز'}</span></td></tr>`;
+      });
+      const lastR=fc.rows[fc.rows.length-1];
+      html+=`</tbody><tfoot><tr><td>الإجمالي (12 شهر)</td><td style="color:var(--green)">${R(Math.round(fc.rows.reduce((s,r)=>s+r.rev,0)))}</td>
+        <td style="color:var(--orange)">${R(Math.round(fc.rows.reduce((s,r)=>s+r.exp,0)))}</td>
+        <td style="color:${lastR?.cumNet>=0?'var(--green)':'var(--red)'};font-weight:700">${R(Math.round(fc.rows.reduce((s,r)=>s+r.net,0)))}</td>
+        <td colspan="4"></td></tr></tfoot></table></div></div>`;
+
+      // Summary forecast
+      const totalFcRev=fc.rows.reduce((s,r)=>s+r.rev,0);
+      const totalFcExp=fc.rows.reduce((s,r)=>s+r.exp,0);
+      const totalFcNet=totalFcRev-totalFcExp;
+      html+=`<div style="background:${totalFcNet>=0?'rgba(34,197,94,.03)':'rgba(239,68,68,.03)'};border-radius:11px;padding:18px;text-align:center;border:1.5px solid ${totalFcNet>=0?'rgba(34,197,94,.1)':'rgba(239,68,68,.1)'}">
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:8px">التوقع المالي لـ 12 شهر القادمة</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div><div style="font-size:10px;color:var(--txt3)">إيرادات متوقعة</div><div style="font-size:20px;font-weight:900;color:var(--green)">${R(Math.round(totalFcRev))}</div></div>
+          <div><div style="font-size:10px;color:var(--txt3)">مصاريف متوقعة</div><div style="font-size:20px;font-weight:900;color:var(--orange)">${R(Math.round(totalFcExp))}</div></div>
+          <div><div style="font-size:10px;color:var(--txt3)">صافي متوقع</div><div style="font-size:20px;font-weight:900;color:${totalFcNet>=0?'var(--green)':'var(--red)'}">${R(Math.round(totalFcNet))}</div></div>
+        </div></div>`;
+    }
+
+    // Reports
+    else if(state.pt==='r'){
+      const aI=cUs.flatMap(u=>uIns(u.id).map(i=>({...i,tn:state.un.find(x=>x.id===i.uI)?.tn,unm:state.un.find(x=>x.id===i.uI)?.nm})));
+      html+=`<div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <div><h2 style="font-size:16px;font-weight:900;color:var(--gold)">📄 تقرير مفصل — ${h(cP.nm)}</h2><p style="color:var(--txt3);font-size:10px">تاريخ: ${TD()}</p></div>
+        <button class="b bg_ no-print" onclick="window.print()">🖨️ طباعة</button></div>`;
+
+      // Units report
+      html+=`<div style="background:rgba(255,255,255,.015);border-radius:11px;padding:14px;margin-bottom:12px;border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:8px">🏠 حالة الوحدات</div>
+        <div class="tw"><table><thead><tr><th>م</th><th>الوحدة</th><th>المستأجر</th><th>الحالة</th><th>الإيجار</th><th>المدفوع</th><th>المتبقي</th><th>التحصيل</th><th>الدفعات</th><th>المصاريف</th><th>الصافي</th></tr></thead><tbody>`;
+      cUs.forEach((u,i)=>{const pd=uTP(u.id),exp=uExT(state.aP,u.nm),ii=uIns(u.id),fi=ii.filter(iF).length,rt=u.v?pd/u.v:0;
+        html+=`<tr><td>${i+1}</td><td style="font-weight:600;color:var(--gold)">${h(u.nm)}</td><td>${h(u.tn)}</td>
+          <td><span class="bd ${u.us==='مستأجرة'?'bdg':u.us==='شاغرة'?'bdr':'bdy'}">${h(u.us)}</span></td>
+          <td>${$(u.v)}</td><td style="color:var(--green)">${$(pd)}</td><td style="color:${u.v-pd>0?'var(--red)':'var(--green)'}">${$(u.v-pd)}</td>
+          <td>${P(rt)}</td><td>${fi}/${ii.length}</td><td style="color:var(--orange)">${$(exp)}</td>
+          <td style="color:${pd-exp>=0?'var(--green)':'var(--red)'};font-weight:700">${$(pd-exp)}</td></tr>`;
+      });
+      html+=`</tbody><tfoot><tr><td colspan="4">الإجمالي</td><td>${$(cS.tv)}</td><td style="color:var(--green)">${$(cS.tp)}</td><td style="color:var(--red)">${$(cS.rm)}</td><td>${P(cS.rt)}</td><td>${cS.fi}/${cS.ti}</td><td style="color:var(--orange)">${$(cS.te)}</td><td style="color:${cS.nt>=0?'var(--green)':'var(--red)'}">${$(cS.nt)}</td></tr></tfoot></table></div></div>`;
+
+      // Payments report
+      html+=`<div style="background:rgba(255,255,255,.015);border-radius:11px;padding:14px;margin-bottom:12px;border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:8px">💳 تفاصيل الدفعات (${aI.length})</div>
+        <div class="tw"><table><thead><tr><th>م</th><th>الوحدة</th><th>المستأجر</th><th>#</th><th>الاستحقاق</th><th>المطلوب</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th></tr></thead><tbody>`;
+      aI.forEach((i,x)=>{const pd=iP(i),rm=iR(i),fl=rm<=0,o=!fl&&new Date(i.dd)<new Date();
+        html+=`<tr style="background:${o?'rgba(239,68,68,.02)':''}"><td>${x+1}</td><td style="color:var(--gold)">${h(i.unm||'')}</td><td>${h(i.tn||'')}</td><td>${i.num}</td><td>${i.dd}</td>
+          <td>${$(i.am)}</td><td style="color:var(--green)">${$(pd)}</td><td style="color:${rm>0?'var(--red)':'var(--green)'};font-weight:700">${$(rm)}</td>
+          <td><span class="bd ${fl?'bdg':o?'bdr':pd>0?'bdy':'bdb'}">${fl?'✓ مكتملة':o?'⚠ متأخرة':pd>0?'جزئي':'قادمة'}</span></td></tr>`;
+      });
+      html+=`</tbody></table></div></div>`;
+
+      // Maintenance report
+      const mts=pMts(state.aP);
+      if(mts.length>0){
+        html+=`<div style="background:rgba(255,255,255,.015);border-radius:11px;padding:14px;margin-bottom:12px;border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:8px">🔧 تقرير الصيانة (${mts.length})</div>
+          <div class="tw"><table><thead><tr><th>م</th><th>الوحدة</th><th>النوع</th><th>البيان</th><th>الأولوية</th><th>الحالة</th><th>التكلفة</th><th>المورد</th></tr></thead><tbody>`;
+        mts.forEach((m,i)=>{
+          html+=`<tr><td>${i+1}</td><td style="color:var(--gold)">${h(m.un)}</td><td>${h(m.tp)}</td><td>${h(m.ds)}</td>
+            <td><span class="bd ${m.pr==='طارئ'||m.pr==='عاجل'?'bdr':'bdy'}">${h(m.pr)}</span></td>
+            <td><span class="bd ${m.st==='مكتمل'?'bdg':m.st==='جديد'?'bdb':'bdy'}">${h(m.st)}</span></td>
+            <td>${$(m.cost)}</td><td>${h(m.vnd||'—')}</td></tr>`;
+        });
+        html+=`</tbody><tfoot><tr><td colspan="6">إجمالي تكاليف الصيانة</td><td colspan="2" style="color:var(--orange)">${R(mts.reduce((s,m)=>s+m.cost,0))}</td></tr></tfoot></table></div></div>`;
+      }
+
+      // Financial summary
+      html+=`<div style="background:${cS.nt>=0?'rgba(34,197,94,.03)':'rgba(239,68,68,.03)'};border-radius:11px;padding:16px;text-align:center;border:1.5px solid ${cS.nt>=0?'rgba(34,197,94,.1)':'rgba(239,68,68,.1)'}">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          ${[['الإيرادات المحصلة',R(cS.tp),'var(--green)'],['إجمالي المصاريف',R(cS.te),'var(--orange)'],['صافي الدخل',R(cS.nt),cS.nt>=0?'var(--green)':'var(--red)']].map(([l,v,c])=>
+            `<div><div style="font-size:10px;color:var(--txt2);margin-bottom:3px">${l}</div><div style="font-size:18px;font-weight:900;color:${c}">${v}</div></div>`).join('')}</div></div>`;
+    }
+
+    // ═══ AUDIT LOG (Phase 2) ═══
+    else if(state.pt==='lg'){
+      const logs=state.log.filter(l=>{
+        // Show logs related to this property
+        const pUnits=pUs(state.aP);
+        const unitIds=pUnits.map(u=>u.id);
+        const unitNames=pUnits.map(u=>u.nm);
+        return l.entityId===state.aP || unitIds.includes(l.entityId) || l.details?.includes(cP.nm);
+      }).slice(0,50);
+
+      html+=`<div class="st">📝 سجل العمليات</div>`;
+      if(state.log.length===0) html+=`<div class="cd" style="text-align:center;padding:20px;color:var(--txt3)">لا توجد عمليات مسجلة بعد</div>`;
+      else{
+        html+=`<div style="font-size:10.5px;color:var(--txt3);margin-bottom:10px">آخر ${Math.min(state.log.length,50)} عملية</div>`;
+        state.log.slice(0,50).forEach(l=>{
+          const acColor=l.action.includes('حذف')?'var(--red)':l.action.includes('إضافة')?'var(--green)':'var(--yellow)';
+          html+=`<div class="log-entry"><div style="display:flex;justify-content:space-between;align-items:center">
+            <div><span class="bd" style="background:${acColor}15;color:${acColor};margin-left:6px">${h(l.action)}</span>
+            <span style="font-weight:600">${h(l.entity)}</span>
+            ${l.details?`<span style="color:var(--txt2)"> — ${h(l.details)}</span>`:''}</div>
+            <span style="color:var(--txt4);font-size:10px">${l.dt}</span></div></div>`;
+        });
+      }
+    }
+  }
+
+  // ═══ UNIT ═══
+  else if(state.vw==='unit'&&cP&&cU){
+    const u=cU,ii=uIns(u.id),tp=uTP(u.id),exs=uExs(state.aP,u.nm),tE=uExT(state.aP,u.nm),mts=uMts(state.aP,u.nm);
+    const rm=u.v-tp,rt=u.v?tp/u.v:0,nt=tp-tE,fi=ii.filter(iF).length;
+
+    html+=`<div style="display:flex;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:5px">
+      <button class="b gh" onclick="goP('${state.aP}')">→ ${h(cP.nm)}</button>
+      <div style="display:flex;gap:4px">
+        <button class="b gh sm" onclick="state.fm=${JSON.stringify(u).replace(/'/g,"\\'")}; state.ml='eU';render()">✏️ تعديل</button>
+        <button class="b bg_ sm" onclick="state.fm={pI:'${state.aP}',un:'${h(u.nm)}',dt:'',tp:'صيانة',ds:'',am:0,ps:'مسدد'};state.ml='aE';render()">+ مصروف</button>
+        <button class="b gh sm" onclick="state.fm={pI:'${state.aP}',un:'${h(u.nm)}',tp:'صيانة',ds:'',pr:'عادي',st:'جديد',dt:'${TD()}',dd:'',vnd:'',cost:0,nt:''};state.ml='aMt';render()">🔧 طلب صيانة</button>
+      </div></div>`;
+
+    // Unit tabs
+    html+=`<div class="ut">${cUs.map(uu=>`<div class="utb ${uu.id===state.aU?'on':''}" onclick="goU('${uu.id}')">${h(uu.nm)}</div>`).join('')}</div>`;
+
+    // KPIs
+    html+=`<div class="cd" style="padding:16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div><h2 style="font-size:16px;font-weight:900;color:var(--gold)">${h(u.nm)}</h2><div style="font-size:11px;color:var(--txt2)">${h(u.tn)} • ${u.ds} → ${u.de} • ${h(u.pm||'—')}</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:900;color:${rt>=1?'var(--green)':'var(--gold)'}">${P(rt)}</div><div style="font-size:9px;color:var(--txt3)">تحصيل</div></div></div>`;
+    html+=kpiHTML([{l:'الإيجار',v:R(u.v),c:'var(--gold)'},{l:'المدفوع',v:R(tp),c:'var(--green)'},{l:'المتبقي',v:R(rm),c:rm>0?'var(--red)':'var(--green)'},{l:'الدفعات',v:`${fi}/${ii.length}`,c:'var(--blue)'},{l:'المصاريف',v:R(tE),c:'var(--orange)'},{l:'الصافي',v:R(nt),c:nt>=0?'var(--green)':'var(--red)'}],'repeat(auto-fill,minmax(95px,1fr))');
+    html+=`</div>`;
+
+    // Installments
+    html+=`<div class="cd" style="padding:14px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <div class="st" style="margin:0">💳 الدفعات (${ii.length})</div>
+        <button class="b bg_ sm" onclick="state.fm={dueDate:'',amount:${ii.length>0?ii[0].am:Math.round(u.v/(u.ni||1))}};state.ml='aIn';render()">+ دفعة</button></div>`;
+
+    if(ii.length===0) html+=`<div style="text-align:center;padding:14px;color:var(--txt3);font-size:11px">لا توجد دفعات</div>`;
+    else{
+      ii.forEach(inst=>{
+        const pd2=iP(inst),rm2=iR(inst),fl=rm2<=0,o=!fl&&new Date(inst.dd)<new Date(),od=o?Math.round((new Date()-new Date(inst.dd))/864e5):0;
+        const ratio=inst.am?pd2/inst.am:0,isE=state.eI===inst.id;
+
+        html+=`<div class="ic ${fl?'ic-f':o?'ic-o':pd2>0?'ic-p':'ic-n'}"><div style="padding:11px 13px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div style="width:30px;height:30px;border-radius:8px;background:${fl?'rgba(34,197,94,.1)':o?'rgba(239,68,68,.08)':'rgba(255,255,255,.025)'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:${fl?'var(--green)':o?'var(--red)':'var(--txt3)'};flex-shrink:0">${fl?'✓':inst.num}</div>
+            <div style="flex:1 1 90px"><div style="font-size:11.5px;font-weight:700">الدفعة ${inst.num}</div><div style="font-size:10px;color:var(--txt3)">الاستحقاق: <b style="color:var(--gold)">${inst.dd}</b>${o?`<span style="color:var(--red)"> • متأخرة ${od} يوم</span>`:''}</div></div>
+            <div class="ab" style="background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.08)"><div class="al" style="color:var(--gold)">المطلوب</div><div class="av" style="color:var(--gold)">${R(inst.am)}</div></div>
+            <div class="ab" style="background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.08)"><div class="al" style="color:var(--green)">المدفوع</div><div class="av" style="color:var(--green)">${R(pd2)}</div></div>
+            <div class="ab" style="background:${rm2>0?'rgba(239,68,68,.05)':'rgba(34,197,94,.05)'};border:1px solid ${rm2>0?'rgba(239,68,68,.08)':'rgba(34,197,94,.08)'}"><div class="al" style="color:${rm2>0?'var(--red)':'var(--green)'}">المتبقي</div><div class="av" style="color:${rm2>0?'var(--red)':'var(--green)'}">${R(rm2)}</div></div>
+            ${!fl?`<button class="b gn" onclick="state.ml='pp';state.fm={instId:'${inst.id}',amount:${rm2},date:'${TD()}',method:'',notes:''};render()">💰 دفع</button>`:`<span class="bd bdg" style="padding:4px 12px;font-size:10px">✓ مكتملة</span>`}
+          </div>
+          <div style="height:3px;background:rgba(255,255,255,.03);border-radius:2px;margin-top:6px;overflow:hidden"><div style="height:100%;width:${ratio*100}%;background:${fl?'linear-gradient(90deg,#4ade80,#22c55e)':pd2>0?'linear-gradient(90deg,#facc15,#eab308)':'transparent'};border-radius:2px;transition:width .5s"></div></div>
+          <div style="display:flex;gap:4px;margin-top:5px;flex-wrap:wrap">
+            ${pd2>0?`<button class="b gh sm" style="font-size:9.5px" onclick="state.eI=state.eI==='${inst.id}'?null:'${inst.id}';render()">📝 سجل (${(inst.py||[]).length})</button>`:''}
+            ${!fl&&pd2>0?`<button class="b gn sm" style="font-size:9.5px" onclick="payAll('${inst.id}')">✓ إكمال</button>`:''}
+            ${!fl?`<button class="b gh sm" style="font-size:9.5px" onclick="state.fm={instId:'${inst.id}',newAmount:${inst.am}};state.ml='eA';render()">✏️ المبلغ</button>`:''}
+            ${!fl&&u.ph?`<button class="b wa sm" style="font-size:9.5px" onclick="state.mp={ph:'${u.ph}',msg:'السلام عليكم ورحمة الله\\n\\nالمستأجر: ${h(u.tn)}\\nالوحدة: ${h(u.nm)} — ${h(cP.nm)}\\n\\nالدفعة رقم (${inst.num}) بمبلغ ${R(rm2)} مستحقة بتاريخ ${inst.dd}\\n\\nنأمل السداد\\n\\nبهو المدينة العقاري'};state.ml='wa';render()">📱</button>`:''}
+            <button class="b rd sm" style="font-size:9.5px" onclick="delIns('${inst.id}')">🗑</button>
+          </div></div>`;
+
+        // Payment history
+        if(isE&&(inst.py||[]).length>0){
+          html+=`<div style="padding:0 13px 10px;border-top:1px solid rgba(255,255,255,.02)">
+            <div style="font-size:10px;font-weight:700;color:var(--gold);margin-top:6px;margin-bottom:4px">سجل المدفوعات:</div>`;
+          (inst.py||[]).forEach((p,pi)=>{
+            html+=`<div style="display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:5px;margin-bottom:2px;background:rgba(34,197,94,.02);border:1px solid rgba(34,197,94,.04)">
+              <span style="width:18px;height:18px;border-radius:4px;background:rgba(34,197,94,.1);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">${pi+1}</span>
+              <div style="flex:1;font-size:10.5px"><b style="color:var(--green)">${R(p.a)}</b> — ${p.d}${p.m?` • ${h(p.m)}`:''}${p.n?` • ${h(p.n)}`:''}</div>
+              <button class="b rd sm" style="font-size:8px;padding:2px 6px" onclick="rmPay('${inst.id}',${pi})">✕</button></div>`;
+          });
+          html+=`</div>`;
+        }
+        html+=`</div>`;
+      });
+    }
+    html+=`</div>`;
+
+    // Unit Maintenance (Phase 2)
+    if(mts.length>0){
+      html+=`<div class="cd" style="padding:14px;margin-bottom:12px">
+        <div class="st" style="margin:0;margin-bottom:8px">🔧 طلبات الصيانة (${mts.length})</div>`;
+      mts.forEach(m=>{
+        const stCls=m.st==='مكتمل'?'bdg':m.st==='جديد'?'bdb':'bdy';
+        html+=`<div style="display:flex;justify-content:space-between;padding:8px 10px;border-radius:7px;margin-bottom:4px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.02)">
+          <div style="font-size:11px"><span class="bd ${stCls}" style="margin-left:4px">${h(m.st)}</span><b style="color:var(--gold)">${h(m.tp)}</b> — ${h(m.ds)}${m.cost>0?` • <span style="color:var(--orange)">${R(m.cost)}</span>`:''}</div>
+          <div style="display:flex;gap:2px">
+            <button class="b gh sm" onclick="state.fm=${JSON.stringify(m).replace(/'/g,"\\'")}; state.ml='eMt';render()">✏️</button>
+            <button class="b rd sm" onclick="dlEntity('mt','${m.id}')">🗑</button></div></div>`;
+      });
+      html+=`</div>`;
+    }
+
+    // Unit Expenses
+    html+=`<div class="cd" style="padding:14px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><div class="st" style="margin:0">🧾 مصاريف ${h(u.nm)}</div>
+      <button class="b bg_ sm" onclick="state.fm={pI:'${state.aP}',un:'${h(u.nm)}',dt:'',tp:'صيانة',ds:'',am:0,ps:'مسدد'};state.ml='aE';render()">+</button></div>`;
+    if(exs.length>0){
+      html+=`<div class="tw"><table><thead><tr><th>م</th><th>التاريخ</th><th>النوع</th><th>البيان</th><th>المبلغ</th><th>الحالة</th><th></th></tr></thead><tbody>`;
+      exs.forEach((e,i)=>{
+        html+=`<tr><td>${i+1}</td><td>${e.dt}</td><td>${h(e.tp)}</td><td>${h(e.ds)}</td><td style="font-weight:600">${$(e.am)}</td><td><span class="bd ${e.ps==='مسدد'?'bdg':'bdr'}">${h(e.ps)}</span></td>
+          <td><div style="display:flex;gap:2px"><button class="b gh sm" onclick="state.fm=${JSON.stringify(e).replace(/'/g,"\\'")}; state.ml='eE';render()">✏️</button><button class="b rd sm" onclick="dlEntity('e','${e.id}')">🗑</button></div></td></tr>`;
+      });
+      html+=`</tbody></table></div>`;
+    } else html+=`<div style="text-align:center;padding:10px;color:var(--txt3);font-size:10.5px">لا توجد مصاريف</div>`;
+    html+=`</div>`;
+
+    // Net Income
+    html+=`<div style="background:${nt>=0?'linear-gradient(135deg,rgba(34,197,94,.04),rgba(34,197,94,.01))':'linear-gradient(135deg,rgba(239,68,68,.04),rgba(239,68,68,.01))'};border:1.5px solid ${nt>=0?'rgba(34,197,94,.1)':'rgba(239,68,68,.1)'};border-radius:12px;padding:16px;text-align:center">
+      <div style="font-size:10px;color:var(--txt2);margin-bottom:3px">صافي الدخل = المدفوع (${R(tp)}) − المصاريف (${R(tE)})</div>
+      <div style="font-size:24px;font-weight:900;color:${nt>=0?'var(--green)':'var(--red)'}">${R(nt)}</div></div>`;
+  }
+
+  html+=`</div>`; // End mn
+
+  // ═══ MODALS ═══
+  if(state.ml){
+    html+=`<div class="mo" onclick="state.ml=null;state.mp=null;render()"><div class="mb" onclick="event.stopPropagation()">`;
+
+    // Partial Payment
+    if(state.ml==='pp'){
+      const inst=state.ins.find(x=>x.id===state.fm.instId);
+      html+=`<div class="st">💰 تسجيل دفعة</div>`;
+      if(inst){
+        html+=`<div style="background:rgba(201,169,110,.04);border-radius:9px;padding:14px;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">الدفعة ${inst.num} — استحقاق: ${inst.dd}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">
+            ${[['المطلوب',R(inst.am),'var(--gold)'],['المدفوع',R(iP(inst)),'var(--green)'],['المتبقي',R(iR(inst)),'var(--red)']].map(([l,v,c])=>
+              `<div style="background:${c}0a;border-radius:7px;padding:8px;text-align:center;border:1px solid ${c}15"><div style="font-size:9px;color:${c}">${l}</div><div style="font-size:15px;font-weight:800;color:${c}">${v}</div></div>`).join('')}</div></div>`;
+      }
+      html+=`<div class="fg">
+        <div><label>المبلغ المدفوع</label><input type="number" id="ppAmt" value="${state.fm.amount||''}" style="font-size:15px;font-weight:700;padding:10px"></div>
+        <div><label>تاريخ الدفع</label><input type="date" id="ppDate" value="${state.fm.date||TD()}"></div>
+        <div><label>طريقة الدفع</label><select id="ppMethod"><option value="">— اختر —</option>${PM.map(m=>`<option${state.fm.method===m?' selected':''}>${m}</option>`).join('')}</select></div>
+        <div><label>ملاحظات</label><input id="ppNotes" value="${state.fm.notes||''}"></div></div>
+        <div style="display:flex;gap:6px;margin-top:14px"><button class="b gn" style="padding:9px 22px;font-size:12px" onclick="addPay('${state.fm.instId}',{amount:document.getElementById('ppAmt').value,date:document.getElementById('ppDate').value,method:document.getElementById('ppMethod').value,notes:document.getElementById('ppNotes').value})">✓ تأكيد الدفع</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    // Edit Amount
+    else if(state.ml==='eA'){
+      html+=`<div class="st">✏️ تعديل مبلغ الدفعة</div>
+        <div><label>المبلغ الجديد</label><input type="number" id="eaAmt" value="${state.fm.newAmount||''}" style="font-size:14px;font-weight:700"></div>
+        <div style="display:flex;gap:6px;margin-top:10px"><button class="b bg_" onclick="edtAmt('${state.fm.instId}',document.getElementById('eaAmt').value)">💾 حفظ</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    // Add Installment
+    else if(state.ml==='aIn'){
+      html+=`<div class="st">➕ دفعة جديدة</div><div class="fg">
+        <div><label>تاريخ الاستحقاق</label><input type="date" id="aiDate" value="${state.fm.dueDate||''}"></div>
+        <div><label>المبلغ</label><input type="number" id="aiAmt" value="${state.fm.amount||''}"></div></div>
+        <div style="display:flex;gap:6px;margin-top:10px"><button class="b bg_" onclick="if(document.getElementById('aiDate').value)addInst('${state.aU}',{dueDate:document.getElementById('aiDate').value,amount:document.getElementById('aiAmt').value})">💾 إضافة</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    // WhatsApp
+    else if(state.ml==='wa'&&state.mp){
+      html+=`<div class="st" style="color:#25D366">📱 إرسال تذكير واتساب</div>
+        <div style="font-size:11px;color:var(--txt2);margin-bottom:6px">يمكنك تعديل الرسالة:</div>
+        <textarea id="waMsg">${h(state.mp.msg)}</textarea>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <button class="b wa" style="padding:9px 22px" onclick="let n=('${state.mp.ph}'||'').replace(/\\D/g,'');if(!n){alert('لا يوجد رقم');return}if(n.startsWith('05'))n='966'+n.slice(1);else if(n.startsWith('5'))n='966'+n;else if(!n.startsWith('966'))n='966'+n;window.open('https://wa.me/'+n+'?text='+encodeURIComponent(document.getElementById('waMsg').value),'_blank')">📱 إرسال</button>
+          <button class="b gh" onclick="try{navigator.clipboard.writeText(document.getElementById('waMsg').value);alert('✓ تم النسخ')}catch(e){}">📋 نسخ</button>
+          <button class="b gh" onclick="state.ml=null;state.mp=null;render()">إغلاق</button></div>`;
+    }
+
+    // ═══ CRUD Modals ═══
+    else if(state.ml==='aO'||state.ml==='eO'){
+      const isE=state.ml==='eO';
+      html+=`<div class="st">${isE?'✏️ تعديل':'➕ إضافة'} مالك</div><div class="fg">
+        ${[{k:'nm',l:'اسم المالك'},{k:'ph',l:'رقم الهاتف'},{k:'nt',l:'ملاحظات',full:true}].map(x=>
+          `<div${x.full?' style="grid-column:1/-1"':''}><label>${x.l}</label><input id="fm_${x.k}" value="${h(state.fm[x.k]||'')}"></div>`).join('')}</div>
+        <div style="display:flex;gap:6px;margin-top:12px"><button class="b bg_" onclick="svEntity('o',{nm:document.getElementById('fm_nm').value,ph:document.getElementById('fm_ph').value,nt:document.getElementById('fm_nt').value},${isE?`'${state.fm.id}'`:'null'})">💾 حفظ</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    else if(state.ml==='aPr'||state.ml==='ePr'){
+      const isE=state.ml==='ePr';
+      html+=`<div class="st">${isE?'✏️ تعديل':'➕ إضافة'} عقار</div><div class="fg">
+        <div><label>المالك (اختياري)</label><select id="fm_oI"><option value="">— بدون مالك —</option>${state.ow.map(o=>`<option value="${o.id}"${state.fm.oI===o.id?' selected':''}>${h(o.nm)}</option>`).join('')}</select></div>
+        <div><label>اسم العقار</label><input id="fm_nm" value="${h(state.fm.nm||'')}"></div>
+        <div><label>الموقع</label><input id="fm_loc" value="${h(state.fm.loc||'')}"></div>
+        <div><label>النوع</label><select id="fm_tp">${PT.map(t=>`<option${state.fm.tp===t?' selected':''}>${t}</option>`).join('')}</select></div></div>
+        <div style="display:flex;gap:6px;margin-top:12px"><button class="b bg_" onclick="svEntity('p',{oI:document.getElementById('fm_oI').value,nm:document.getElementById('fm_nm').value,loc:document.getElementById('fm_loc').value,tp:document.getElementById('fm_tp').value},${isE?`'${state.fm.id}'`:'null'})">💾 حفظ</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    else if(state.ml==='aU'||state.ml==='eU'){
+      const isE=state.ml==='eU';
+      html+=`<div class="st">${isE?'✏️ تعديل':'➕ إضافة'} وحدة / شقة</div><div class="fg">
+        ${[{k:'nm',l:'اسم الوحدة'},{k:'cn',l:'رقم العقد'},{k:'tn',l:'المستأجر'},{k:'ph',l:'هاتف المستأجر'},
+          {k:'us',l:'الحالة',t:'select',o:US},{k:'pm',l:'طريقة الدفع',t:'select',o:PM},
+          {k:'ds',l:'بداية العقد',t:'date'},{k:'de',l:'نهاية العقد',t:'date'},
+          {k:'v',l:'قيمة الإيجار',t:'number'},{k:'ni',l:'عدد الدفعات',t:'number'}
+        ].map(x=>{
+          if(x.t==='select')return`<div><label>${x.l}</label><select id="fm_${x.k}">${x.o.map(o=>`<option${state.fm[x.k]===o?' selected':''}>${o}</option>`).join('')}</select></div>`;
+          return`<div><label>${x.l}</label><input type="${x.t||'text'}" id="fm_${x.k}" value="${h(String(state.fm[x.k]||''))}"></div>`;
+        }).join('')}</div>
+        <div style="display:flex;gap:6px;margin-top:12px"><button class="b bg_" onclick="svEntity('u',{pI:'${state.aP}',nm:document.getElementById('fm_nm').value,cn:document.getElementById('fm_cn').value,tn:document.getElementById('fm_tn').value,ph:document.getElementById('fm_ph').value,us:document.getElementById('fm_us').value,pm:document.getElementById('fm_pm').value,ds:document.getElementById('fm_ds').value,de:document.getElementById('fm_de').value,v:Number(document.getElementById('fm_v').value),ni:Number(document.getElementById('fm_ni').value)},${isE?`'${state.fm.id}'`:'null'})">💾 حفظ</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    else if(state.ml==='aE'||state.ml==='eE'){
+      const isE=state.ml==='eE';
+      const uOpts=cUs.map(u=>u.nm);
+      html+=`<div class="st">${isE?'✏️ تعديل':'➕ إضافة'} مصروف</div><div class="fg">
+        <div><label>التاريخ</label><input type="date" id="fm_dt" value="${state.fm.dt||''}"></div>
+        <div><label>النوع</label><select id="fm_tp">${ET.map(t=>`<option${state.fm.tp===t?' selected':''}>${t}</option>`).join('')}</select></div>
+        <div><label>الوحدة</label><select id="fm_un"><option value="">— اختر —</option>${uOpts.map(u=>`<option${state.fm.un===u?' selected':''}>${u}</option>`).join('')}</select></div>
+        <div><label>البيان</label><input id="fm_ds" value="${h(state.fm.ds||'')}"></div>
+        <div><label>المبلغ</label><input type="number" id="fm_am" value="${state.fm.am||''}"></div>
+        <div><label>السداد</label><select id="fm_ps">${PS.map(p=>`<option${state.fm.ps===p?' selected':''}>${p}</option>`).join('')}</select></div></div>
+        <div style="display:flex;gap:6px;margin-top:12px"><button class="b bg_" onclick="svEntity('e',{pI:'${state.aP}',un:document.getElementById('fm_un').value,dt:document.getElementById('fm_dt').value,tp:document.getElementById('fm_tp').value,ds:document.getElementById('fm_ds').value,am:Number(document.getElementById('fm_am').value),ps:document.getElementById('fm_ps').value},${isE?`'${state.fm.id}'`:'null'})">💾 حفظ</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    // ═══ Maintenance Modal (Phase 2) ═══
+    else if(state.ml==='aMt'||state.ml==='eMt'){
+      const isE=state.ml==='eMt';
+      const uOpts=cUs.map(u=>u.nm);
+      html+=`<div class="st">${isE?'✏️ تعديل':'➕'} طلب صيانة</div><div class="fg">
+        <div><label>الوحدة</label><select id="fm_un"><option value="">— اختر —</option>${uOpts.map(u=>`<option${state.fm.un===u?' selected':''}>${u}</option>`).join('')}</select></div>
+        <div><label>نوع الصيانة</label><select id="fm_tp">${ET.map(t=>`<option${state.fm.tp===t?' selected':''}>${t}</option>`).join('')}</select></div>
+        <div style="grid-column:1/-1"><label>وصف المشكلة</label><input id="fm_ds" value="${h(state.fm.ds||'')}"></div>
+        <div><label>الأولوية</label><select id="fm_pr">${MP.map(p=>`<option${state.fm.pr===p?' selected':''}>${p}</option>`).join('')}</select></div>
+        <div><label>الحالة</label><select id="fm_st">${MS.map(s=>`<option${state.fm.st===s?' selected':''}>${s}</option>`).join('')}</select></div>
+        <div><label>تاريخ الطلب</label><input type="date" id="fm_dt" value="${state.fm.dt||TD()}"></div>
+        <div><label>تاريخ الإنجاز</label><input type="date" id="fm_dd" value="${state.fm.dd||''}"></div>
+        <div><label>المورد / المقاول</label><input id="fm_vnd" value="${h(state.fm.vnd||'')}"></div>
+        <div><label>التكلفة</label><input type="number" id="fm_cost" value="${state.fm.cost||0}"></div>
+        <div style="grid-column:1/-1"><label>ملاحظات</label><input id="fm_nt" value="${h(state.fm.nt||'')}"></div></div>
+        <div style="display:flex;gap:6px;margin-top:12px"><button class="b bg_" onclick="svEntity('mt',{pI:'${state.aP}',un:document.getElementById('fm_un').value,tp:document.getElementById('fm_tp').value,ds:document.getElementById('fm_ds').value,pr:document.getElementById('fm_pr').value,st:document.getElementById('fm_st').value,dt:document.getElementById('fm_dt').value,dd:document.getElementById('fm_dd').value,vnd:document.getElementById('fm_vnd').value,cost:Number(document.getElementById('fm_cost').value),nt:document.getElementById('fm_nt').value},${isE?`'${state.fm.id}'`:'null'})">💾 حفظ</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    // ═══ Broker Modal (Phase 4) ═══
+    else if(state.ml==='aBrk'||state.ml==='eBrk'){
+      const isE=state.ml==='eBrk';
+      html+=`<div class="st">${isE?'✏️ تعديل':'➕'} وسيط / مسوق</div><div class="fg">
+        <div><label>اسم الوسيط</label><input id="fm_nm" value="${h(state.fm.nm||'')}"></div>
+        <div><label>رقم الهاتف</label><input id="fm_ph" value="${h(state.fm.ph||'')}"></div>
+        <div><label>البريد الإلكتروني</label><input id="fm_email" value="${h(state.fm.email||'')}"></div>
+        <div><label>نسبة العمولة %</label><input type="number" id="fm_comm" value="${state.fm.comm||2.5}" step="0.5"></div>
+        <div><label>الحالة</label><select id="fm_st">${BRK_ST.map(s=>`<option${state.fm.st===s?' selected':''}>${s}</option>`).join('')}</select></div>
+        <div><label>ملاحظات</label><input id="fm_nt" value="${h(state.fm.nt||'')}"></div></div>
+        <div style="display:flex;gap:6px;margin-top:12px"><button class="b bg_" onclick="svEntity('brk',{nm:document.getElementById('fm_nm').value,ph:document.getElementById('fm_ph').value,email:document.getElementById('fm_email').value,comm:Number(document.getElementById('fm_comm').value),st:document.getElementById('fm_st').value,nt:document.getElementById('fm_nt').value},${isE?`'${state.fm.id}'`:'null'})">💾 حفظ</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    // ═══ Broker Link (Commission) Modal ═══
+    else if(state.ml==='aBL'){
+      html+=`<div class="st">💵 تسجيل عمولة وسيط</div><div class="fg">
+        <div><label>الوحدة</label><select id="fm_uId"><option value="">— اختر —</option>${state.un.map(u=>`<option value="${u.id}">${h(u.nm)} — ${h(state.pr.find(p=>p.id===u.pI)?.nm||'')}</option>`).join('')}</select></div>
+        <div><label>مبلغ العمولة</label><input type="number" id="fm_commAmt" value="${state.fm.commAmt||0}"></div>
+        <div><label>حالة الدفع</label><select id="fm_commPaid"><option value="false">مستحق</option><option value="true">مدفوع</option></select></div>
+        <div><label>التاريخ</label><input type="date" id="fm_dt" value="${state.fm.dt||TD()}"></div>
+        <div style="grid-column:1/-1"><label>ملاحظات</label><input id="fm_nt" value="${h(state.fm.nt||'')}"></div></div>
+        <div style="display:flex;gap:6px;margin-top:12px"><button class="b bg_" onclick="svEntity('bl',{brkId:'${state.fm.brkId}',uId:document.getElementById('fm_uId').value,commAmt:Number(document.getElementById('fm_commAmt').value),commPaid:document.getElementById('fm_commPaid').value==='true',dt:document.getElementById('fm_dt').value,nt:document.getElementById('fm_nt').value},null)">💾 حفظ</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    // ═══ Project Modal (Phase 4) ═══
+    else if(state.ml==='aPrj'||state.ml==='ePrj'){
+      const isE=state.ml==='ePrj';
+      html+=`<div class="st">${isE?'✏️ تعديل':'➕'} مشروع تحت التطوير</div><div class="fg">
+        <div><label>اسم المشروع</label><input id="fm_nm" value="${h(state.fm.nm||'')}"></div>
+        <div><label>الموقع</label><input id="fm_loc" value="${h(state.fm.loc||'')}"></div>
+        <div><label>الحالة</label><select id="fm_st">${PRJ_ST.map(s=>`<option${state.fm.st===s?' selected':''}>${s}</option>`).join('')}</select></div>
+        <div><label>الميزانية</label><input type="number" id="fm_budget" value="${state.fm.budget||0}"></div>
+        <div><label>تاريخ البدء</label><input type="date" id="fm_startDt" value="${state.fm.startDt||''}"></div>
+        <div><label>تاريخ الانتهاء المتوقع</label><input type="date" id="fm_endDt" value="${state.fm.endDt||''}"></div>
+        <div style="grid-column:1/-1"><label>ملاحظات</label><input id="fm_nt" value="${h(state.fm.nt||'')}"></div></div>
+        <div style="display:flex;gap:6px;margin-top:12px"><button class="b bg_" onclick="svEntity('prj',{nm:document.getElementById('fm_nm').value,loc:document.getElementById('fm_loc').value,st:document.getElementById('fm_st').value,budget:Number(document.getElementById('fm_budget').value),startDt:document.getElementById('fm_startDt').value,endDt:document.getElementById('fm_endDt').value,nt:document.getElementById('fm_nt').value,phases:${isE?`state.fm.phases||[]`:`[{nm:'التخطيط',st:'لم يبدأ',cost:0},{nm:'التصميم',st:'لم يبدأ',cost:0},{nm:'التنفيذ',st:'لم يبدأ',cost:0},{nm:'التشطيب',st:'لم يبدأ',cost:0}]`}},${isE?`'${state.fm.id}'`:'null'})">💾 حفظ</button><button class="b gh" onclick="state.ml=null;render()">إلغاء</button></div>`;
+    }
+
+    html+=`</div></div>`; // End modal
+  }
+
+  app.innerHTML=html;
+}
+
+// ═══ Phase 3: Analytics & Forecasting ═══
+// (Also includes Phase 4: Brokers & Projects)
+
+// Phase 4 Constants
+const BRK_ST=['نشط','غير نشط']; // Broker status
+const PRJ_ST=['تخطيط','تصميم','تنفيذ','متوقف','مكتمل']; // Project status
+const PRJ_PH=['شراء الأرض','التصميم','الرخص','البناء','التشطيب','التسليم']; // Project phases
+
+// Initialize Phase 4 data if not exists
+if(!state.brk) state.brk=[
+  {id:'b1',nm:'مكتب الأمانة للعقارات',ph:'0551234567',email:'',comm:2.5,st:'نشط',nt:'وسيط معتمد — المدينة المنورة'}
+];
+if(!state.prj) state.prj=[
+  {id:'pj1',nm:'مشروع بناء فيلا الروضة',loc:'حي الروضة — المدينة المنورة',st:'تنفيذ',budget:1500000,spent:850000,
+   startDt:'2025-06-01',endDt:'2026-12-01',nt:'فيلا سكنية 3 أدوار',
+   phases:[{nm:'شراء الأرض',st:'مكتمل',cost:500000},{nm:'التصميم',st:'مكتمل',cost:50000},{nm:'الرخص',st:'مكتمل',cost:15000},{nm:'البناء',st:'قيد التنفيذ',cost:285000},{nm:'التشطيب',st:'لم يبدأ',cost:0}]}
+];
+// Broker-Unit links (which broker brought which tenant)
+if(!state.brkLinks) state.brkLinks=[
+  {id:'bl1',brkId:'b1',uId:'u2',commAmt:550,commPaid:true,dt:'2026-01-01',nt:'عمولة تأجير شقة 2'}
+];
+
+function brkStats(bId){
+  const links=state.brkLinks.filter(l=>l.brkId===bId);
+  const totalComm=links.reduce((s,l)=>s+(l.commAmt||0),0);
+  const paidComm=links.filter(l=>l.commPaid).reduce((s,l)=>s+(l.commAmt||0),0);
+  return{deals:links.length,totalComm,paidComm,unpaidComm:totalComm-paidComm,links};
+}
+
+function prjStats(pj){
+  const spent=pj.phases?pj.phases.reduce((s,p)=>s+(p.cost||0),0):(pj.spent||0);
+  const completedPhases=pj.phases?pj.phases.filter(p=>p.st==='مكتمل').length:0;
+  const totalPhases=pj.phases?pj.phases.length:0;
+  const progress=totalPhases>0?completedPhases/totalPhases:0;
+  return{spent,remaining:(pj.budget||0)-spent,completedPhases,totalPhases,progress};
+}
+
+function calcKPIs(pId){
+  const s=pSt(pId),us=pUs(pId),es=pExs(pId);
+  const occRate=s.n>0?s.rn/s.n:0; // Occupancy rate
+  const roi=s.tv>0?(s.nt/s.tv):0; // ROI
+  const avgRent=s.n>0?s.tv/s.n:0; // Average rent per unit
+  const revenuePerUnit=s.n>0?s.tp/s.n:0; // Revenue per unit
+  const expenseRatio=s.tp>0?s.te/s.tp:0; // Expense ratio
+  const collectionEff=s.tv>0?s.tp/s.tv:0; // Collection efficiency
+  const mtCost=pMts(pId).reduce((a,m)=>a+m.cost,0);
+  const vacantUnits=us.filter(u=>u.us==='شاغرة');
+  const vacantDays=vacantUnits.reduce((a,u)=>{const d=u.ds?Math.round((new Date()-new Date(u.ds))/864e5):0;return a+Math.max(0,d)},0);
+  const overdueAmt=uIns(pId).length>0?0:0;
+  let odAmt=0;us.forEach(u=>{uIns(u.id).filter(i=>!iF(i)&&new Date(i.dd)<new Date()).forEach(i=>{odAmt+=iR(i)})});
+  return{occRate,roi,avgRent,revenuePerUnit,expenseRatio,collectionEff,mtCost,vacantDays,odAmt,...s};
+}
+
+function benchmarkAll(){
+  return state.pr.map(p=>{const k=calcKPIs(p.id);const o=state.ow.find(x=>x.id===p.oI);
+    return{id:p.id,nm:p.nm,owner:o?.nm||'مستقل',loc:p.loc,tp:p.tp,...k}})
+    .sort((a,b)=>b.nt-a.nt); // Sort by net income
+}
+
+function forecast(pId,months=6){
+  const us=pUs(pId),es=pExs(pId);
+  const monthlyRent=us.reduce((s,u)=>s+u.v,0)/12;
+  const s=pSt(pId);
+  const monthlyExpAvg=es.length>0?s.te/Math.max(1,new Set(es.map(e=>e.dt?.slice(0,7))).size):0;
+  const collRate=s.rt||0;
+  const rows=[];
+  for(let i=1;i<=months;i++){
+    const d=new Date();d.setMonth(d.getMonth()+i);
+    const mo=d.toLocaleDateString('ar-SA',{year:'numeric',month:'short'});
+    const rev=monthlyRent*collRate;
+    const exp=monthlyExpAvg;
+    const net=rev-exp;
+    const cumRev=(rows.length>0?rows[rows.length-1].cumRev:s.tp)+rev;
+    const cumExp=(rows.length>0?rows[rows.length-1].cumExp:s.te)+exp;
+    rows.push({mo,rev,exp,net,cumRev,cumExp,cumNet:cumRev-cumExp});
+  }
+  return{monthlyRent,monthlyExpAvg,collRate,rows};
+}
+
+function costCenter(pId){
+  const us=pUs(pId),es=pExs(pId),mts=pMts(pId);
+  // Revenue by unit
+  const byUnit=us.map(u=>{
+    const pd=uTP(u.id),exp=uExT(pId,u.nm);
+    const mtC=mts.filter(m=>m.un===u.nm).reduce((s,m)=>s+m.cost,0);
+    return{nm:u.nm,tn:u.tn,us:u.us,rent:u.v,paid:pd,rem:u.v-pd,exp,mtC,totalExp:exp+mtC,net:pd-exp-mtC};
+  });
+  // Expense by type
+  const byType={};es.forEach(e=>{byType[e.tp]=(byType[e.tp]||0)+e.am});
+  // Maintenance by type
+  const mtByType={};mts.forEach(m=>{if(m.cost>0)mtByType[m.tp]=(mtByType[m.tp]||0)+m.cost});
+  return{byUnit,byType,mtByType};
+}
+
+// ═══ INIT ═══
+loadLS();
+render();
+// Auto-save setup
+setInterval(()=>{if(state.drt){saveLS();render()}},90000);
+</script>
+</body>
+</html>
