@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0c1829">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<title>بهو المدينة — نظام إدارة العقارات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a1628;--bg2:#0f1d33;--bg3:#162544;--bg4:#1c2f52;
+  --gold:#c9a96e;--gold2:#e8c992;--gold3:#a8873f;
+  --txt:#e8edf5;--txt2:#8899b4;--txt3:#586580;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--orange:#fb923c;--purple:#a78bfa;
+  --r:12px;--r2:8px;--sh:0 4px 24px rgba(0,0,0,.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
+body{background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.7;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--gold3);border-radius:3px}
+input,select,textarea{background:var(--bg);border:1px solid var(--bg4);color:var(--txt);padding:10px 14px;border-radius:var(--r2);font-family:inherit;font-size:14px;width:100%;transition:.2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,169,110,.15)}
+label{display:block;font-size:12px;color:var(--txt2);margin-bottom:4px;font-weight:600}
+.btn{padding:10px 20px;border:none;border-radius:var(--r2);cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold3));color:#0a1628}
+.btn-green{background:var(--green);color:#0a1628}
+.btn-red{background:var(--red);color:#fff}
+.btn-blue{background:var(--blue);color:#0a1628}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--txt2);border:1px solid var(--bg4)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.card{background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--r);padding:20px;box-shadow:var(--sh)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:rgba(74,222,128,.1);color:var(--green)}
+.badge-red{background:rgba(248,113,113,.1);color:var(--red)}
+.badge-blue{background:rgba(96,165,250,.1);color:var(--blue)}
+.badge-gold{background:rgba(201,169,110,.1);color:var(--gold)}
+.badge-orange{background:rgba(251,146,60,.1);color:var(--orange)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sec-title{font-size:18px;font-weight:800;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.stat-box{background:var(--bg3);border-radius:var(--r2);padding:14px;text-align:center}
+.stat-box .val{font-size:20px;font-weight:900;color:var(--gold)}
+.stat-box .lbl{font-size:11px;color:var(--txt2);margin-top:2px}
+.progress{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-box{background:var(--bg2);border:1px solid var(--bg4);border-radius:var(--r);padding:24px;max-width:500px;width:100%;max-height:85vh;overflow-y:auto}
+.tab-bar{display:flex;gap:4px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px}
+.tab{padding:8px 16px;border-radius:var(--r2);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;border:1px solid transparent;background:rgba(255,255,255,.03);color:var(--txt2)}
+.tab.active{background:linear-gradient(135deg,var(--gold),var(--gold3));color:#0a1628;border-color:var(--gold)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--bg3);display:flex;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:100}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--txt3);cursor:pointer;padding:4px 8px;transition:.2s}
+.nav-item.active{color:var(--gold)}
+.nav-item .icon{font-size:20px}
+.top-bar{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--bg3);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.empty{text-align:center;padding:40px;color:var(--txt3)}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:var(--bg3);color:var(--txt2);padding:10px;text-align:right;font-weight:700}
+.tbl td{padding:10px;border-bottom:1px solid var(--bg3)}
+.fade-in{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:var(--r2);font-weight:700;z-index:2000;animation:slideDown .3s ease}
+@keyframes slideDown{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+.sync-indicator{display:flex;align-items:center;gap:6px;font-size:11px;padding:4px 10px;border-radius:20px}
+.sync-ok{background:rgba(74,222,128,.1);color:var(--green)}
+.sync-pending{background:rgba(251,146,60,.1);color:var(--orange)}
+.sync-error{background:rgba(248,113,113,.1);color:var(--red)}
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0a1628 0%,#162544 50%,#0f1d33 100%)}
+.login-card{background:var(--bg2);border:1px solid var(--bg3);border-radius:16px;padding:40px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.login-logo{text-align:center;margin-bottom:30px}
+.login-logo h1{font-size:28px;font-weight:900;color:var(--gold);margin-bottom:4px}
+.login-logo p{font-size:13px;color:var(--txt2)}
+@media(max-width:640px){
+  .grid2{grid-template-columns:1fr}
+  .modal-box{margin:10px}
+  .top-bar{padding:10px 14px}
+  body{padding-bottom:70px}
+}
+.wa-btn{background:#25D366;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit}
+.wa-btn:hover{background:#128C7E}
+.inst-row{background:var(--bg3);border-radius:var(--r2);padding:12px 16px;margin-bottom:8px;transition:.2s}
+.inst-row:hover{background:var(--bg4)}
+.inst-paid{border-right:3px solid var(--green)}
+.inst-due{border-right:3px solid var(--orange)}
+.inst-overdue{border-right:3px solid var(--red)}
+.kpi-card{text-align:center;padding:16px;background:var(--bg3);border-radius:var(--r);transition:.2s}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.kpi-val{font-size:24px;font-weight:900}
+.kpi-lbl{font-size:11px;color:var(--txt2);margin-top:4px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ============================================================
+// FIREBASE CONFIG — استبدل هذه البيانات ببيانات مشروعك
+// ============================================================
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAVJIu9mpkvd5oi0lx8ey1n5PQEf7s6fGo",
+  authDomain: "bahoalmadina.firebaseapp.com",
+  projectId: "bahoalmadina",
+  storageBucket: "bahoalmadina.firebasestorage.app",
+  messagingSenderId: "1036445804903",
+  appId: "1:1036445804903:web:9c4f47bc94c62477fb27c2"
+};
+
+// ============================================================
+// INITIALIZE FIREBASE
+// ============================================================
+let db = null, auth = null, firebaseReady = false;
+try {
+  if (FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    db.enablePersistence({ synchronizeTabs: true }).catch(()=>{});
+    firebaseReady = true;
+  }
+} catch(e) { console.warn("Firebase not configured, using localStorage:", e); }
+
+// ============================================================
+// STORAGE LAYER — يعمل مع Firebase أو localStorage
+// ============================================================
+const Storage = {
+  async load(userId) {
+    if (firebaseReady && userId) {
+      try {
+        const doc = await db.collection("tenants_data").doc(userId).get();
+        if (doc.exists) return doc.data();
+      } catch(e) { console.error("Firestore load error:", e); }
+    }
+    const local = localStorage.getItem("baho-rental-data");
+    return local ? JSON.parse(local) : null;
+  },
+  async save(userId, data) {
+    localStorage.setItem("baho-rental-data", JSON.stringify(data));
+    if (firebaseReady && userId) {
+      try {
+        await db.collection("tenants_data").doc(userId).set(data, { merge: true });
+        return "cloud";
+      } catch(e) { console.error("Firestore save error:", e); return "local"; }
+    }
+    return "local";
+  }
+};
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+const fmt = n => (n||0).toLocaleString("ar-SA");
+const sar = n => `${fmt(n)} ر.س`;
+const pct = n => `${Math.round((n||0)*100)}%`;
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const today = () => new Date().toISOString().split("T")[0];
+const daysDiff = d => { try { return Math.round((new Date(d)-new Date())/864e5); } catch{ return 0; } };
+const instPaid = i => (i.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
+const instRemaining = i => Math.max(0, (i.amount||0) - instPaid(i));
+const instIsFull = i => instRemaining(i) <= 0;
+
+function genDueDates(start, count) {
+  if (!count || !start) return [];
+  const s = new Date(start), iv = Math.round(12/count), r = [];
+  for (let i=0; i<count; i++) { const d = new Date(s); d.setMonth(d.getMonth()+iv*i); r.push(d.toISOString().split("T")[0]); }
+  return r;
+}
+
+function buildWAMsg(tenant, unit, prop, amount, remaining, dueDate, num, isOverdue, days) {
+  const lines = [
+    "السلام عليكم ورحمة الله وبركاته",
+    "", `المستأجر الكريم: ${tenant}`, `الوحدة: ${unit} — ${prop}`, "",
+    isOverdue
+      ? `نود تذكيركم بأن الدفعة رقم (${num}) بمبلغ ${sar(amount)} استحقت بتاريخ ${dueDate} وتأخرت ${days} يوم.`
+      : `نود تذكيركم بأن الدفعة رقم (${num}) بمبلغ ${sar(remaining)} مستحقة بتاريخ ${dueDate}.`,
+    "", "نأمل السداد في أقرب وقت.", "", "مع خالص التحية،", "بهو المدينة العقارية"
+  ];
+  return lines.join("\n");
+}
+
+// ============================================================
+// DEFAULT DATA
+// ============================================================
+const DEFAULT_DATA = {
+  owners: [{ id:"o1", name:"بهو المدينة", phone:"", notes:"بهو المدينة للتأسيس والتشغيل العقاري" }],
+  properties: [{ id:"p1", ownerId:"o1", name:"عمارة الممشى", location:"المدينة المنورة", type:"سكني" }],
+  units: [
+    { id:"u1", propId:"p1", name:"شقة 1", contractNo:"10135318068", tenant:"يوسف الفيروز شركة", status:"مستأجرة", startDate:"2026-01-01", endDate:"2026-12-30", payMethod:"منصة ايجار", value:22000, installments:1, phone:"509355566" },
+    { id:"u2", propId:"p1", name:"شقة 2", contractNo:"10065470490", tenant:"أسامة النهاري", status:"مستأجرة", startDate:"2026-01-01", endDate:"2026-12-30", payMethod:"منصة ايجار", value:20000, installments:2, phone:"" },
+  ],
+  payments: [],
+  expenses: [],
+  maintenance: [],
+  brokers: [],
+  projects: [],
+  auditLog: [],
+  lastSync: null
+};
+
+// ============================================================
+// MAIN APPLICATION
+// ============================================================
+class App {
+  constructor() {
+    this.state = {
+      page: "login", // login, dashboard, owners, property, unit, maintenance, analytics, brokers, projects, alerts, audit
+      user: null,
+      data: null,
+      syncStatus: "pending",
+      selectedOwner: null,
+      selectedProp: null,
+      selectedUnit: null,
+      modal: null,
+      form: {},
+      toast: null,
+      tab: "overview",
+      loading: true
+    };
+    this.el = document.getElementById("app");
+    this.checkAuth();
+  }
+
+  setState(updates) {
+    Object.assign(this.state, updates);
+    this.render();
+  }
+
+  checkAuth() {
+    if (firebaseReady) {
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          this.setState({ user: { uid: user.uid, email: user.email, name: user.displayName || user.email.split("@")[0] }, loading: false });
+          this.loadData(user.uid);
+        } else {
+          this.setState({ page: "login", user: null, loading: false });
+        }
+      });
+    } else {
+      // Local mode
+      const savedUser = localStorage.getItem("baho-user");
+      if (savedUser) {
+        const u = JSON.parse(savedUser);
+        this.setState({ user: u, loading: false });
+        this.loadData(u.uid);
+      } else {
+        this.setState({ page: "login", loading: false });
+      }
+    }
+  }
+
+  async loadData(userId) {
+    const data = await Storage.load(userId);
+    this.setState({
+      data: data || JSON.parse(JSON.stringify(DEFAULT_DATA)),
+      page: "dashboard",
+      syncStatus: firebaseReady ? "ok" : "local"
+    });
+  }
+
+  async saveData() {
+    if (!this.state.data || !this.state.user) return;
+    this.state.data.lastSync = new Date().toISOString();
+    const status = await Storage.save(this.state.user.uid, this.state.data);
+    this.setState({ syncStatus: status === "cloud" ? "ok" : "local" });
+  }
+
+  addAudit(action, details) {
+    if (!this.state.data) return;
+    this.state.data.auditLog.unshift({
+      id: uid(), date: new Date().toISOString(), user: this.state.user?.name || "مجهول",
+      action, details
+    });
+    if (this.state.data.auditLog.length > 500) this.state.data.auditLog.length = 500;
+  }
+
+  showToast(msg, type="success") {
+    this.setState({ toast: { msg, type } });
+    setTimeout(() => this.setState({ toast: null }), 2500);
+  }
+
+  // AUTH METHODS
+  async login(email, password) {
+    if (!email || !password) { this.showLoginError("أدخل البريد الإلكتروني وكلمة المرور"); return; }
+    if (password.length < 6) { this.showLoginError("كلمة المرور يجب أن تكون 6 أحرف على الأقل"); return; }
+    
+    this.showLoginError(""); // clear previous
+    const btn = document.getElementById("login-btn");
+    if (btn) { btn.disabled = true; btn.textContent = "⏳ جارِ الدخول..."; }
+
+    if (firebaseReady) {
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch(e) {
+        console.log("Login error:", e.code, e.message);
+        // If user not found or invalid credential, try creating account
+        if (e.code === "auth/user-not-found" || e.code === "auth/invalid-credential" || e.code === "auth/wrong-password") {
+          try {
+            await auth.createUserWithEmailAndPassword(email, password);
+          } catch(e2) {
+            console.log("Signup error:", e2.code, e2.message);
+            const msg = this.firebaseErrorAr(e2.code);
+            this.showLoginError(msg);
+            if (btn) { btn.disabled = false; btn.textContent = "🔐 تسجيل الدخول"; }
+          }
+        } else {
+          const msg = this.firebaseErrorAr(e.code);
+          this.showLoginError(msg);
+          if (btn) { btn.disabled = false; btn.textContent = "🔐 تسجيل الدخول"; }
+        }
+      }
+    } else {
+      // Local mode login
+      const u = { uid: email.replace(/[^a-z0-9]/gi,"_"), email, name: email.split("@")[0] };
+      localStorage.setItem("baho-user", JSON.stringify(u));
+      this.setState({ user: u });
+      this.loadData(u.uid);
+    }
+  }
+
+  firebaseErrorAr(code) {
+    const map = {
+      "auth/invalid-email": "البريد الإلكتروني غير صحيح",
+      "auth/user-disabled": "هذا الحساب معطّل",
+      "auth/user-not-found": "لا يوجد حساب بهذا البريد — جارِ إنشاء حساب جديد",
+      "auth/wrong-password": "كلمة المرور غير صحيحة",
+      "auth/invalid-credential": "البيانات غير صحيحة — تأكد من البريد وكلمة المرور",
+      "auth/email-already-in-use": "هذا البريد مسجّل مسبقاً — جرّب تسجيل الدخول",
+      "auth/weak-password": "كلمة المرور ضعيفة — استخدم 6 أحرف على الأقل",
+      "auth/network-request-failed": "خطأ في الاتصال — تحقق من الإنترنت",
+      "auth/too-many-requests": "محاولات كثيرة — انتظر دقيقة وحاول مرة أخرى",
+      "auth/operation-not-allowed": "⚠ تسجيل الدخول بالبريد غير مفعّل في Firebase — فعّل Email/Password في Authentication",
+      "auth/unauthorized-domain": "⚠ النطاق غير مسموح — أضف hugailyf.github.io في Firebase → Authentication → Settings → Authorized domains",
+      "auth/configuration-not-found": "⚠ خدمة Authentication غير مفعّلة — فعّلها من Firebase Console"
+    };
+    return map[code] || "خطأ: " + code;
+  }
+
+  showLoginError(msg) {
+    const el = document.getElementById("login-error");
+    if (el) {
+      el.textContent = msg;
+      el.style.display = msg ? "block" : "none";
+    }
+  }
+
+  async logout() {
+    if (firebaseReady) { await auth.signOut(); }
+    localStorage.removeItem("baho-user");
+    this.setState({ page: "login", user: null, data: null });
+  }
+
+  // DATA HELPERS
+  get owners() { return this.state.data?.owners || []; }
+  get properties() { return this.state.data?.properties || []; }
+  get units() { return this.state.data?.units || []; }
+  get expenses() { return this.state.data?.expenses || []; }
+  get maintenance() { return this.state.data?.maintenance || []; }
+  get brokers() { return this.state.data?.brokers || []; }
+  get projects() { return this.state.data?.projects || []; }
+
+  propsByOwner(ownerId) { return this.properties.filter(p => p.ownerId === ownerId); }
+  unitsByProp(propId) { return this.units.filter(u => u.propId === propId); }
+  expensesByProp(propId) { return this.expenses.filter(e => e.propId === propId); }
+  expensesByUnit(unitId) { return this.expenses.filter(e => e.unitId === unitId); }
+
+  unitPayments(unit) {
+    if (!unit) return [];
+    const existing = (this.state.data?.payments || []).filter(p => p.unitId === unit.id);
+    if (existing.length > 0) return existing;
+    // Generate from contract
+    const dates = genDueDates(unit.startDate, unit.installments || 1);
+    const amt = Math.round((unit.value || 0) / (unit.installments || 1));
+    return dates.map((d, i) => ({
+      id: `${unit.id}_p${i}`, unitId: unit.id, num: i+1,
+      dueDate: d, amount: amt, payments: [], notes: ""
+    }));
+  }
+
+  // COMPUTED STATS
+  totalRevenue() {
+    return this.units.reduce((s, u) => {
+      return s + this.unitPayments(u).reduce((s2, p) => s2 + instPaid(p), 0);
+    }, 0);
+  }
+
+  totalExpenses() {
+    return this.expenses.reduce((s, e) => s + (e.amount || 0), 0);
+  }
+
+  occupancyRate() {
+    const total = this.units.length;
+    if (!total) return 0;
+    return this.units.filter(u => u.status === "مستأجرة").length / total;
+  }
+
+  collectionRate() {
+    let due = 0, paid = 0;
+    this.units.forEach(u => {
+      this.unitPayments(u).forEach(p => {
+        due += p.amount || 0;
+        paid += instPaid(p);
+      });
+    });
+    return due > 0 ? paid / due : 0;
+  }
+
+  overduePayments() {
+    const result = [];
+    this.units.forEach(u => {
+      const prop = this.properties.find(p => p.id === u.propId);
+      this.unitPayments(u).forEach(p => {
+        if (!instIsFull(p) && daysDiff(p.dueDate) < 0) {
+          result.push({ ...p, unit: u, prop, overdueDays: Math.abs(daysDiff(p.dueDate)) });
+        }
+      });
+    });
+    return result.sort((a,b) => b.overdueDays - a.overdueDays);
+  }
+
+  upcomingPayments(days=30) {
+    const result = [];
+    this.units.forEach(u => {
+      const prop = this.properties.find(p => p.id === u.propId);
+      this.unitPayments(u).forEach(p => {
+        const d = daysDiff(p.dueDate);
+        if (!instIsFull(p) && d >= 0 && d <= days) {
+          result.push({ ...p, unit: u, prop, daysLeft: d });
+        }
+      });
+    });
+    return result.sort((a,b) => a.daysLeft - b.daysLeft);
+  }
+
+  // ============================================================
+  // RENDER
+  // ============================================================
+  render() {
+    const s = this.state;
+    if (s.loading) {
+      this.el.innerHTML = `<div class="login-page"><div style="text-align:center"><div style="font-size:48px;margin-bottom:16px">🏢</div><div style="color:var(--gold);font-size:18px;font-weight:700">جارِ التحميل...</div></div></div>`;
+      return;
+    }
+
+    let html = "";
+
+    // Toast
+    if (s.toast) {
+      const bg = s.toast.type === "error" ? "var(--red)" : s.toast.type === "warning" ? "var(--orange)" : "var(--green)";
+      html += `<div class="toast" style="background:${bg};color:#fff">${s.toast.msg}</div>`;
+    }
+
+    // Pages
+    if (s.page === "login") {
+      html += this.renderLogin();
+    } else {
+      html += this.renderTopBar();
+      html += `<div style="padding:16px 20px;padding-bottom:80px" class="fade-in">`;
+      switch(s.page) {
+        case "dashboard": html += this.renderDashboard(); break;
+        case "owners": html += this.renderOwners(); break;
+        case "property": html += this.renderProperty(); break;
+        case "unit": html += this.renderUnit(); break;
+        case "maintenance": html += this.renderMaintenance(); break;
+        case "analytics": html += this.renderAnalytics(); break;
+        case "brokers": html += this.renderBrokers(); break;
+        case "projects": html += this.renderProjects(); break;
+        case "alerts": html += this.renderAlerts(); break;
+        case "audit": html += this.renderAudit(); break;
+      }
+      html += `</div>`;
+      if (s.modal) html += this.renderModal();
+      html += this.renderNav();
+    }
+
+    this.el.innerHTML = html;
+    this.attachEvents();
+  }
+
+  // ============================================================
+  // LOGIN PAGE
+  // ============================================================
+  renderLogin() {
+    return `
+    <div class="login-page">
+      <div class="login-card">
+        <div class="login-logo">
+          <div style="font-size:56px;margin-bottom:12px">🏢</div>
+          <h1>بهو المدينة العقارية</h1>
+          <p>نظام إدارة العقارات السحابي</p>
+        </div>
+        <div style="margin-bottom:16px">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="login-email" placeholder="example@email.com" dir="ltr" style="text-align:left">
+        </div>
+        <div style="margin-bottom:24px">
+          <label>كلمة المرور</label>
+          <input type="password" id="login-pass" placeholder="••••••••" dir="ltr">
+        </div>
+        <button class="btn btn-gold" style="width:100%;justify-content:center;padding:14px;font-size:16px" id="login-btn">
+          🔐 تسجيل الدخول
+        </button>
+        <div id="login-error" style="display:none;margin-top:12px;padding:12px;background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);border-radius:8px;color:var(--red);font-size:13px;text-align:center;font-weight:600;line-height:1.6"></div>
+        <p style="text-align:center;margin-top:16px;font-size:12px;color:var(--txt3)">
+          ${firebaseReady ? "إذا لم يكن لديك حساب سيتم إنشاؤه تلقائياً" : "⚡ وضع محلي — لتفعيل السحابي أعد إعداد Firebase"}
+        </p>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bg4);text-align:center">
+          <div class="badge badge-gold">الإصدار 5.0 — سحابي</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ============================================================
+  // TOP BAR
+  // ============================================================
+  renderTopBar() {
+    const s = this.state;
+    const syncClass = s.syncStatus === "ok" ? "sync-ok" : s.syncStatus === "local" ? "sync-pending" : "sync-error";
+    const syncLabel = s.syncStatus === "ok" ? "☁️ متصل" : s.syncStatus === "local" ? "💾 محلي" : "⚠ خطأ";
+    
+    let title = "لوحة التحكم";
+    if (s.page === "owners") title = "الملاك";
+    else if (s.page === "property") title = this.properties.find(p=>p.id===s.selectedProp)?.name || "العقار";
+    else if (s.page === "unit") title = this.units.find(u=>u.id===s.selectedUnit)?.name || "الوحدة";
+    else if (s.page === "maintenance") title = "الصيانة";
+    else if (s.page === "analytics") title = "التحليلات";
+    else if (s.page === "brokers") title = "الوسطاء";
+    else if (s.page === "projects") title = "المشاريع";
+    else if (s.page === "alerts") title = "التنبيهات";
+    else if (s.page === "audit") title = "سجل العمليات";
+
+    const showBack = s.page !== "dashboard";
+
+    return `
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:10px">
+        ${showBack ? `<span style="cursor:pointer;font-size:18px" id="back-btn">→</span>` : ""}
+        <span style="font-weight:800;font-size:16px">${title}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="sync-indicator ${syncClass}">${syncLabel}</div>
+        <span style="cursor:pointer;font-size:18px" id="save-btn" title="حفظ">💾</span>
+        <span style="cursor:pointer;font-size:18px" id="logout-btn" title="خروج">🚪</span>
+      </div>
+    </div>`;
+  }
+
+  // ============================================================
+  // NAVIGATION
+  // ============================================================
+  renderNav() {
+    const items = [
+      { id:"dashboard", icon:"🏠", label:"الرئيسية" },
+      { id:"owners", icon:"👤", label:"الملاك" },
+      { id:"alerts", icon:"🔔", label:"التنبيهات" },
+      { id:"analytics", icon:"📊", label:"التحليلات" },
+      { id:"more", icon:"☰", label:"المزيد" }
+    ];
+    return `<div class="nav">${items.map(i => `
+      <div class="nav-item ${this.state.page === i.id ? 'active' : ''}" data-nav="${i.id}">
+        <span class="icon">${i.icon}</span>${i.label}
+      </div>
+    `).join("")}</div>`;
+  }
+
+  // ============================================================
+  // DASHBOARD
+  // ============================================================
+  renderDashboard() {
+    const overdue = this.overduePayments();
+    const upcoming = this.upcomingPayments(7);
+    const rev = this.totalRevenue();
+    const exp = this.totalExpenses();
+    
+    return `
+    <div style="margin-bottom:20px;text-align:center">
+      <div style="font-size:14px;color:var(--txt2)">مرحباً ${this.state.user?.name || ""}</div>
+    </div>
+
+    ${overdue.length > 0 ? `
+    <div class="card" style="margin-bottom:16px;border-color:var(--red);border-width:2px">
+      <div style="color:var(--red);font-weight:800;margin-bottom:8px">⚠ ${overdue.length} دفعة متأخرة</div>
+      ${overdue.slice(0,3).map(p => `
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+          <span>${p.unit.tenant} — ${p.unit.name}</span>
+          <span style="color:var(--red)">${sar(instRemaining(p))} • متأخر ${p.overdueDays} يوم</span>
+        </div>
+      `).join("")}
+    </div>` : ""}
+
+    <div class="grid4" style="margin-bottom:20px">
+      <div class="stat-box"><div class="val">${fmt(this.properties.length)}</div><div class="lbl">عقار</div></div>
+      <div class="stat-box"><div class="val">${fmt(this.units.length)}</div><div class="lbl">وحدة</div></div>
+      <div class="stat-box"><div class="val" style="color:var(--green)">${pct(this.occupancyRate())}</div><div class="lbl">نسبة الإشغال</div></div>
+      <div class="stat-box"><div class="val" style="color:var(--blue)">${pct(this.collectionRate())}</div><div class="lbl">نسبة التحصيل</div></div>
+    </div>
+
+    <div class="grid2" style="margin-bottom:20px">
+      <div class="stat-box"><div class="val" style="color:var(--green)">${sar(rev)}</div><div class="lbl">إجمالي المحصّل</div></div>
+      <div class="stat-box"><div class="val" style="color:var(--orange)">${sar(exp)}</div><div class="lbl">إجمالي المصروفات</div></div>
+    </div>
+
+    <div class="sec-title">🏢 العقارات</div>
+    <div style="margin-bottom:12px">
+      <button class="btn btn-gold btn-sm" id="add-prop-btn">+ عقار جديد</button>
+    </div>
+    ${this.properties.map(p => {
+      const units = this.unitsByProp(p.id);
+      const occupied = units.filter(u => u.status === "مستأجرة").length;
+      const totalRev = units.reduce((s,u) => s + (u.value||0), 0);
+      const owner = this.owners.find(o => o.id === p.ownerId);
+      return `
+      <div class="card" style="margin-bottom:12px;cursor:pointer" data-goto-prop="${p.id}">
+        <div style="display:flex;justify-content:space-between;align-items:start">
+          <div>
+            <div style="font-weight:800;font-size:16px;color:var(--gold)">${p.name}</div>
+            <div style="font-size:12px;color:var(--txt2)">${p.location || ""} ${owner ? `• ${owner.name}` : ""}</div>
+          </div>
+          <div class="badge badge-blue">${p.type || "سكني"}</div>
+        </div>
+        <div class="grid4" style="margin-top:12px">
+          <div class="stat-box"><div class="val" style="font-size:16px">${units.length}</div><div class="lbl">وحدة</div></div>
+          <div class="stat-box"><div class="val" style="font-size:16px;color:var(--green)">${occupied}</div><div class="lbl">مؤجرة</div></div>
+          <div class="stat-box"><div class="val" style="font-size:14px;color:var(--gold)">${sar(totalRev)}</div><div class="lbl">إيجار سنوي</div></div>
+        </div>
+      </div>`;
+    }).join("")}
+
+    ${this.properties.length === 0 ? `<div class="empty">لا توجد عقارات بعد — أضف أول عقار</div>` : ""}
+
+    <div style="margin-top:24px">
+      <div class="sec-title">⚡ اختصارات</div>
+      <div class="grid2">
+        <button class="btn btn-ghost" style="justify-content:center" data-nav="maintenance">🔧 الصيانة</button>
+        <button class="btn btn-ghost" style="justify-content:center" data-nav="brokers">👥 الوسطاء</button>
+        <button class="btn btn-ghost" style="justify-content:center" data-nav="projects">🏗️ المشاريع</button>
+        <button class="btn btn-ghost" style="justify-content:center" data-nav="audit">📋 سجل العمليات</button>
+      </div>
+    </div>
+
+    <div style="margin-top:20px">
+      <div class="sec-title">💾 النسخ الاحتياطي</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" id="export-btn">📥 تصدير JSON</button>
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">📤 استيراد JSON<input type="file" accept=".json" id="import-input" style="display:none"></label>
+      </div>
+    </div>`;
+  }
+
+  // ============================================================
+  // PROPERTY VIEW
+  // ============================================================
+  renderProperty() {
+    const p = this.properties.find(x => x.id === this.state.selectedProp);
+    if (!p) return `<div class="empty">لم يتم العثور على العقار</div>`;
+    const units = this.unitsByProp(p.id);
+    const exps = this.expensesByProp(p.id);
+    const totalRent = units.reduce((s,u)=>s+(u.value||0),0);
+    const totalExp = exps.reduce((s,e)=>s+(e.amount||0),0);
+    const occupied = units.filter(u=>u.status==="مستأجرة").length;
+
+    return `
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <div><div style="font-size:20px;font-weight:900;color:var(--gold)">${p.name}</div><div style="font-size:13px;color:var(--txt2)">${p.location || ""}</div></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" data-edit-prop="${p.id}">✏️</button>
+          <button class="btn btn-red btn-sm" data-del-prop="${p.id}">🗑</button>
+        </div>
+      </div>
+      <div class="grid4">
+        <div class="stat-box"><div class="val" style="font-size:16px">${units.length}</div><div class="lbl">وحدة</div></div>
+        <div class="stat-box"><div class="val" style="font-size:16px;color:var(--green)">${occupied}/${units.length}</div><div class="lbl">مؤجرة</div></div>
+        <div class="stat-box"><div class="val" style="font-size:14px;color:var(--gold)">${sar(totalRent)}</div><div class="lbl">إيجار سنوي</div></div>
+        <div class="stat-box"><div class="val" style="font-size:14px;color:var(--green)">${sar(totalRent - totalExp)}</div><div class="lbl">صافي</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="sec-title" style="margin:0">🏠 الوحدات</div>
+      <button class="btn btn-gold btn-sm" data-add-unit="${p.id}">+ وحدة</button>
+    </div>
+
+    ${units.map(u => {
+      const pays = this.unitPayments(u);
+      const paid = pays.reduce((s,p) => s + instPaid(p), 0);
+      const due = pays.reduce((s,p) => s + (p.amount||0), 0);
+      const ratio = due > 0 ? paid/due : 0;
+      const isOverdue = pays.some(p => !instIsFull(p) && daysDiff(p.dueDate) < 0);
+      return `
+      <div class="card" style="margin-bottom:10px;cursor:pointer;${isOverdue?'border-color:var(--red)':''}" data-goto-unit="${u.id}">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <span style="font-weight:800">${u.name}</span>
+            <span style="font-size:12px;color:var(--txt2);margin-right:8px">${u.tenant || "شاغرة"}</span>
+          </div>
+          <span class="badge ${u.status==='مستأجرة'?'badge-green':u.status==='شاغرة'?'badge-red':'badge-orange'}">${u.status}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--txt2)">
+          <span>الإيجار: ${sar(u.value)}</span>
+          <span>المحصّل: <span style="color:var(--green)">${sar(paid)}</span></span>
+        </div>
+        <div class="progress"><div class="progress-fill" style="width:${ratio*100}%;background:${ratio>=1?'var(--green)':ratio>.5?'var(--blue)':'var(--orange)'}"></div></div>
+        ${isOverdue ? `<div style="color:var(--red);font-size:11px;margin-top:4px">⚠ يوجد دفعات متأخرة</div>` : ""}
+      </div>`;
+    }).join("")}
+
+    ${units.length === 0 ? `<div class="empty">لا توجد وحدات — أضف أول وحدة</div>` : ""}
+
+    <div style="margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="sec-title" style="margin:0">💰 المصروفات</div>
+        <button class="btn btn-ghost btn-sm" data-add-exp="${p.id}">+ مصروف</button>
+      </div>
+      ${exps.length > 0 ? `
+      <table class="tbl">
+        <tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>ملاحظات</th></tr>
+        ${exps.slice(0,10).map(e => `<tr><td>${e.date||""}</td><td>${e.type||""}</td><td>${sar(e.amount)}</td><td style="font-size:12px">${e.notes||""}</td></tr>`).join("")}
+      </table>` : `<div class="empty" style="padding:20px">لا توجد مصروفات</div>`}
+    </div>`;
+  }
+
+  // ============================================================
+  // UNIT VIEW
+  // ============================================================
+  renderUnit() {
+    const u = this.units.find(x => x.id === this.state.selectedUnit);
+    if (!u) return `<div class="empty">لم يتم العثور على الوحدة</div>`;
+    const prop = this.properties.find(p => p.id === u.propId);
+    const pays = this.unitPayments(u);
+    const totalPaid = pays.reduce((s,p) => s + instPaid(p), 0);
+    const totalDue = pays.reduce((s,p) => s + (p.amount||0), 0);
+    const remaining = totalDue - totalPaid;
+    const exps = this.expensesByUnit(u.id);
+    const totalExp = exps.reduce((s,e) => s + (e.amount||0), 0);
+
+    return `
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:20px;font-weight:900;color:var(--gold)">${u.name}</div>
+          <div style="font-size:13px;color:var(--txt2)">${prop?.name || ""} • ${u.tenant || "شاغرة"}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" data-edit-unit="${u.id}">✏️</button>
+          <button class="btn btn-red btn-sm" data-del-unit="${u.id}">🗑</button>
+        </div>
+      </div>
+      <div class="grid4">
+        <div class="stat-box"><div class="val" style="font-size:14px;color:var(--gold)">${sar(u.value)}</div><div class="lbl">الإيجار</div></div>
+        <div class="stat-box"><div class="val" style="font-size:14px;color:var(--green)">${sar(totalPaid)}</div><div class="lbl">المحصّل</div></div>
+        <div class="stat-box"><div class="val" style="font-size:14px;color:${remaining>0?'var(--red)':'var(--green)'}">${sar(remaining)}</div><div class="lbl">المتبقي</div></div>
+        <div class="stat-box"><div class="val" style="font-size:14px;color:var(--green)">${sar(u.value - totalExp)}</div><div class="lbl">الصافي</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--txt2)">
+        العقد: ${u.contractNo || "—"} • من ${u.startDate||"—"} إلى ${u.endDate||"—"} • ${u.payMethod || "—"}
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="sec-title" style="margin:0">💳 الدفعات</div>
+      <button class="btn btn-gold btn-sm" data-add-installment="${u.id}">+ دفعة</button>
+    </div>
+
+    ${pays.map(p => {
+      const pd = instPaid(p);
+      const rm = instRemaining(p);
+      const full = rm <= 0;
+      const isOverdue = !full && daysDiff(p.dueDate) < 0;
+      const overdueDays = isOverdue ? Math.abs(daysDiff(p.dueDate)) : 0;
+      const cls = full ? "inst-paid" : isOverdue ? "inst-overdue" : "inst-due";
+      const waM = buildWAMsg(u.tenant, u.name, prop?.name||"", p.amount, rm, p.dueDate, p.num, isOverdue, overdueDays);
+      const waLink = u.phone ? `https://wa.me/${u.phone.startsWith("966")?u.phone:u.phone.startsWith("05")?"966"+u.phone.slice(1):"966"+u.phone}?text=${encodeURIComponent(waM)}` : "";
+
+      return `
+      <div class="inst-row ${cls}">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <span style="font-weight:800;${full?'color:var(--green)':isOverdue?'color:var(--red)':''}">#${p.num||""}</span>
+            <span style="font-size:13px;margin-right:8px">${sar(p.amount)}</span>
+            <span style="font-size:11px;color:var(--txt3)">• ${p.dueDate || ""}</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            ${full ? `<span class="badge badge-green">✓ مسدد</span>` :
+              isOverdue ? `<span class="badge badge-red">متأخر ${overdueDays} يوم</span>` :
+              `<span class="badge badge-orange">مستحق</span>`}
+          </div>
+        </div>
+        ${pd > 0 && !full ? `<div style="font-size:12px;color:var(--txt2);margin-top:4px">المدفوع: ${sar(pd)} • المتبقي: <span style="color:var(--red)">${sar(rm)}</span></div>` : ""}
+        ${!full ? `
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="btn btn-green btn-sm" data-pay-inst="${p.id}" data-unit="${u.id}">💰 تسجيل دفع</button>
+          ${waLink ? `<a href="${waLink}" target="_blank" class="wa-btn">📱 واتساب</a>` : ""}
+        </div>` : ""}
+      </div>`;
+    }).join("")}
+
+    ${pays.length === 0 ? `<div class="empty" style="padding:20px">لا توجد دفعات</div>` : ""}`;
+  }
+
+  // ============================================================
+  // ALERTS PAGE
+  // ============================================================
+  renderAlerts() {
+    const overdue = this.overduePayments();
+    const upcoming = this.upcomingPayments(30);
+
+    return `
+    <div class="sec-title">⚠ الدفعات المتأخرة (${overdue.length})</div>
+    ${overdue.length > 0 ? overdue.map(p => `
+      <div class="card" style="margin-bottom:8px;border-right:3px solid var(--red)">
+        <div style="display:flex;justify-content:space-between">
+          <div><strong>${p.unit.tenant}</strong> — ${p.unit.name} (${p.prop?.name||""})</div>
+          <span class="badge badge-red">متأخر ${p.overdueDays} يوم</span>
+        </div>
+        <div style="font-size:13px;color:var(--txt2);margin-top:4px">المبلغ: ${sar(p.amount)} • المتبقي: ${sar(instRemaining(p))} • الاستحقاق: ${p.dueDate}</div>
+      </div>
+    `).join("") : `<div class="empty" style="padding:20px">لا توجد دفعات متأخرة ✓</div>`}
+
+    <div class="sec-title" style="margin-top:24px">📅 مستحقة خلال 30 يوم (${upcoming.length})</div>
+    ${upcoming.length > 0 ? upcoming.map(p => `
+      <div class="card" style="margin-bottom:8px;border-right:3px solid var(--orange)">
+        <div style="display:flex;justify-content:space-between">
+          <div><strong>${p.unit.tenant}</strong> — ${p.unit.name}</div>
+          <span class="badge badge-orange">بعد ${p.daysLeft} يوم</span>
+        </div>
+        <div style="font-size:13px;color:var(--txt2);margin-top:4px">${sar(instRemaining(p))} • ${p.dueDate}</div>
+      </div>
+    `).join("") : `<div class="empty" style="padding:20px">لا توجد دفعات مستحقة قريبة</div>`}
+
+    <div style="margin-top:24px">
+      <div class="sec-title">📊 ملخص التنبيهات</div>
+      <div class="grid2">
+        <div class="stat-box" style="border-right:3px solid var(--red)"><div class="val" style="color:var(--red)">${overdue.length}</div><div class="lbl">دفعة متأخرة</div></div>
+        <div class="stat-box" style="border-right:3px solid var(--orange)"><div class="val" style="color:var(--orange)">${upcoming.length}</div><div class="lbl">مستحقة قريباً</div></div>
+      </div>
+    </div>`;
+  }
+
+  // ============================================================
+  // ANALYTICS PAGE
+  // ============================================================
+  renderAnalytics() {
+    const rev = this.totalRevenue();
+    const exp = this.totalExpenses();
+    const net = rev - exp;
+    const occ = this.occupancyRate();
+    const coll = this.collectionRate();
+    const totalRent = this.units.reduce((s,u) => s + (u.value||0), 0);
+
+    // Per property comparison
+    const propStats = this.properties.map(p => {
+      const units = this.unitsByProp(p.id);
+      const rent = units.reduce((s,u) => s + (u.value||0), 0);
+      const paid = units.reduce((s,u) => s + this.unitPayments(u).reduce((s2,pay) => s2 + instPaid(pay), 0), 0);
+      const exps = this.expensesByProp(p.id).reduce((s,e) => s + (e.amount||0), 0);
+      const occupied = units.filter(u => u.status==="مستأجرة").length;
+      return { name: p.name, rent, paid, exps, net: paid - exps, units: units.length, occupied, occRate: units.length ? occupied/units.length : 0 };
+    });
+
+    return `
+    <div class="sec-title">📊 مؤشرات الأداء الرئيسية</div>
+    <div class="grid3" style="margin-bottom:24px">
+      <div class="kpi-card"><div class="kpi-val" style="color:var(--gold)">${sar(totalRent)}</div><div class="kpi-lbl">إيجارات سنوية</div></div>
+      <div class="kpi-card"><div class="kpi-val" style="color:var(--green)">${sar(rev)}</div><div class="kpi-lbl">إجمالي المحصّل</div></div>
+      <div class="kpi-card"><div class="kpi-val" style="color:var(--orange)">${sar(exp)}</div><div class="kpi-lbl">المصروفات</div></div>
+      <div class="kpi-card"><div class="kpi-val" style="color:${net>=0?'var(--green)':'var(--red)'}">${sar(net)}</div><div class="kpi-lbl">صافي الدخل</div></div>
+      <div class="kpi-card"><div class="kpi-val" style="color:var(--blue)">${pct(occ)}</div><div class="kpi-lbl">نسبة الإشغال</div></div>
+      <div class="kpi-card"><div class="kpi-val" style="color:var(--purple)">${pct(coll)}</div><div class="kpi-lbl">نسبة التحصيل</div></div>
+    </div>
+
+    <div class="sec-title">🏢 مقارنة العقارات</div>
+    ${propStats.length > 0 ? `
+    <table class="tbl">
+      <tr><th>العقار</th><th>الوحدات</th><th>الإشغال</th><th>الإيجار</th><th>المحصّل</th><th>الصافي</th></tr>
+      ${propStats.map(p => `
+        <tr>
+          <td style="font-weight:700">${p.name}</td>
+          <td>${p.units}</td>
+          <td><span class="badge ${p.occRate>=.8?'badge-green':p.occRate>=.5?'badge-orange':'badge-red'}">${pct(p.occRate)}</span></td>
+          <td>${sar(p.rent)}</td>
+          <td style="color:var(--green)">${sar(p.paid)}</td>
+          <td style="color:${p.net>=0?'var(--green)':'var(--red)'}">${sar(p.net)}</td>
+        </tr>`).join("")}
+    </table>` : `<div class="empty">لا توجد عقارات للمقارنة</div>`}
+
+    <div class="sec-title" style="margin-top:24px">💰 مركز التكلفة</div>
+    <div class="grid2">
+      <div class="stat-box"><div class="val" style="color:var(--green)">${sar(rev)}</div><div class="lbl">إجمالي الإيرادات</div></div>
+      <div class="stat-box"><div class="val" style="color:var(--orange)">${sar(exp)}</div><div class="lbl">إجمالي المصروفات</div></div>
+      <div class="stat-box"><div class="val" style="color:${net>=0?'var(--green)':'var(--red)'}">${sar(net)}</div><div class="lbl">صافي الربح</div></div>
+      <div class="stat-box"><div class="val">${exp>0?Math.round(rev/exp*100)/100:0}</div><div class="lbl">نسبة الإيراد/المصروف</div></div>
+    </div>`;
+  }
+
+  // ============================================================
+  // OWNERS PAGE
+  // ============================================================
+  renderOwners() {
+    return `
+    <div style="margin-bottom:12px"><button class="btn btn-gold btn-sm" id="add-owner-btn">+ مالك جديد</button></div>
+    ${this.owners.map(o => {
+      const props = this.propsByOwner(o.id);
+      const totalUnits = props.reduce((s,p) => s + this.unitsByProp(p.id).length, 0);
+      return `
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><span style="font-weight:800;color:var(--gold)">${o.name}</span><span style="font-size:12px;color:var(--txt2);margin-right:8px">${props.length} عقار • ${totalUnits} وحدة</span></div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" data-edit-owner="${o.id}">✏️</button>
+            <button class="btn btn-red btn-sm" data-del-owner="${o.id}">🗑</button>
+          </div>
+        </div>
+      </div>`;
+    }).join("")}
+    ${this.owners.length === 0 ? `<div class="empty">لا يوجد ملاك مسجلون</div>` : ""}`;
+  }
+
+  // ============================================================
+  // MAINTENANCE PAGE
+  // ============================================================
+  renderMaintenance() {
+    const items = this.maintenance;
+    return `
+    <div style="margin-bottom:12px"><button class="btn btn-gold btn-sm" id="add-maint-btn">+ طلب صيانة</button></div>
+    ${items.map(m => {
+      const unit = this.units.find(u => u.id === m.unitId);
+      const statusCls = m.status==="مكتمل"?"badge-green":m.status==="قيد التنفيذ"?"badge-orange":"badge-red";
+      return `
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <span style="font-weight:700">${m.title}</span>
+            <span style="font-size:12px;color:var(--txt2);margin-right:8px">${unit?.name || ""}</span>
+          </div>
+          <span class="badge ${statusCls}">${m.status}</span>
+        </div>
+        <div style="font-size:12px;color:var(--txt2);margin-top:4px">${m.date||""} • التكلفة: ${sar(m.cost)} • ${m.notes||""}</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="btn btn-ghost btn-sm" data-edit-maint="${m.id}">✏️</button>
+          <button class="btn btn-red btn-sm" data-del-maint="${m.id}">🗑</button>
+        </div>
+      </div>`;
+    }).join("")}
+    ${items.length === 0 ? `<div class="empty">لا توجد طلبات صيانة</div>` : ""}`;
+  }
+
+  // ============================================================
+  // BROKERS PAGE
+  // ============================================================
+  renderBrokers() {
+    return `
+    <div style="margin-bottom:12px"><button class="btn btn-gold btn-sm" id="add-broker-btn">+ وسيط جديد</button></div>
+    ${this.brokers.map(b => `
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <span style="font-weight:800;color:var(--gold)">${b.name}</span>
+            <span style="font-size:12px;color:var(--txt2);margin-right:8px">${b.phone||""} • عمولة ${b.commission||0}%</span>
+          </div>
+          <span class="badge ${b.active?'badge-green':'badge-red'}">${b.active?"نشط":"غير نشط"}</span>
+        </div>
+      </div>
+    `).join("")}
+    ${this.brokers.length === 0 ? `<div class="empty">لا يوجد وسطاء مسجلون</div>` : ""}`;
+  }
+
+  // ============================================================
+  // PROJECTS PAGE
+  // ============================================================
+  renderProjects() {
+    return `
+    <div style="margin-bottom:12px"><button class="btn btn-gold btn-sm" id="add-project-btn">+ مشروع جديد</button></div>
+    ${this.projects.map(p => {
+      const phases = p.phases || [];
+      const completed = phases.filter(ph => ph.status === "مكتمل").length;
+      const progress = phases.length ? completed / phases.length : 0;
+      const spent = phases.reduce((s,ph) => s + (ph.cost||0), 0);
+      return `
+      <div class="card" style="margin-bottom:10px">
+        <div style="font-weight:800;color:var(--gold);font-size:16px">${p.name}</div>
+        <div style="font-size:12px;color:var(--txt2)">${p.location||""} • الميزانية: ${sar(p.budget)}</div>
+        <div class="progress" style="margin-top:8px"><div class="progress-fill" style="width:${progress*100}%;background:var(--green)"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--txt2);margin-top:4px">
+          <span>الإنجاز: ${pct(progress)}</span>
+          <span>المنصرف: ${sar(spent)} من ${sar(p.budget)}</span>
+        </div>
+      </div>`;
+    }).join("")}
+    ${this.projects.length === 0 ? `<div class="empty">لا توجد مشاريع تحت التطوير</div>` : ""}`;
+  }
+
+  // ============================================================
+  // AUDIT LOG
+  // ============================================================
+  renderAudit() {
+    const logs = this.state.data?.auditLog || [];
+    return `
+    <div class="sec-title">📋 سجل العمليات (${logs.length})</div>
+    ${logs.slice(0,50).map(l => `
+      <div style="padding:10px;border-bottom:1px solid var(--bg3);font-size:13px">
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-weight:700">${l.action}</span>
+          <span style="font-size:11px;color:var(--txt3)">${new Date(l.date).toLocaleString("ar-SA")}</span>
+        </div>
+        <div style="color:var(--txt2);font-size:12px">${l.details || ""} • ${l.user}</div>
+      </div>
+    `).join("")}
+    ${logs.length === 0 ? `<div class="empty">لا توجد عمليات مسجلة</div>` : ""}`;
+  }
+
+  // ============================================================
+  // MODAL SYSTEM
+  // ============================================================
+  renderModal() {
+    const m = this.state.modal;
+    const f = this.state.form;
+    if (!m) return "";
+
+    let title = "", fields = "";
+
+    if (m === "addProp" || m === "editProp") {
+      title = m === "editProp" ? "✏️ تعديل عقار" : "➕ عقار جديد";
+      fields = `
+        <div class="grid2">
+          <div><label>اسم العقار</label><input id="f-name" value="${f.name||""}"></div>
+          <div><label>الموقع</label><input id="f-location" value="${f.location||""}"></div>
+          <div><label>النوع</label><select id="f-type"><option value="">-- اختر --</option>${["سكني","تجاري","مكتبي","فندقي","مختلط"].map(t=>`<option ${f.type===t?"selected":""}>${t}</option>`).join("")}</select></div>
+          <div><label>المالك</label><select id="f-ownerId"><option value="">بدون مالك</option>${this.owners.map(o=>`<option value="${o.id}" ${f.ownerId===o.id?"selected":""}>${o.name}</option>`).join("")}</select></div>
+        </div>`;
+    } else if (m === "addUnit" || m === "editUnit") {
+      title = m === "editUnit" ? "✏️ تعديل وحدة" : "➕ وحدة جديدة";
+      fields = `
+        <div class="grid2">
+          <div><label>اسم الوحدة</label><input id="f-name" value="${f.name||""}"></div>
+          <div><label>المستأجر</label><input id="f-tenant" value="${f.tenant||""}"></div>
+          <div><label>رقم العقد</label><input id="f-contractNo" value="${f.contractNo||""}"></div>
+          <div><label>الحالة</label><select id="f-status">${["مستأجرة","شاغرة","صيانة","محجوزة"].map(s=>`<option ${f.status===s?"selected":""}>${s}</option>`).join("")}</select></div>
+          <div><label>تاريخ البداية</label><input type="date" id="f-startDate" value="${f.startDate||""}"></div>
+          <div><label>تاريخ النهاية</label><input type="date" id="f-endDate" value="${f.endDate||""}"></div>
+          <div><label>قيمة الإيجار السنوي</label><input type="number" id="f-value" value="${f.value||""}"></div>
+          <div><label>عدد الأقساط</label><input type="number" id="f-installments" value="${f.installments||1}"></div>
+          <div><label>طريقة الدفع</label><select id="f-payMethod">${["تحويل","كاش","منصة ايجار","شيك"].map(m=>`<option ${f.payMethod===m?"selected":""}>${m}</option>`).join("")}</select></div>
+          <div><label>هاتف المستأجر</label><input id="f-phone" value="${f.phone||""}"></div>
+        </div>`;
+    } else if (m === "addOwner" || m === "editOwner") {
+      title = m === "editOwner" ? "✏️ تعديل مالك" : "➕ مالك جديد";
+      fields = `
+        <div class="grid2">
+          <div><label>اسم المالك</label><input id="f-name" value="${f.name||""}"></div>
+          <div><label>الهاتف</label><input id="f-phone" value="${f.phone||""}"></div>
+          <div style="grid-column:1/-1"><label>ملاحظات</label><input id="f-notes" value="${f.notes||""}"></div>
+        </div>`;
+    } else if (m === "addExp") {
+      title = "➕ مصروف جديد";
+      fields = `
+        <div class="grid2">
+          <div><label>التاريخ</label><input type="date" id="f-date" value="${f.date||today()}"></div>
+          <div><label>النوع</label><select id="f-type">${["صيانة","كهرباء","مياه","نظافة","سباكة","دهانات","أجهزة","إدارية","تأمين","أخرى"].map(t=>`<option ${f.type===t?"selected":""}>${t}</option>`).join("")}</select></div>
+          <div><label>المبلغ</label><input type="number" id="f-amount" value="${f.amount||""}"></div>
+          <div><label>ملاحظات</label><input id="f-notes" value="${f.notes||""}"></div>
+        </div>`;
+    } else if (m === "payInst") {
+      title = "💰 تسجيل دفعة";
+      fields = `
+        <div class="grid2">
+          <div><label>تاريخ الدفع</label><input type="date" id="f-paidDate" value="${f.paidDate||today()}"></div>
+          <div><label>المبلغ المدفوع</label><input type="number" id="f-paidAmount" value="${f.paidAmount||""}"></div>
+          <div><label>طريقة الدفع</label><select id="f-method">${["تحويل","كاش","منصة ايجار","شيك"].map(m=>`<option ${f.method===m?"selected":""}>${m}</option>`).join("")}</select></div>
+          <div><label>ملاحظات</label><input id="f-notes" value="${f.notes||""}"></div>
+        </div>`;
+    } else if (m === "addMaint") {
+      title = "➕ طلب صيانة";
+      fields = `
+        <div class="grid2">
+          <div><label>العنوان</label><input id="f-title" value="${f.title||""}"></div>
+          <div><label>الوحدة</label><select id="f-unitId"><option value="">-- اختر --</option>${this.units.map(u=>`<option value="${u.id}" ${f.unitId===u.id?"selected":""}>${u.name}</option>`).join("")}</select></div>
+          <div><label>التاريخ</label><input type="date" id="f-date" value="${f.date||today()}"></div>
+          <div><label>الحالة</label><select id="f-status">${["جديد","قيد التنفيذ","مكتمل"].map(s=>`<option ${f.status===s?"selected":""}>${s}</option>`).join("")}</select></div>
+          <div><label>التكلفة</label><input type="number" id="f-cost" value="${f.cost||""}"></div>
+          <div><label>ملاحظات</label><input id="f-notes" value="${f.notes||""}"></div>
+        </div>`;
+    } else if (m === "addBroker") {
+      title = "➕ وسيط جديد";
+      fields = `
+        <div class="grid2">
+          <div><label>الاسم</label><input id="f-name" value="${f.name||""}"></div>
+          <div><label>الهاتف</label><input id="f-phone" value="${f.phone||""}"></div>
+          <div><label>نسبة العمولة %</label><input type="number" id="f-commission" value="${f.commission||""}"></div>
+          <div><label>البريد</label><input id="f-email" value="${f.email||""}"></div>
+        </div>`;
+    } else if (m === "addProject") {
+      title = "➕ مشروع جديد";
+      fields = `
+        <div class="grid2">
+          <div><label>اسم المشروع</label><input id="f-name" value="${f.name||""}"></div>
+          <div><label>الموقع</label><input id="f-location" value="${f.location||""}"></div>
+          <div><label>الميزانية</label><input type="number" id="f-budget" value="${f.budget||""}"></div>
+          <div><label>تاريخ البدء</label><input type="date" id="f-startDate" value="${f.startDate||today()}"></div>
+        </div>`;
+    } else if (m === "more") {
+      title = "☰ المزيد";
+      return `
+      <div class="modal-bg" id="modal-bg">
+        <div class="modal-box">
+          <div class="sec-title">${title}</div>
+          <div style="display:grid;gap:10px">
+            <button class="btn btn-ghost" style="justify-content:center;width:100%" data-nav="maintenance">🔧 الصيانة</button>
+            <button class="btn btn-ghost" style="justify-content:center;width:100%" data-nav="brokers">👥 الوسطاء</button>
+            <button class="btn btn-ghost" style="justify-content:center;width:100%" data-nav="projects">🏗️ المشاريع</button>
+            <button class="btn btn-ghost" style="justify-content:center;width:100%" data-nav="audit">📋 سجل العمليات</button>
+          </div>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:16px" id="close-modal">إغلاق</button>
+        </div>
+      </div>`;
+    }
+
+    return `
+    <div class="modal-bg" id="modal-bg">
+      <div class="modal-box">
+        <div class="sec-title">${title}</div>
+        ${fields}
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button class="btn btn-gold" id="modal-save">💾 حفظ</button>
+          <button class="btn btn-ghost" id="close-modal">إلغاء</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ============================================================
+  // EVENT HANDLING
+  // ============================================================
+  attachEvents() {
+    const $ = id => document.getElementById(id);
+    const $$ = sel => document.querySelectorAll(sel);
+
+    // Login
+    if ($("login-btn")) {
+      $("login-btn").onclick = () => {
+        const email = $("login-email")?.value;
+        const pass = $("login-pass")?.value;
+        if (email && pass) this.login(email, pass);
+      };
+      $("login-pass")?.addEventListener("keydown", e => { if (e.key==="Enter") $("login-btn").click(); });
+    }
+
+    // Top bar
+    if ($("back-btn")) $("back-btn").onclick = () => {
+      const s = this.state;
+      if (s.page === "unit") this.setState({ page: "property", selectedUnit: null });
+      else if (s.page === "property") this.setState({ page: "dashboard", selectedProp: null });
+      else this.setState({ page: "dashboard" });
+    };
+    if ($("save-btn")) $("save-btn").onclick = () => { this.saveData(); this.showToast("تم الحفظ"); };
+    if ($("logout-btn")) $("logout-btn").onclick = () => this.logout();
+
+    // Navigation
+    $$("[data-nav]").forEach(el => {
+      el.onclick = () => {
+        const page = el.dataset.nav;
+        if (page === "more") { this.setState({ modal: "more" }); return; }
+        this.setState({ page, modal: null });
+      };
+    });
+
+    // Go to property
+    $$("[data-goto-prop]").forEach(el => {
+      el.onclick = () => this.setState({ page: "property", selectedProp: el.dataset.gotoProp });
+    });
+
+    // Go to unit
+    $$("[data-goto-unit]").forEach(el => {
+      el.onclick = () => this.setState({ page: "unit", selectedUnit: el.dataset.gotoUnit });
+    });
+
+    // Add buttons
+    if ($("add-prop-btn")) $("add-prop-btn").onclick = () => this.setState({ modal: "addProp", form: {} });
+    if ($("add-owner-btn")) $("add-owner-btn").onclick = () => this.setState({ modal: "addOwner", form: {} });
+    if ($("add-maint-btn")) $("add-maint-btn").onclick = () => this.setState({ modal: "addMaint", form: {} });
+    if ($("add-broker-btn")) $("add-broker-btn").onclick = () => this.setState({ modal: "addBroker", form: {} });
+    if ($("add-project-btn")) $("add-project-btn").onclick = () => this.setState({ modal: "addProject", form: {} });
+
+    $$("[data-add-unit]").forEach(el => {
+      el.onclick = e => { e.stopPropagation(); this.setState({ modal: "addUnit", form: { propId: el.dataset.addUnit } }); };
+    });
+
+    $$("[data-add-exp]").forEach(el => {
+      el.onclick = () => this.setState({ modal: "addExp", form: { propId: el.dataset.addExp } });
+    });
+
+    $$("[data-add-installment]").forEach(el => {
+      el.onclick = () => this.setState({ modal: "addInst", form: { unitId: el.dataset.addInstallment } });
+    });
+
+    // Pay installment
+    $$("[data-pay-inst]").forEach(el => {
+      el.onclick = e => {
+        e.stopPropagation();
+        const instId = el.dataset.payInst;
+        const unitId = el.dataset.unit;
+        const unit = this.units.find(u => u.id === unitId);
+        const pays = this.unitPayments(unit);
+        const inst = pays.find(p => p.id === instId);
+        this.setState({ modal: "payInst", form: { instId, unitId, paidAmount: instRemaining(inst), method: "تحويل" } });
+      };
+    });
+
+    // Edit/Delete
+    $$("[data-edit-prop]").forEach(el => {
+      el.onclick = e => {
+        e.stopPropagation();
+        const p = this.properties.find(x => x.id === el.dataset.editProp);
+        if (p) this.setState({ modal: "editProp", form: {...p} });
+      };
+    });
+
+    $$("[data-del-prop]").forEach(el => {
+      el.onclick = e => {
+        e.stopPropagation();
+        if (confirm("هل تريد حذف هذا العقار وجميع وحداته؟")) {
+          const id = el.dataset.delProp;
+          this.state.data.properties = this.properties.filter(p => p.id !== id);
+          this.state.data.units = this.units.filter(u => u.propId !== id);
+          this.addAudit("حذف عقار", id);
+          this.saveData();
+          this.setState({ page: "dashboard" });
+          this.showToast("تم حذف العقار");
+        }
+      };
+    });
+
+    $$("[data-edit-unit]").forEach(el => {
+      el.onclick = e => {
+        e.stopPropagation();
+        const u = this.units.find(x => x.id === el.dataset.editUnit);
+        if (u) this.setState({ modal: "editUnit", form: {...u} });
+      };
+    });
+
+    $$("[data-del-unit]").forEach(el => {
+      el.onclick = e => {
+        e.stopPropagation();
+        if (confirm("هل تريد حذف هذه الوحدة؟")) {
+          const id = el.dataset.delUnit;
+          const u = this.units.find(x => x.id === id);
+          this.state.data.units = this.units.filter(x => x.id !== id);
+          this.addAudit("حذف وحدة", u?.name || id);
+          this.saveData();
+          this.setState({ page: "property" });
+          this.showToast("تم حذف الوحدة");
+        }
+      };
+    });
+
+    $$("[data-edit-owner]").forEach(el => {
+      el.onclick = e => {
+        e.stopPropagation();
+        const o = this.owners.find(x => x.id === el.dataset.editOwner);
+        if (o) this.setState({ modal: "editOwner", form: {...o} });
+      };
+    });
+
+    $$("[data-del-owner]").forEach(el => {
+      el.onclick = e => {
+        e.stopPropagation();
+        if (confirm("هل تريد حذف هذا المالك؟")) {
+          this.state.data.owners = this.owners.filter(o => o.id !== el.dataset.delOwner);
+          this.saveData();
+          this.render();
+          this.showToast("تم الحذف");
+        }
+      };
+    });
+
+    $$("[data-del-maint]").forEach(el => {
+      el.onclick = () => {
+        if (confirm("حذف؟")) {
+          this.state.data.maintenance = this.maintenance.filter(m => m.id !== el.dataset.delMaint);
+          this.saveData(); this.render();
+        }
+      };
+    });
+
+    // Modal close
+    if ($("modal-bg")) $("modal-bg").onclick = e => { if (e.target.id === "modal-bg") this.setState({ modal: null }); };
+    if ($("close-modal")) $("close-modal").onclick = () => this.setState({ modal: null });
+
+    // Modal save
+    if ($("modal-save")) $("modal-save").onclick = () => this.handleModalSave();
+
+    // Export
+    if ($("export-btn")) $("export-btn").onclick = () => {
+      const blob = new Blob([JSON.stringify(this.state.data, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `baho-backup-${today()}.json`;
+      a.click();
+    };
+
+    // Import
+    if ($("import-input")) $("import-input").onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          this.state.data = data;
+          this.saveData();
+          this.render();
+          this.showToast("تم استيراد البيانات");
+        } catch(err) { this.showToast("خطأ في الملف", "error"); }
+      };
+      reader.readAsText(file);
+    };
+  }
+
+  handleModalSave() {
+    const m = this.state.modal;
+    const getVal = id => document.getElementById(id)?.value || "";
+    const getNum = id => Number(document.getElementById(id)?.value) || 0;
+
+    if (m === "addProp" || m === "editProp") {
+      const obj = {
+        id: m === "editProp" ? this.state.form.id : uid(),
+        name: getVal("f-name"), location: getVal("f-location"),
+        type: getVal("f-type"), ownerId: getVal("f-ownerId")
+      };
+      if (!obj.name) { this.showToast("أدخل اسم العقار", "error"); return; }
+      if (m === "editProp") {
+        const idx = this.state.data.properties.findIndex(p => p.id === obj.id);
+        if (idx >= 0) this.state.data.properties[idx] = obj;
+      } else {
+        this.state.data.properties.push(obj);
+      }
+      this.addAudit(m === "editProp" ? "تعديل عقار" : "إضافة عقار", obj.name);
+
+    } else if (m === "addUnit" || m === "editUnit") {
+      const obj = {
+        id: m === "editUnit" ? this.state.form.id : uid(),
+        propId: m === "editUnit" ? this.state.form.propId : this.state.form.propId,
+        name: getVal("f-name"), tenant: getVal("f-tenant"),
+        contractNo: getVal("f-contractNo"), status: getVal("f-status"),
+        startDate: getVal("f-startDate"), endDate: getVal("f-endDate"),
+        value: getNum("f-value"), installments: getNum("f-installments") || 1,
+        payMethod: getVal("f-payMethod"), phone: getVal("f-phone")
+      };
+      if (!obj.name) { this.showToast("أدخل اسم الوحدة", "error"); return; }
+      if (m === "editUnit") {
+        const idx = this.state.data.units.findIndex(u => u.id === obj.id);
+        if (idx >= 0) this.state.data.units[idx] = obj;
+      } else {
+        this.state.data.units.push(obj);
+        // Generate payments
+        const dates = genDueDates(obj.startDate, obj.installments);
+        const amt = Math.round(obj.value / obj.installments);
+        dates.forEach((d, i) => {
+          this.state.data.payments.push({
+            id: uid(), unitId: obj.id, num: i+1, dueDate: d, amount: amt, payments: [], notes: ""
+          });
+        });
+      }
+      this.addAudit(m === "editUnit" ? "تعديل وحدة" : "إضافة وحدة", obj.name);
+
+    } else if (m === "addOwner" || m === "editOwner") {
+      const obj = {
+        id: m === "editOwner" ? this.state.form.id : uid(),
+        name: getVal("f-name"), phone: getVal("f-phone"), notes: getVal("f-notes")
+      };
+      if (!obj.name) { this.showToast("أدخل اسم المالك", "error"); return; }
+      if (m === "editOwner") {
+        const idx = this.state.data.owners.findIndex(o => o.id === obj.id);
+        if (idx >= 0) this.state.data.owners[idx] = obj;
+      } else {
+        this.state.data.owners.push(obj);
+      }
+      this.addAudit(m === "editOwner" ? "تعديل مالك" : "إضافة مالك", obj.name);
+
+    } else if (m === "addExp") {
+      const obj = {
+        id: uid(), propId: this.state.form.propId,
+        date: getVal("f-date"), type: getVal("f-type"),
+        amount: getNum("f-amount"), notes: getVal("f-notes")
+      };
+      this.state.data.expenses.push(obj);
+      this.addAudit("إضافة مصروف", `${obj.type} - ${sar(obj.amount)}`);
+
+    } else if (m === "payInst") {
+      const instId = this.state.form.instId;
+      const unitId = this.state.form.unitId;
+      const amount = getNum("f-paidAmount");
+      const method = getVal("f-method");
+      const notes = getVal("f-notes");
+      const paidDate = getVal("f-paidDate");
+
+      // Find or create payment record
+      let inst = this.state.data.payments.find(p => p.id === instId);
+      if (!inst) {
+        // Generate and store payments for this unit
+        const unit = this.units.find(u => u.id === unitId);
+        if (unit) {
+          const dates = genDueDates(unit.startDate, unit.installments || 1);
+          const amt = Math.round(unit.value / (unit.installments || 1));
+          dates.forEach((d, i) => {
+            this.state.data.payments.push({
+              id: `${unit.id}_p${i}`, unitId: unit.id, num: i+1, dueDate: d, amount: amt, payments: [], notes: ""
+            });
+          });
+          inst = this.state.data.payments.find(p => p.id === instId);
+        }
+      }
+      if (inst) {
+        if (!inst.payments) inst.payments = [];
+        inst.payments.push({ id: uid(), amount, method, date: paidDate, notes });
+        this.addAudit("تسجيل دفعة", `${sar(amount)} - ${method}`);
+      }
+
+    } else if (m === "addMaint") {
+      const obj = {
+        id: uid(), title: getVal("f-title"), unitId: getVal("f-unitId"),
+        date: getVal("f-date"), status: getVal("f-status"),
+        cost: getNum("f-cost"), notes: getVal("f-notes")
+      };
+      this.state.data.maintenance.push(obj);
+      this.addAudit("طلب صيانة", obj.title);
+
+    } else if (m === "addBroker") {
+      const obj = {
+        id: uid(), name: getVal("f-name"), phone: getVal("f-phone"),
+        commission: getNum("f-commission"), email: getVal("f-email"), active: true
+      };
+      this.state.data.brokers.push(obj);
+      this.addAudit("إضافة وسيط", obj.name);
+
+    } else if (m === "addProject") {
+      const obj = {
+        id: uid(), name: getVal("f-name"), location: getVal("f-location"),
+        budget: getNum("f-budget"), startDate: getVal("f-startDate"),
+        phases: [
+          { name: "التخطيط", status: "جديد", cost: 0 },
+          { name: "التصميم", status: "جديد", cost: 0 },
+          { name: "التنفيذ", status: "جديد", cost: 0 },
+          { name: "التشطيب", status: "جديد", cost: 0 }
+        ]
+      };
+      this.state.data.projects.push(obj);
+      this.addAudit("إضافة مشروع", obj.name);
+    }
+
+    this.saveData();
+    this.setState({ modal: null, form: {} });
+    this.showToast("تم الحفظ بنجاح");
+  }
+}
+
+// ============================================================
+// SERVICE WORKER REGISTRATION
+// ============================================================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+// ============================================================
+// START
+// ============================================================
+window.addEventListener("DOMContentLoaded", () => new App());
+</script>
+</body>
+</html>
