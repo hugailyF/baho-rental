@@ -1039,6 +1039,22 @@ class App {
     } else if (m === "addUnit" || m === "editUnit") {
       title = m === "editUnit" ? "✏️ تعديل وحدة" : "➕ وحدة جديدة";
       fields = `
+        <div style="margin-bottom:16px;padding:14px;background:rgba(96,165,250,.08);border:1px dashed rgba(96,165,250,.3);border-radius:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-weight:700;color:var(--blue);font-size:13px">🤖 استخراج بيانات العقد تلقائياً</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <label class="btn btn-blue btn-sm" style="cursor:pointer;flex:1;justify-content:center">
+              📎 اختر ملف العقد
+              <input type="file" id="contract-file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" style="display:none">
+            </label>
+            <button class="btn btn-green btn-sm" id="extract-btn" disabled style="flex:1;justify-content:center;opacity:.5">
+              🔍 استخراج البيانات
+            </button>
+          </div>
+          <div id="file-name" style="font-size:11px;color:var(--txt3);margin-top:6px;display:none"></div>
+          <div id="extract-status" style="display:none;margin-top:8px;padding:10px;border-radius:8px;font-size:12px;line-height:1.6"></div>
+        </div>
         <div class="grid2">
           <div><label>اسم الوحدة</label><input id="f-name" value="${f.name||""}"></div>
           <div><label>المستأجر</label><input id="f-tenant" value="${f.tenant||""}"></div>
@@ -1297,6 +1313,22 @@ class App {
     // Modal save
     if ($("modal-save")) $("modal-save").onclick = () => this.handleModalSave();
 
+    // Contract extraction
+    if ($("contract-file")) {
+      $("contract-file").onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const fn = $("file-name");
+        const btn = $("extract-btn");
+        if (fn) { fn.textContent = "📄 " + file.name + " (" + (file.size/1024).toFixed(0) + " KB)"; fn.style.display = "block"; }
+        if (btn) { btn.disabled = false; btn.style.opacity = "1"; }
+        this._contractFile = file;
+      };
+    }
+    if ($("extract-btn")) {
+      $("extract-btn").onclick = () => this.extractContractData();
+    }
+
     // Export
     if ($("export-btn")) $("export-btn").onclick = () => {
       const blob = new Blob([JSON.stringify(this.state.data, null, 2)], { type: "application/json" });
@@ -1322,6 +1354,175 @@ class App {
       };
       reader.readAsText(file);
     };
+  }
+
+  // ============================================================
+  // SMART CONTRACT EXTRACTION (PDF.js — no API needed)
+  // ============================================================
+  async extractContractData() {
+    const file = this._contractFile;
+    if (!file) { this.showToast("اختر ملف العقد أولاً", "error"); return; }
+
+    const statusEl = document.getElementById("extract-status");
+    const btn = document.getElementById("extract-btn");
+    
+    if (statusEl) {
+      statusEl.style.display = "block";
+      statusEl.style.background = "rgba(96,165,250,.1)";
+      statusEl.style.color = "var(--blue)";
+      statusEl.innerHTML = "⏳ جارِ قراءة العقد واستخراج البيانات...";
+    }
+    if (btn) { btn.disabled = true; btn.textContent = "⏳ جارِ الاستخراج..."; }
+
+    try {
+      const ext = file.name.split(".").pop().toLowerCase();
+      let fullText = "";
+
+      if (ext === "pdf") {
+        if (!window.pdfjsLib) {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement("script");
+            s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+            s.onload = resolve;
+            s.onerror = () => reject(new Error("فشل تحميل مكتبة قراءة PDF"));
+            document.head.appendChild(s);
+          });
+          pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        }
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        for (let i = 1; i <= Math.min(pdf.numPages, 4); i++) {
+          const page = await pdf.getPage(i);
+          const ct = await page.getTextContent();
+          fullText += ct.items.map(item => item.str).join(" ") + "\n";
+        }
+      } else {
+        throw new Error("حالياً يدعم ملفات PDF فقط");
+      }
+
+      if (!fullText || fullText.trim().length < 50) {
+        throw new Error("لم يتم العثور على نص كافٍ. تأكد أن PDF يحتوي نص وليس صورة.");
+      }
+
+      const t = fullText.replace(/\s+/g, " ");
+      const extracted = { status: "مستأجرة" };
+      const found = [];
+      const missing = [];
+      let m;
+
+      // Contract Number
+      m = t.match(/(?:رقم سجل العقد|Contract[\s.]*No)[:\s]*(?:1-0\s*[\/\\]\s*)?(\d{8,15})/i) || t.match(/1-0\s*[\/\\]\s*(\d{10,15})/);
+      if (m) { extracted.contractNo = m[1]; found.push("رقم العقد"); } else missing.push("رقم العقد");
+
+      // Tenant Name
+      m = t.match(/بيانات المستأجر.*?(?:االسم|الاسم|Name)[:\s]*([^]+?)(?:Name|Nationality|الجنس)/i);
+      if (m) { extracted.tenant = m[1].replace(/Name/g,"").replace(/\d/g,"").replace(/[:\s]+$/,"").trim(); found.push("المستأجر"); } else missing.push("المستأجر");
+
+      // Tenant Phone
+      const ts = t.match(/بيانات المستأجر(.*?)(?:ممثل المستأجر|الوساطة|Representative|Brokerage)/is);
+      m = ts ? ts[1].match(/(?:الجوال|Mobile)[:\s.]*\+?(\d{10,15})/i) : null;
+      if (!m) m = t.match(/Tenant.*?(?:الجوال|Mobile)[:\s.]*\+?(\d{10,15})/i);
+      if (m) { let ph=m[1]; if(ph.startsWith("966"))ph="0"+ph.slice(3); else if(!ph.startsWith("0"))ph="0"+ph; extracted.phone=ph; found.push("الهاتف"); } else missing.push("الهاتف");
+
+      // Start Date
+      m = t.match(/(?:بداية.*?ا[لإ]يجار|Tenancy\s*Start\s*Date)[:\s]*(\d{4}-\d{2}-\d{2})/i) || t.match(/Start\s*Date[:\s]*(\d{4}-\d{2}-\d{2})/i);
+      if (m) { extracted.startDate = m[1]; found.push("تاريخ البداية"); } else missing.push("تاريخ البداية");
+
+      // End Date
+      m = t.match(/(?:نهاية.*?ا[لإ]يجار|Tenancy\s*End\s*Date)[:\s]*(\d{4}-\d{2}-\d{2})/i) || t.match(/End\s*Date[:\s]*(\d{4}-\d{2}-\d{2})/i);
+      if (m) { extracted.endDate = m[1]; found.push("تاريخ النهاية"); } else missing.push("تاريخ النهاية");
+
+      // Annual Rent
+      m = t.match(/(?:قيمة ا[لإ]يجار|Rent\s*Annual)\s*(\d[\d,]*\.?\d*)/i);
+      if (m) { extracted.value = parseFloat(m[1].replace(/,/g,"")); found.push("الإيجار السنوي"); } else missing.push("الإيجار السنوي");
+
+      // Total
+      m = t.match(/(?:اجمالي قيمة العقد|إجمالي قيمة العقد|Total.*?value)[:\s]*(\d[\d,]*\.?\d*)/i);
+      if (m) { extracted.totalContractValue = parseFloat(m[1].replace(/,/g,"")); }
+
+      // Payments count
+      m = t.match(/(?:عدد دفعات|عدد الدفعات|Number\s*of\s*Rent\s*Payments)[:\s]*(\d+)/i);
+      if (m) { extracted.installments = parseInt(m[1]); found.push("عدد الدفعات"); } else missing.push("عدد الدفعات");
+
+      // Payment Cycle
+      m = t.match(/(شهري|ربع سنوي|نصف سنو[يى]|سنوي|مرن)\s*(?:cycle|payment|دورة|Rent)/i) || t.match(/(?:دورة سداد|cycle)[:\s]*(شهري|ربع سنوي|نصف سنو[يى]|سنوي)/i);
+      if (m) { extracted.paymentCycle = m[1].trim(); }
+
+      // Payment Method
+      m = t.match(/(?:قنوات الدفع|methods.*?payment|Available)[:\s]*(مدى|سداد|تحويل|كاش|شيك|مدى سداد)/i);
+      if (m) { let pm=m[1]; if(pm.includes("مدى")||pm.includes("سداد"))pm="تحويل"; extracted.payMethod=pm; found.push("طريقة الدفع"); } else missing.push("طريقة الدفع");
+
+      // Unit
+      m = t.match(/(?:نوع الوحدة|Unit\s*Type)[:\s]*(فيا[لّ]*|فيلا|شقة|دور|محل|مكتب|استراحة|عمارة|برج)/i);
+      const uType = m ? m[1].replace(/[َّ]/g,"").replace("فيال","فيلا") : "";
+      m = t.match(/(?:رقم الوحدة|Unit[\s.]*No)[:\s.]*(\d+)/i);
+      const uNo = m ? m[1] : "";
+      if (uType||uNo) { extracted.name=(uType+" "+uNo).trim(); extracted.unitType=uType; found.push("الوحدة"); } else missing.push("الوحدة");
+
+      // Area
+      m = t.match(/(?:مساحة الوحدة|Unit\s*Area)[:\s]*(\d+\.?\d*)/i);
+      if (m) { extracted.unitArea = m[1]; }
+
+      // Owner
+      m = t.match(/بيانات المؤ[جّ]*ر\s.*?(?:االسم|الاسم|Name)[:\s]*([^]+?)(?:Name|Nationality|الجنس)/i);
+      if (m) { extracted.ownerName = m[1].replace(/Name/g,"").replace(/\d/g,"").trim(); }
+
+      // Address
+      m = t.match(/(?:العنوان الوطني|National\s*Address)[:\s]*(.+?)(?:العنوان|موقع|نوع بناء|Property|Location)/i);
+      if (m) { extracted.propertyAddress = m[1].trim(); }
+
+      // Smart annual calc
+      if (extracted.totalContractValue && extracted.startDate && extracted.endDate && !extracted.value) {
+        const yrs = Math.max(1, Math.round((new Date(extracted.endDate)-new Date(extracted.startDate))/(365.25*864e5)));
+        extracted.value = Math.round(extracted.totalContractValue/yrs);
+      }
+
+      // Fill form
+      const fields = {"f-name":extracted.name,"f-tenant":extracted.tenant,"f-contractNo":extracted.contractNo,"f-status":extracted.status,"f-startDate":extracted.startDate,"f-endDate":extracted.endDate,"f-value":extracted.value,"f-installments":extracted.installments,"f-payMethod":extracted.payMethod,"f-phone":extracted.phone};
+      let filledCount=0, skippedCount=0;
+      for (const [id, val] of Object.entries(fields)) {
+        if (!val && val !== 0) continue;
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const cur = el.value?.trim();
+        if (cur && cur !== "1" && cur !== "تحويل" && cur !== "مستأجرة") { skippedCount++; continue; }
+        el.value = val;
+        el.style.transition = "background .5s, border-color .5s";
+        el.style.background = "rgba(74,222,128,.15)";
+        el.style.borderColor = "var(--green)";
+        setTimeout(() => { el.style.background = ""; el.style.borderColor = ""; }, 3000);
+        filledCount++;
+      }
+
+      if (statusEl) {
+        statusEl.style.background = "rgba(74,222,128,.1)";
+        statusEl.style.color = "var(--green)";
+        let html = `✅ تم استخراج <strong>${filledCount}</strong> حقل بنجاح`;
+        if (skippedCount > 0) html += `<br>⏭ تخطي ${skippedCount} حقل (بيانات مسبقة)`;
+        if (missing.length > 0) html += `<br><span style="color:var(--orange)">⚠ لم يُعثر على: ${missing.join("، ")}</span>`;
+        const extras = [];
+        if (extracted.ownerName) extras.push(`المؤجر: <strong>${extracted.ownerName}</strong>`);
+        if (extracted.unitType) extras.push(`النوع: ${extracted.unitType}`);
+        if (extracted.unitArea) extras.push(`المساحة: ${extracted.unitArea} م²`);
+        if (extracted.totalContractValue) extras.push(`إجمالي العقد: ${sar(extracted.totalContractValue)}`);
+        if (extracted.paymentCycle) extras.push(`دورة السداد: ${extracted.paymentCycle}`);
+        if (extras.length) html += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(74,222,128,.2);font-size:11px;color:var(--txt2)">📋 ${extras.join(" • ")}</div>`;
+        html += `<div style="margin-top:6px;font-size:11px;color:var(--txt3)">✏️ راجع وعدّل قبل الحفظ</div>`;
+        statusEl.innerHTML = html;
+      }
+      this.addAudit("استخراج بيانات عقد", `${file.name} — ${filledCount} حقل`);
+      this.showToast(`✅ تم استخراج ${filledCount} حقل من العقد`);
+
+    } catch (err) {
+      console.error("Extraction error:", err);
+      if (statusEl) {
+        statusEl.style.background = "rgba(248,113,113,.1)";
+        statusEl.style.color = "var(--red)";
+        statusEl.innerHTML = `❌ ${err.message}<br><span style="font-size:11px">تأكد من أن الملف واضح وقابل للقراءة، أو أدخل البيانات يدوياً</span>`;
+      }
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = "🔍 استخراج البيانات"; }
+    }
   }
 
   handleModalSave() {
