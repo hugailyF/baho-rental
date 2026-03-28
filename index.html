@@ -1477,51 +1477,72 @@ class App {
         extracted.value = Math.round(extracted.totalContractValue/yrs);
       }
 
-      // Fill form
-      const fields = {"f-name":extracted.name,"f-tenant":extracted.tenant,"f-contractNo":extracted.contractNo,"f-status":extracted.status,"f-startDate":extracted.startDate,"f-endDate":extracted.endDate,"f-value":extracted.value,"f-installments":extracted.installments,"f-payMethod":extracted.payMethod,"f-phone":extracted.phone};
+      // Fill form — update state.form so values survive re-render
+      const formMap = {name:extracted.name, tenant:extracted.tenant, contractNo:extracted.contractNo, status:extracted.status, startDate:extracted.startDate, endDate:extracted.endDate, value:extracted.value, installments:extracted.installments, payMethod:extracted.payMethod, phone:extracted.phone};
       let filledCount=0, skippedCount=0;
-      for (const [id, val] of Object.entries(fields)) {
+      const newForm = {...this.state.form};
+      for (const [key, val] of Object.entries(formMap)) {
         if (!val && val !== 0) continue;
-        const el = document.getElementById(id);
-        if (!el) continue;
-        const cur = el.value?.trim();
-        if (cur && cur !== "1" && cur !== "تحويل" && cur !== "مستأجرة") { skippedCount++; continue; }
-        el.value = val;
-        el.style.transition = "background .5s, border-color .5s";
-        el.style.background = "rgba(74,222,128,.15)";
-        el.style.borderColor = "var(--green)";
-        setTimeout(() => { el.style.background = ""; el.style.borderColor = ""; }, 3000);
+        const cur = newForm[key];
+        if (cur && cur !== "" && String(cur) !== "1" && cur !== "تحويل" && cur !== "مستأجرة") { skippedCount++; continue; }
+        newForm[key] = val;
         filledCount++;
       }
 
-      if (statusEl) {
-        statusEl.style.background = "rgba(74,222,128,.1)";
-        statusEl.style.color = "var(--green)";
-        let html = `✅ تم استخراج <strong>${filledCount}</strong> حقل بنجاح`;
-        if (skippedCount > 0) html += `<br>⏭ تخطي ${skippedCount} حقل (بيانات مسبقة)`;
-        if (missing.length > 0) html += `<br><span style="color:var(--orange)">⚠ لم يُعثر على: ${missing.join("، ")}</span>`;
-        const extras = [];
-        if (extracted.ownerName) extras.push(`المؤجر: <strong>${extracted.ownerName}</strong>`);
-        if (extracted.unitType) extras.push(`النوع: ${extracted.unitType}`);
-        if (extracted.unitArea) extras.push(`المساحة: ${extracted.unitArea} م²`);
-        if (extracted.totalContractValue) extras.push(`إجمالي العقد: ${sar(extracted.totalContractValue)}`);
-        if (extracted.paymentCycle) extras.push(`دورة السداد: ${extracted.paymentCycle}`);
-        if (extras.length) html += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(74,222,128,.2);font-size:11px;color:var(--txt2)">📋 ${extras.join(" • ")}</div>`;
-        html += `<div style="margin-top:6px;font-size:11px;color:var(--txt3)">✏️ راجع وعدّل قبل الحفظ</div>`;
-        statusEl.innerHTML = html;
-      }
+      // Build result message for display after render
+      let resultHtml = `✅ تم استخراج <strong>${filledCount}</strong> حقل بنجاح`;
+      if (skippedCount > 0) resultHtml += `<br>⏭ تخطي ${skippedCount} حقل (بيانات مسبقة)`;
+      if (missing.length > 0) resultHtml += `<br><span style="color:var(--orange)">⚠ لم يُعثر على: ${missing.join("، ")}</span>`;
+      const extras = [];
+      if (extracted.ownerName) extras.push(`المؤجر: <strong>${extracted.ownerName}</strong>`);
+      if (extracted.unitType) extras.push(`النوع: ${extracted.unitType}`);
+      if (extracted.unitArea) extras.push(`المساحة: ${extracted.unitArea} م²`);
+      if (extracted.totalContractValue) extras.push(`إجمالي العقد: ${sar(extracted.totalContractValue)}`);
+      if (extracted.paymentCycle) extras.push(`دورة السداد: ${extracted.paymentCycle}`);
+      if (extras.length) resultHtml += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(74,222,128,.2);font-size:11px;color:var(--txt2)">📋 ${extras.join(" • ")}</div>`;
+      resultHtml += `<div style="margin-top:6px;font-size:11px;color:var(--txt3)">✏️ راجع وعدّل قبل الحفظ</div>`;
+
+      // Store extraction result for display
+      this._extractionResult = resultHtml;
+      this._extractionFile = this._contractFile;
+
+      // Update form state — this triggers re-render with new values
+      this.state.form = newForm;
+      this.render();
+
+      // After render, show extraction result
+      setTimeout(() => {
+        const st = document.getElementById("extract-status");
+        if (st) {
+          st.style.display = "block";
+          st.style.background = "rgba(74,222,128,.1)";
+          st.style.color = "var(--green)";
+          st.innerHTML = this._extractionResult;
+        }
+        const fn = document.getElementById("file-name");
+        if (fn && this._extractionFile) {
+          fn.style.display = "block";
+          fn.textContent = "📄 " + this._extractionFile.name;
+        }
+        const eb = document.getElementById("extract-btn");
+        if (eb) { eb.disabled = false; eb.style.opacity = "1"; eb.textContent = "🔍 استخراج البيانات"; }
+      }, 100);
+
       this.addAudit("استخراج بيانات عقد", `${file.name} — ${filledCount} حقل`);
-      this.showToast(`✅ تم استخراج ${filledCount} حقل من العقد`);
+      // Don't call showToast here — it would trigger another render
 
     } catch (err) {
       console.error("Extraction error:", err);
-      if (statusEl) {
-        statusEl.style.background = "rgba(248,113,113,.1)";
-        statusEl.style.color = "var(--red)";
-        statusEl.innerHTML = `❌ ${err.message}<br><span style="font-size:11px">تأكد من أن الملف واضح وقابل للقراءة، أو أدخل البيانات يدوياً</span>`;
+      // Re-find elements since render may have occurred
+      const errEl = document.getElementById("extract-status");
+      if (errEl) {
+        errEl.style.display = "block";
+        errEl.style.background = "rgba(248,113,113,.1)";
+        errEl.style.color = "var(--red)";
+        errEl.innerHTML = `❌ ${err.message}<br><span style="font-size:11px">تأكد من أن ملف PDF يحتوي نص وليس صورة (scan)، أو أدخل البيانات يدوياً</span>`;
       }
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = "🔍 استخراج البيانات"; }
+      const errBtn = document.getElementById("extract-btn");
+      if (errBtn) { errBtn.disabled = false; errBtn.textContent = "🔍 استخراج البيانات"; }
     }
   }
 
