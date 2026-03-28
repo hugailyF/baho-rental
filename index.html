@@ -1389,151 +1389,187 @@ class App {
           });
           pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
         }
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const ab = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
         for (let i = 1; i <= Math.min(pdf.numPages, 4); i++) {
-          const page = await pdf.getPage(i);
-          const ct = await page.getTextContent();
-          fullText += ct.items.map(item => item.str).join(" ") + "\n";
+          const pg = await pdf.getPage(i);
+          const ct = await pg.getTextContent();
+          fullText += ct.items.map(x => x.str).join(" ") + "\n";
         }
       } else {
         throw new Error("حالياً يدعم ملفات PDF فقط");
       }
 
       if (!fullText || fullText.trim().length < 50) {
-        throw new Error("لم يتم العثور على نص كافٍ. تأكد أن PDF يحتوي نص وليس صورة.");
+        throw new Error("لم يتم العثور على نص كافٍ في الملف");
       }
 
+      // Normalize whitespace
       const t = fullText.replace(/\s+/g, " ");
-      const extracted = { status: "مستأجرة" };
+      const result = {};
       const found = [];
       const missing = [];
       let m;
 
-      // Contract Number
-      m = t.match(/(?:رقم سجل العقد|Contract[\s.]*No)[:\s]*(?:1-0\s*[\/\\]\s*)?(\d{8,15})/i) || t.match(/1-0\s*[\/\\]\s*(\d{10,15})/);
-      if (m) { extracted.contractNo = m[1]; found.push("رقم العقد"); } else missing.push("رقم العقد");
+      // === EXTRACTION: Use simple universal patterns ===
 
-      // Tenant Name
-      m = t.match(/بيانات المستأجر.*?(?:االسم|الاسم|Name)[:\s]*([^]+?)(?:Name|Nationality|الجنس)/i);
-      if (m) { extracted.tenant = m[1].replace(/Name/g,"").replace(/\d/g,"").replace(/[:\s]+$/,"").trim(); found.push("المستأجر"); } else missing.push("المستأجر");
+      // All dates YYYY-MM-DD in document
+      const allDates = [...t.matchAll(/(\d{4}-\d{2}-\d{2})/g)].map(x => x[1]);
 
-      // Tenant Phone
-      const ts = t.match(/بيانات المستأجر(.*?)(?:ممثل المستأجر|الوساطة|Representative|Brokerage)/is);
-      m = ts ? ts[1].match(/(?:الجوال|Mobile)[:\s.]*\+?(\d{10,15})/i) : null;
-      if (!m) m = t.match(/Tenant.*?(?:الجوال|Mobile)[:\s.]*\+?(\d{10,15})/i);
-      if (m) { let ph=m[1]; if(ph.startsWith("966"))ph="0"+ph.slice(3); else if(!ph.startsWith("0"))ph="0"+ph; extracted.phone=ph; found.push("الهاتف"); } else missing.push("الهاتف");
+      // All large numbers (potential money amounts)
+      const allNums = [...t.matchAll(/(\d{2,3}(?:,?\d{3})*\.\d{2})/g)].map(x => parseFloat(x[1].replace(/,/g,"")));
 
-      // Start Date
-      m = t.match(/(?:بداية.*?ا[لإ]يجار|Tenancy\s*Start\s*Date)[:\s]*(\d{4}-\d{2}-\d{2})/i) || t.match(/Start\s*Date[:\s]*(\d{4}-\d{2}-\d{2})/i);
-      if (m) { extracted.startDate = m[1]; found.push("تاريخ البداية"); } else missing.push("تاريخ البداية");
+      // All phone numbers
+      const allPhones = [...t.matchAll(/\+?(966\d{9}|05\d{8})/g)].map(x => x[1]);
 
-      // End Date
-      m = t.match(/(?:نهاية.*?ا[لإ]يجار|Tenancy\s*End\s*Date)[:\s]*(\d{4}-\d{2}-\d{2})/i) || t.match(/End\s*Date[:\s]*(\d{4}-\d{2}-\d{2})/i);
-      if (m) { extracted.endDate = m[1]; found.push("تاريخ النهاية"); } else missing.push("تاريخ النهاية");
+      // Contract number: longest number after "1-0" or near "Contract"
+      m = t.match(/1-0\s*[\/_\\-]\s*(\d{8,15})/) || t.match(/(\d{11,15})\s*\.?\s*No/);
+      if (m) { result.contractNo = m[1]; found.push("رقم العقد"); } else missing.push("رقم العقد");
 
-      // Annual Rent
-      m = t.match(/(?:قيمة ا[لإ]يجار|Rent\s*Annual)\s*(\d[\d,]*\.?\d*)/i);
-      if (m) { extracted.value = parseFloat(m[1].replace(/,/g,"")); found.push("الإيجار السنوي"); } else missing.push("الإيجار السنوي");
+      // Dates: Tenancy Start = first date with "Start" nearby, End = first with "End"
+      m = t.match(/Start.*?(\d{4}-\d{2}-\d{2})/i) || t.match(/(\d{4}-\d{2}-\d{2}).*?Start/i);
+      if (m) { result.startDate = m[1]; found.push("تاريخ البداية"); }
+      else if (allDates.length >= 3) { result.startDate = allDates[1]; found.push("تاريخ البداية"); }
+      else missing.push("تاريخ البداية");
 
-      // Total
-      m = t.match(/(?:اجمالي قيمة العقد|إجمالي قيمة العقد|Total.*?value)[:\s]*(\d[\d,]*\.?\d*)/i);
-      if (m) { extracted.totalContractValue = parseFloat(m[1].replace(/,/g,"")); }
+      m = t.match(/End.*?(\d{4}-\d{2}-\d{2})/i) || t.match(/(\d{4}-\d{2}-\d{2}).*?End/i);
+      if (m) { result.endDate = m[1]; found.push("تاريخ النهاية"); }
+      else if (allDates.length >= 4) { result.endDate = allDates[2]; found.push("تاريخ النهاية"); }
+      else missing.push("تاريخ النهاية");
 
-      // Payments count
-      m = t.match(/(?:عدد دفعات|عدد الدفعات|Number\s*of\s*Rent\s*Payments)[:\s]*(\d+)/i);
-      if (m) { extracted.installments = parseInt(m[1]); found.push("عدد الدفعات"); } else missing.push("عدد الدفعات");
+      // Tenant name: text between "بيانات المستأجر" section and "Nationality"
+      m = t.match(/(?:بيانات المستأجر|Tenant\s*Data)[^]*?(?:االسم|الاسم|Name)[:\s]*(.+?)(?:\s*Name|\s*Nationality|\s*الجنس)/i);
+      if (m) {
+        let name = m[1].replace(/Name/gi,"").replace(/\d+/g,"").replace(/[:\s]+$/,"").trim();
+        if (name.length > 2 && name.length < 80) { result.tenant = name; found.push("المستأجر"); }
+        else missing.push("المستأجر");
+      } else missing.push("المستأجر");
 
-      // Payment Cycle
-      m = t.match(/(شهري|ربع سنوي|نصف سنو[يى]|سنوي|مرن)\s*(?:cycle|payment|دورة|Rent)/i) || t.match(/(?:دورة سداد|cycle)[:\s]*(شهري|ربع سنوي|نصف سنو[يى]|سنوي)/i);
-      if (m) { extracted.paymentCycle = m[1].trim(); }
+      // Phone: find phone in tenant section, or use any phone with 05x pattern
+      const tenantSec = t.match(/(?:بيانات المستأجر|Tenant\s*Data)(.*?)(?:ممثل|Representative|وساطة|Brokerage)/is);
+      if (tenantSec) {
+        m = tenantSec[1].match(/\+?(966\d{9}|05\d{8})/);
+      }
+      if (!m && allPhones.length > 0) {
+        // Pick a phone that's NOT the broker's - usually the 2nd or last unique one
+        m = [null, allPhones.length > 1 ? allPhones[1] : allPhones[0]];
+      }
+      if (m) {
+        let ph = m[1]; 
+        if (ph.startsWith("966")) ph = "0" + ph.slice(3);
+        result.phone = ph; 
+        found.push("الهاتف");
+      } else missing.push("الهاتف");
 
-      // Payment Method
-      m = t.match(/(?:قنوات الدفع|methods.*?payment|Available)[:\s]*(مدى|سداد|تحويل|كاش|شيك|مدى سداد)/i);
-      if (m) { let pm=m[1]; if(pm.includes("مدى")||pm.includes("سداد"))pm="تحويل"; extracted.payMethod=pm; found.push("طريقة الدفع"); } else missing.push("طريقة الدفع");
+      // Rent Annual
+      m = t.match(/(?:قيمة ا..يجار|Rent\s*Annual)[:\s]*(\d[\d,]*\.?\d*)/i);
+      if (m) { result.value = parseFloat(m[1].replace(/,/g,"")); found.push("الإيجار السنوي"); } else missing.push("الإيجار السنوي");
 
-      // Unit
-      m = t.match(/(?:نوع الوحدة|Unit\s*Type)[:\s]*(فيا[لّ]*|فيلا|شقة|دور|محل|مكتب|استراحة|عمارة|برج)/i);
+      // Total contract value
+      m = t.match(/(?:اجمالي قيمة|إجمالي قيمة|Total)[:\s]*(\d[\d,]*\.\d{2})/i);
+      if (m) { result.totalContractValue = parseFloat(m[1].replace(/,/g,"")); found.push("إجمالي العقد"); }
+
+      // Number of payments
+      m = t.match(/(?:عدد دفعات|عدد الدفعات|Rent\s*Payments)[:\s]*(\d{1,2})/i) || t.match(/Payments[:\s]*(\d{1,2})/i);
+      if (m) { result.installments = parseInt(m[1]); found.push("عدد الدفعات"); } else missing.push("عدد الدفعات");
+
+      // Payment cycle  
+      m = t.match(/(شهري|ربع سنو|نصف سنو[يى]|سنوي|مرن)/i);
+      if (m) { result.paymentCycle = m[1].trim(); found.push("دورة السداد"); }
+
+      // Payment method
+      m = t.match(/(?:قنوات|methods|Available)[^]*?(مدى|سداد|تحويل|كاش|شيك)/i);
+      if (m) { let pm = m[1]; if (pm.includes("مدى")||pm.includes("سداد")) pm = "تحويل"; result.payMethod = pm; found.push("طريقة الدفع"); } else missing.push("طريقة الدفع");
+
+      // Unit type & number
+      m = t.match(/(?:نوع الوحدة|Unit\s*Type)[:\s]*(فيا[لّ]*|فيلا|شقة|شَّقة|دور|محل|مكتب|عمارة|برج|استراحة)/i);
       const uType = m ? m[1].replace(/[َّ]/g,"").replace("فيال","فيلا") : "";
       m = t.match(/(?:رقم الوحدة|Unit[\s.]*No)[:\s.]*(\d+)/i);
       const uNo = m ? m[1] : "";
-      if (uType||uNo) { extracted.name=(uType+" "+uNo).trim(); extracted.unitType=uType; found.push("الوحدة"); } else missing.push("الوحدة");
+      if (uType || uNo) { result.name = (uType + " " + uNo).trim(); result.unitType = uType; found.push("الوحدة"); } else missing.push("الوحدة");
 
-      // Area
-      m = t.match(/(?:مساحة الوحدة|Unit\s*Area)[:\s]*(\d+\.?\d*)/i);
-      if (m) { extracted.unitArea = m[1]; }
+      // Unit area
+      m = t.match(/(?:مساحة|Area)[:\s]*(\d+\.?\d*)\s/i);
+      if (m) { result.unitArea = m[1]; }
 
-      // Owner
-      m = t.match(/بيانات المؤ[جّ]*ر\s.*?(?:االسم|الاسم|Name)[:\s]*([^]+?)(?:Name|Nationality|الجنس)/i);
-      if (m) { extracted.ownerName = m[1].replace(/Name/g,"").replace(/\d/g,"").trim(); }
+      // Owner name
+      m = t.match(/(?:بيانات المؤ|Lessor\s*Data)[^]*?(?:االسم|الاسم|Name)[:\s]*(.+?)(?:\s*Name|\s*Nationality|\s*الجنس)/i);
+      if (m) { result.ownerName = m[1].replace(/Name/gi,"").replace(/\d+/g,"").trim(); }
 
-      // Address
-      m = t.match(/(?:العنوان الوطني|National\s*Address)[:\s]*(.+?)(?:العنوان|موقع|نوع بناء|Property|Location)/i);
-      if (m) { extracted.propertyAddress = m[1].trim(); }
-
-      // Smart annual calc
-      if (extracted.totalContractValue && extracted.startDate && extracted.endDate && !extracted.value) {
-        const yrs = Math.max(1, Math.round((new Date(extracted.endDate)-new Date(extracted.startDate))/(365.25*864e5)));
-        extracted.value = Math.round(extracted.totalContractValue/yrs);
+      // Smart: calc annual from total if needed
+      if (result.totalContractValue && result.startDate && result.endDate && !result.value) {
+        const yrs = Math.max(1, Math.round((new Date(result.endDate)-new Date(result.startDate))/(365.25*864e5)));
+        result.value = Math.round(result.totalContractValue / yrs);
+        found.push("الإيجار (محسوب)");
       }
 
-      // Fill form — update state.form so values survive re-render
-      const formMap = {name:extracted.name, tenant:extracted.tenant, contractNo:extracted.contractNo, status:extracted.status, startDate:extracted.startDate, endDate:extracted.endDate, value:extracted.value, installments:extracted.installments, payMethod:extracted.payMethod, phone:extracted.phone};
-      let filledCount=0, skippedCount=0;
-      const newForm = {...this.state.form};
-      for (const [key, val] of Object.entries(formMap)) {
+      result.status = "مستأجرة";
+
+      // === FILL FORM FIELDS DIRECTLY IN DOM — NO RE-RENDER ===
+      const fieldMap = [
+        ["f-name", result.name],
+        ["f-tenant", result.tenant],
+        ["f-contractNo", result.contractNo],
+        ["f-startDate", result.startDate],
+        ["f-endDate", result.endDate],
+        ["f-value", result.value],
+        ["f-installments", result.installments],
+        ["f-phone", result.phone],
+        ["f-status", result.status],
+        ["f-payMethod", result.payMethod]
+      ];
+
+      let filledCount = 0;
+      for (const [id, val] of fieldMap) {
         if (!val && val !== 0) continue;
-        const cur = newForm[key];
-        if (cur && cur !== "" && String(cur) !== "1" && cur !== "تحويل" && cur !== "مستأجرة") { skippedCount++; continue; }
-        newForm[key] = val;
+        const el = document.getElementById(id);
+        if (!el) continue;
+        // Skip if user already typed something
+        const cur = el.value?.trim();
+        if (cur && cur !== "1" && cur !== "تحويل" && cur !== "مستأجرة") continue;
+        el.value = String(val);
+        // Green flash effect
+        el.style.background = "rgba(74,222,128,.2)";
+        el.style.borderColor = "#4ade80";
+        setTimeout(() => { if(el) { el.style.background = ""; el.style.borderColor = ""; }}, 4000);
         filledCount++;
       }
 
-      // Build result message for display after render
-      let resultHtml = `✅ تم استخراج <strong>${filledCount}</strong> حقل بنجاح`;
-      if (skippedCount > 0) resultHtml += `<br>⏭ تخطي ${skippedCount} حقل (بيانات مسبقة)`;
-      if (missing.length > 0) resultHtml += `<br><span style="color:var(--orange)">⚠ لم يُعثر على: ${missing.join("، ")}</span>`;
-      const extras = [];
-      if (extracted.ownerName) extras.push(`المؤجر: <strong>${extracted.ownerName}</strong>`);
-      if (extracted.unitType) extras.push(`النوع: ${extracted.unitType}`);
-      if (extracted.unitArea) extras.push(`المساحة: ${extracted.unitArea} م²`);
-      if (extracted.totalContractValue) extras.push(`إجمالي العقد: ${sar(extracted.totalContractValue)}`);
-      if (extracted.paymentCycle) extras.push(`دورة السداد: ${extracted.paymentCycle}`);
-      if (extras.length) resultHtml += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(74,222,128,.2);font-size:11px;color:var(--txt2)">📋 ${extras.join(" • ")}</div>`;
-      resultHtml += `<div style="margin-top:6px;font-size:11px;color:var(--txt3)">✏️ راجع وعدّل قبل الحفظ</div>`;
+      // Also update state.form so values persist if modal re-renders later
+      Object.assign(this.state.form, {
+        name: result.name || this.state.form.name,
+        tenant: result.tenant || this.state.form.tenant,
+        contractNo: result.contractNo || this.state.form.contractNo,
+        status: result.status || this.state.form.status,
+        startDate: result.startDate || this.state.form.startDate,
+        endDate: result.endDate || this.state.form.endDate,
+        value: result.value || this.state.form.value,
+        installments: result.installments || this.state.form.installments,
+        payMethod: result.payMethod || this.state.form.payMethod,
+        phone: result.phone || this.state.form.phone
+      });
 
-      // Store extraction result for display
-      this._extractionResult = resultHtml;
-      this._extractionFile = this._contractFile;
-
-      // Update form state — this triggers re-render with new values
-      this.state.form = newForm;
-      this.render();
-
-      // After render, show extraction result
-      setTimeout(() => {
-        const st = document.getElementById("extract-status");
-        if (st) {
-          st.style.display = "block";
-          st.style.background = "rgba(74,222,128,.1)";
-          st.style.color = "var(--green)";
-          st.innerHTML = this._extractionResult;
-        }
-        const fn = document.getElementById("file-name");
-        if (fn && this._extractionFile) {
-          fn.style.display = "block";
-          fn.textContent = "📄 " + this._extractionFile.name;
-        }
-        const eb = document.getElementById("extract-btn");
-        if (eb) { eb.disabled = false; eb.style.opacity = "1"; eb.textContent = "🔍 استخراج البيانات"; }
-      }, 100);
-
-      this.addAudit("استخراج بيانات عقد", `${file.name} — ${filledCount} حقل`);
-      // Don't call showToast here — it would trigger another render
+      // Show success in status div — NO render call
+      if (statusEl) {
+        statusEl.style.display = "block";
+        statusEl.style.background = "rgba(74,222,128,.1)";
+        statusEl.style.color = "var(--green)";
+        let html = `<strong>✅ تم استخراج ${filledCount} حقل وتعبئتها</strong>`;
+        if (missing.length) html += `<br><span style="color:var(--orange)">⚠ لم يُعثر على: ${missing.join("، ")}</span>`;
+        const extras = [];
+        if (result.ownerName) extras.push("المؤجر: " + result.ownerName);
+        if (result.unitType) extras.push("النوع: " + result.unitType);
+        if (result.unitArea) extras.push("المساحة: " + result.unitArea + " م²");
+        if (result.totalContractValue) extras.push("إجمالي العقد: " + sar(result.totalContractValue));
+        if (result.paymentCycle) extras.push("دورة السداد: " + result.paymentCycle);
+        if (extras.length) html += "<br><span style=\"font-size:11px;color:var(--txt2)\">📋 " + extras.join(" • ") + "</span>";
+        html += "<br><span style=\"font-size:11px;color:var(--txt3)\">✏️ راجع وعدّل قبل الحفظ</span>";
+        statusEl.innerHTML = html;
+      }
+      if (btn) { btn.disabled = false; btn.textContent = "🔍 استخراج البيانات"; }
 
     } catch (err) {
       console.error("Extraction error:", err);
-      // Re-find elements since render may have occurred
       const errEl = document.getElementById("extract-status");
       if (errEl) {
         errEl.style.display = "block";
