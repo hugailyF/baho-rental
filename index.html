@@ -1391,11 +1391,51 @@ class App {
         }
         const ab = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+        
+        // Extract items WITH positions for proper ordering
+        const allItems = [];
         for (let i = 1; i <= Math.min(pdf.numPages, 4); i++) {
           const pg = await pdf.getPage(i);
           const ct = await pg.getTextContent();
-          fullText += ct.items.map(x => x.str).join(" ") + "\n";
+          ct.items.forEach(item => {
+            if (item.str.trim()) {
+              allItems.push({
+                text: item.str.trim(),
+                x: Math.round(item.transform[4]),
+                y: Math.round(item.transform[5]),
+                page: i
+              });
+            }
+          });
         }
+        
+        // Sort by page, then Y (descending = top first), then X (left to right)
+        allItems.sort((a, b) => {
+          if (a.page !== b.page) return a.page - b.page;
+          const yDiff = b.y - a.y;
+          if (Math.abs(yDiff) > 5) return yDiff;
+          return a.x - b.x;
+        });
+        
+        // Build row-based text (items on same Y = same row)
+        let lastY = -999;
+        const rows = [];
+        let currentRow = [];
+        for (const item of allItems) {
+          if (Math.abs(item.y - lastY) > 5) {
+            if (currentRow.length) rows.push(currentRow.join(" "));
+            currentRow = [item.text];
+            lastY = item.y;
+          } else {
+            currentRow.push(item.text);
+          }
+        }
+        if (currentRow.length) rows.push(currentRow.join(" "));
+        
+        fullText = rows.join("\n");
+        
+        // Also build a simple concatenated version
+        const rawText = allItems.map(x => x.text).join(" ");
       } else {
         throw new Error("حالياً يدعم ملفات PDF فقط");
       }
@@ -1404,97 +1444,158 @@ class App {
         throw new Error("لم يتم العثور على نص كافٍ في الملف");
       }
 
-      // Normalize whitespace
+      // Normalize
       const t = fullText.replace(/\s+/g, " ");
+      const tNum = t.replace(/(\d)\s+(\d)/g, "$1$2"); // merge split digits
       const result = {};
       const found = [];
       const missing = [];
       let m;
 
-      // === EXTRACTION: Use simple universal patterns ===
+      // Helper: reverse Arabic text that PDF.js extracts backwards
+      function fixArabic(str) {
+        if (!str) return str;
+        // Check if text looks reversed (Arabic chars present)
+        const hasArabic = /[\u0600-\u06FF]/.test(str);
+        if (!hasArabic) return str;
+        // Reverse character order
+        return str.split("").reverse().join("").trim();
+      }
 
-      // All dates YYYY-MM-DD in document
-      const allDates = [...t.matchAll(/(\d{4}-\d{2}-\d{2})/g)].map(x => x[1]);
+      // Helper: find text item near English label in rows
+      function findNear(label, searchIn) {
+        const idx = searchIn.indexOf(label);
+        if (idx === -1) return null;
+        // Get surrounding context (200 chars after label)
+        return searchIn.substring(idx, idx + 200);
+      }
 
-      // All large numbers (potential money amounts)
-      const allNums = [...t.matchAll(/(\d{2,3}(?:,?\d{3})*\.\d{2})/g)].map(x => parseFloat(x[1].replace(/,/g,"")));
+      // === Use ENGLISH labels from bilingual EJAR contract ===
 
-      // All phone numbers
-      const allPhones = [...t.matchAll(/\+?(966\d{9}|05\d{8})/g)].map(x => x[1]);
-
-      // Contract number: longest number after "1-0" or near "Contract"
-      m = t.match(/1-0\s*[\/_\\-]\s*(\d{8,15})/) || t.match(/(\d{11,15})\s*\.?\s*No/);
+      // 1. Contract Number (11 digits) — near "Contract No" or "1-0 /"
+      m = tNum.match(/Contract[\s.]*No[\s.:]*(?:1[\s-]*0[\s\/]*)?(\d{11})/i);
+      if (!m) m = tNum.match(/1[\s-]*0[\s\/]+(\d{11})/);
+      if (!m) m = tNum.match(/(\d{11})[\s.]*(?:No|Contract)/i);
+      if (!m) { // Search all 11-digit numbers in first part of text
+        const nums11 = [...tNum.matchAll(/\b(\d{11})\b/g)].map(x => x[1]);
+        if (nums11.length > 0) m = [null, nums11[0]];
+      }
       if (m) { result.contractNo = m[1]; found.push("رقم العقد"); } else missing.push("رقم العقد");
 
-      // Dates: Tenancy Start = first date with "Start" nearby, End = first with "End"
-      m = t.match(/Start.*?(\d{4}-\d{2}-\d{2})/i) || t.match(/(\d{4}-\d{2}-\d{2}).*?Start/i);
-      if (m) { result.startDate = m[1]; found.push("تاريخ البداية"); }
-      else if (allDates.length >= 3) { result.startDate = allDates[1]; found.push("تاريخ البداية"); }
-      else missing.push("تاريخ البداية");
+      // 2. Start Date — near "Tenancy Start Date" or "Start Date"
+      m = tNum.match(/(?:Tenancy\s*)?Start\s*Date[\s:]*(\d{4}-\d{2}-\d{2})/i);
+      if (!m) m = tNum.match(/(\d{4}-\d{2}-\d{2})[\s]*(?:Tenancy\s*)?Start/i);
+      if (m) { result.startDate = m[1]; found.push("تاريخ البداية"); } else missing.push("تاريخ البداية");
 
-      m = t.match(/End.*?(\d{4}-\d{2}-\d{2})/i) || t.match(/(\d{4}-\d{2}-\d{2}).*?End/i);
-      if (m) { result.endDate = m[1]; found.push("تاريخ النهاية"); }
-      else if (allDates.length >= 4) { result.endDate = allDates[2]; found.push("تاريخ النهاية"); }
-      else missing.push("تاريخ النهاية");
+      // 3. End Date — near "Tenancy End Date" or "End Date"  
+      m = tNum.match(/(?:Tenancy\s*)?End\s*Date[\s:]*(\d{4}-\d{2}-\d{2})/i);
+      if (!m) m = tNum.match(/(\d{4}-\d{2}-\d{2})[\s]*(?:Tenancy\s*)?End/i);
+      if (m) { result.endDate = m[1]; found.push("تاريخ النهاية"); } else missing.push("تاريخ النهاية");
 
-      // Tenant name: text between "بيانات المستأجر" section and "Nationality"
-      m = t.match(/(?:بيانات المستأجر|Tenant\s*Data)[^]*?(?:االسم|الاسم|Name)[:\s]*(.+?)(?:\s*Name|\s*Nationality|\s*الجنس)/i);
+      // 4. Tenant Name — from "Tenant Data" section, near "Name"
+      // Strategy: find rows between "Tenant Data" and "Tenant Representative"
+      const tenantRows = [];
+      let inTenant = false;
+      for (const row of rows) {
+        if (/Tenant\s*Data|بيانات المستأجر/i.test(row)) inTenant = true;
+        else if (inTenant && /Representative|ممثل|Brokerage|وساطة/i.test(row)) break;
+        if (inTenant) tenantRows.push(row);
+      }
+      const tenantBlock = tenantRows.join(" ");
+      
+      // Find name: look for text near "Name" in tenant section
+      m = tenantBlock.match(/Name[\s:]*([^\n]+?)(?:\s*Name|\s*Nationality|\s*$)/i);
       if (m) {
-        let name = m[1].replace(/Name/gi,"").replace(/\d+/g,"").replace(/[:\s]+$/,"").trim();
-        if (name.length > 2 && name.length < 80) { result.tenant = name; found.push("المستأجر"); }
+        let name = m[1].replace(/Name/gi,"").replace(/\d+/g,"").trim();
+        name = fixArabic(name);
+        // Clean up extra spaces between letters
+        name = name.replace(/\s{2,}/g, " ").trim();
+        if (name.length > 2) { result.tenant = name; found.push("المستأجر"); }
         else missing.push("المستأجر");
-      } else missing.push("المستأجر");
-
-      // Phone: find phone in tenant section, or use any phone with 05x pattern
-      const tenantSec = t.match(/(?:بيانات المستأجر|Tenant\s*Data)(.*?)(?:ممثل|Representative|وساطة|Brokerage)/is);
-      if (tenantSec) {
-        m = tenantSec[1].match(/\+?(966\d{9}|05\d{8})/);
+      } else {
+        // Fallback: search in rows for Arabic name pattern after Tenant Data
+        for (const row of tenantRows) {
+          const arabicWords = row.match(/[\u0600-\u06FF]+/g);
+          if (arabicWords && arabicWords.length >= 2) {
+            let name = arabicWords.join(" ");
+            // Check if reversed
+            if (name.length > 3) {
+              result.tenant = fixArabic(name) || name;
+              found.push("المستأجر");
+              break;
+            }
+          }
+        }
+        if (!result.tenant) missing.push("المستأجر");
       }
-      if (!m && allPhones.length > 0) {
-        // Pick a phone that's NOT the broker's - usually the 2nd or last unique one
-        m = [null, allPhones.length > 1 ? allPhones[1] : allPhones[0]];
+
+      // 5. Tenant Phone — from tenant section, near "Mobile"
+      const tenantNumBlock = tenantBlock.replace(/(\d)\s+(\d)/g, "$1$2");
+      m = tenantNumBlock.match(/Mobile[\s.]*(?:No)?[\s.:]*\+?(\d{10,15})/i);
+      if (!m) m = tenantNumBlock.match(/\+?(966\d{9})/);
+      if (!m) {
+        // Search all 966 phones in document - tenant phone is usually 2nd one
+        const all966 = [...tNum.matchAll(/\+?(966\d{9})/g)].map(x => x[1]);
+        // In EJAR: phones appear in order: مؤجر ← ممثل المؤجر ← المستأجر
+        if (all966.length >= 3) m = [null, all966[2]]; // 3rd phone = tenant
+        else if (all966.length >= 2) m = [null, all966[1]]; // 2nd phone
       }
       if (m) {
-        let ph = m[1]; 
+        let ph = m[1];
         if (ph.startsWith("966")) ph = "0" + ph.slice(3);
-        result.phone = ph; 
+        result.phone = ph;
         found.push("الهاتف");
       } else missing.push("الهاتف");
 
-      // Rent Annual
-      m = t.match(/(?:قيمة ا..يجار|Rent\s*Annual)[:\s]*(\d[\d,]*\.?\d*)/i);
+      // 6. Annual Rent — near "Rent Annual" (NOT "Total")
+      m = tNum.match(/Rent\s*Annual[\s:]*(\d[\d,]*\.?\d*)/i);
+      if (!m) m = tNum.match(/(\d[\d,]*\.?\d*)\s*Rent\s*Annual/i);
+      if (!m) m = tNum.match(/قيمة ا..يجار[\s:]*(\d[\d,]*\.?\d*)/i);
       if (m) { result.value = parseFloat(m[1].replace(/,/g,"")); found.push("الإيجار السنوي"); } else missing.push("الإيجار السنوي");
 
-      // Total contract value
-      m = t.match(/(?:اجمالي قيمة|إجمالي قيمة|Total)[:\s]*(\d[\d,]*\.\d{2})/i);
+      // 7. Total Contract Value
+      m = tNum.match(/(?:Total|اجمالي|إجمالي)[\s\S]*?(\d[\d,]*\.\d{2})/i);
       if (m) { result.totalContractValue = parseFloat(m[1].replace(/,/g,"")); found.push("إجمالي العقد"); }
 
-      // Number of payments
-      m = t.match(/(?:عدد دفعات|عدد الدفعات|Rent\s*Payments)[:\s]*(\d{1,2})/i) || t.match(/Payments[:\s]*(\d{1,2})/i);
+      // 8. Number of Payments
+      m = tNum.match(/(?:Number\s*of\s*Rent\s*)?Payments[\s:]*(\d{1,2})/i);
+      if (!m) m = tNum.match(/(\d{1,2})\s*(?:Number\s*of\s*Rent\s*)?Payments/i);
+      if (!m) m = tNum.match(/عدد دفعات[\s\S]*?(\d{1,2})/i);
       if (m) { result.installments = parseInt(m[1]); found.push("عدد الدفعات"); } else missing.push("عدد الدفعات");
 
-      // Payment cycle  
-      m = t.match(/(شهري|ربع سنو|نصف سنو[يى]|سنوي|مرن)/i);
-      if (m) { result.paymentCycle = m[1].trim(); found.push("دورة السداد"); }
+      // 9. Payment Cycle
+      m = t.match(/(نصف سنو[يى]|ربع سنو[يى]|شهري|سنوي|مرن)/i);
+      if (m) { result.paymentCycle = m[1]; found.push("دورة السداد"); }
 
-      // Payment method
-      m = t.match(/(?:قنوات|methods|Available)[^]*?(مدى|سداد|تحويل|كاش|شيك)/i);
-      if (m) { let pm = m[1]; if (pm.includes("مدى")||pm.includes("سداد")) pm = "تحويل"; result.payMethod = pm; found.push("طريقة الدفع"); } else missing.push("طريقة الدفع");
+      // 10. Payment Method  
+      m = t.match(/(?:Available|قنوات)[\s\S]*?(مدى|سداد|تحويل|كاش|شيك)/i);
+      if (m) { let pm=m[1]; if(pm.includes("مدى")||pm.includes("سداد"))pm="تحويل"; result.payMethod=pm; found.push("طريقة الدفع"); } else missing.push("طريقة الدفع");
 
-      // Unit type & number
-      m = t.match(/(?:نوع الوحدة|Unit\s*Type)[:\s]*(فيا[لّ]*|فيلا|شقة|شَّقة|دور|محل|مكتب|عمارة|برج|استراحة)/i);
-      const uType = m ? m[1].replace(/[َّ]/g,"").replace("فيال","فيلا") : "";
-      m = t.match(/(?:رقم الوحدة|Unit[\s.]*No)[:\s.]*(\d+)/i);
+      // 11. Unit Type & Number
+      m = t.match(/Unit\s*Type[\s:]*([\u0600-\u06FF\s]+)/i);
+      let uType = m ? fixArabic(m[1]).replace(/[َّ]/g,"").replace("فيال","فيلا").trim() : "";
+      if (!uType) { m = t.match(/(فيا?ل|فيلا|شقة|دور|محل|مكتب|عمارة|برج|استراحة)/i); if(m) uType=m[1].replace("فيال","فيلا"); }
+      m = tNum.match(/Unit[\s.]*No[\s.:]*(\d+)/i);
       const uNo = m ? m[1] : "";
-      if (uType || uNo) { result.name = (uType + " " + uNo).trim(); result.unitType = uType; found.push("الوحدة"); } else missing.push("الوحدة");
+      if (uType||uNo) { result.name=(uType+" "+uNo).trim(); result.unitType=uType; found.push("الوحدة"); } else missing.push("الوحدة");
 
-      // Unit area
-      m = t.match(/(?:مساحة|Area)[:\s]*(\d+\.?\d*)\s/i);
+      // 12. Unit Area
+      m = tNum.match(/(?:Unit\s*)?Area[\s:]*(\d+\.?\d*)/i);
       if (m) { result.unitArea = m[1]; }
 
-      // Owner name
-      m = t.match(/(?:بيانات المؤ|Lessor\s*Data)[^]*?(?:االسم|الاسم|Name)[:\s]*(.+?)(?:\s*Name|\s*Nationality|\s*الجنس)/i);
-      if (m) { result.ownerName = m[1].replace(/Name/gi,"").replace(/\d+/g,"").trim(); }
+      // 13. Owner Name — from Lessor Data section
+      const ownerRows = [];
+      let inOwner = false;
+      for (const row of rows) {
+        if (/Lessor\s*Data|بيانات المؤ/i.test(row)) inOwner = true;
+        else if (inOwner && /Representative|ممثل|بيانات/i.test(row) && !/المؤ/.test(row)) break;
+        if (inOwner) ownerRows.push(row);
+      }
+      if (ownerRows.length > 0) {
+        const ownerBlock = ownerRows.join(" ");
+        m = ownerBlock.match(/Name[\s:]*([^\n]+?)(?:\s*Name|\s*Nationality)/i);
+        if (m) { result.ownerName = fixArabic(m[1].replace(/Name/gi,"").replace(/\d+/g,"").trim()); }
+      }
 
       // Smart: calc annual from total if needed
       if (result.totalContractValue && result.startDate && result.endDate && !result.value) {
