@@ -767,8 +767,15 @@ class App {
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div class="sec-title" style="margin:0">💳 الدفعات</div>
-      <button class="btn btn-gold btn-sm" data-add-installment="${u.id}">+ دفعة</button>
+      <div style="display:flex;gap:6px">
+        <label class="btn btn-blue btn-sm" style="cursor:pointer">
+          📥 استيراد من إيجار
+          <input type="file" accept=".xlsx,.xls,.csv" data-import-payments="${u.id}" style="display:none">
+        </label>
+        <button class="btn btn-gold btn-sm" data-add-installment="${u.id}">+ دفعة</button>
+      </div>
     </div>
+    <div id="import-status-${u.id}" style="display:none;margin-bottom:12px;padding:12px;border-radius:8px;font-size:12px;line-height:1.6"></div>
 
     ${pays.map(p => {
       const pd = instPaid(p);
@@ -1215,6 +1222,14 @@ class App {
 
     $$("[data-add-installment]").forEach(el => {
       el.onclick = () => this.setState({ modal: "addInst", form: { unitId: el.dataset.addInstallment } });
+    });
+
+    // Import payments from Excel (EJAR format)
+    $$("[data-import-payments]").forEach(el => {
+      el.onchange = e => {
+        const file = e.target.files[0];
+        if (file) this.importPaymentsFromExcel(file, el.dataset.importPayments);
+      };
     });
 
     // Pay installment
@@ -1681,6 +1696,158 @@ class App {
       const errBtn = document.getElementById("extract-btn");
       if (errBtn) { errBtn.disabled = false; errBtn.textContent = "🔍 استخراج البيانات"; }
     }
+  }
+
+  // ============================================================
+  // IMPORT PAYMENTS FROM EXCEL (EJAR Format)
+  // ============================================================
+  async importPaymentsFromExcel(file, unitId) {
+    const statusEl = document.getElementById("import-status-" + unitId);
+
+    if (statusEl) {
+      statusEl.style.display = "block";
+      statusEl.style.background = "rgba(96,165,250,.1)";
+      statusEl.style.color = "var(--blue)";
+      statusEl.innerHTML = "⏳ جارِ قراءة ملف الدفعات...";
+    }
+
+    try {
+      // Load SheetJS if not loaded
+      if (!window.XLSX) {
+        await new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+          s.onload = resolve;
+          s.onerror = () => reject(new Error("فشل تحميل مكتبة قراءة Excel"));
+          document.head.appendChild(s);
+        });
+      }
+
+      // Read file
+      const data = await file.arrayBuffer();
+      const wb = XLSX.read(data, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(ws, { defval: "" });
+
+      if (!jsonData || jsonData.length === 0) {
+        throw new Error("الملف فارغ أو لا يحتوي بيانات");
+      }
+
+      // Parse EJAR installments format
+      // Columns: Installment Number (A), Issue date (B), Invoice Number (C),
+      // Last date for due payment (D), Total amount\paid (E), Status (F),
+      // Contract number (G), Contract start date (K), Contract end date (L)
+
+      const payments = [];
+      let contractNo = "";
+      let startDate = "";
+      let endDate = "";
+
+      for (let i = 0; i < jsonData.length; i++) {
+        const row = jsonData[i];
+
+        // Get values by column header (English headers from EJAR)
+        const instNum = row["Installment Number"] || row["رقم الدفعة"] || "";
+        const issueDate = row["Issue date"] || row["تاريخ الإصدار"] || "";
+        const dueDate = row["Last date for due payment"] || row["آخر موعد للسداد"] || issueDate;
+        const amount = parseFloat(row["Total amount\\paid"] || row["Total amount/paid"] || row["المبلغ"] || 0);
+        const status = row["Status"] || row["الحالة"] || "";
+        const cNo = row["Contract number"] || row["رقم العقد"] || "";
+        const cStart = row["Contract start date"] || row["تاريخ بداية العقد"] || "";
+        const cEnd = row["Contract end date"] || row["تاريخ نهاية العقد"] || "";
+
+        if (cNo) contractNo = String(cNo);
+        if (cStart) startDate = this._parseEjarDate(cStart);
+        if (cEnd) endDate = this._parseEjarDate(cEnd);
+
+        if (!amount || amount <= 0) continue;
+
+        const parsedDue = this._parseEjarDate(dueDate) || this._parseEjarDate(issueDate);
+        const isPaid = status === "تم الدفع" || status.toLowerCase().includes("paid");
+
+        payments.push({
+          id: uid(),
+          unitId: unitId,
+          num: i + 1,
+          dueDate: parsedDue,
+          amount: amount,
+          payments: isPaid ? [{ id: uid(), amount: amount, method: "منصة ايجار", date: parsedDue, notes: "مستورد من إيجار" }] : [],
+          notes: isPaid ? "✅ مسدد (إيجار)" : "",
+          ejarInstNo: String(instNum)
+        });
+      }
+
+      if (payments.length === 0) {
+        throw new Error("لم يتم العثور على دفعات صالحة في الملف");
+      }
+
+      // Remove old generated payments for this unit and replace with imported
+      const existingManual = (this.state.data.payments || []).filter(p => p.unitId !== unitId);
+      this.state.data.payments = [...existingManual, ...payments];
+
+      // Update unit contract info if available
+      const unit = this.units.find(u => u.id === unitId);
+      if (unit) {
+        if (contractNo) unit.contractNo = contractNo;
+        if (startDate) unit.startDate = startDate;
+        if (endDate) unit.endDate = endDate;
+        // Calculate annual rent from payments
+        const totalPayments = payments.reduce((s, p) => s + p.amount, 0);
+        if (startDate && endDate) {
+          const years = Math.max(1, Math.round((new Date(endDate) - new Date(startDate)) / (365.25 * 86400000)));
+          unit.value = Math.round(totalPayments / years);
+        }
+        unit.installments = payments.length;
+      }
+
+      this.saveData();
+
+      // Show success
+      const paidCount = payments.filter(p => p.payments.length > 0).length;
+      const unpaidCount = payments.length - paidCount;
+      const totalAmount = payments.reduce((s, p) => s + p.amount, 0);
+      const paidAmount = payments.filter(p => p.payments.length > 0).reduce((s, p) => s + p.amount, 0);
+
+      if (statusEl) {
+        statusEl.style.background = "rgba(74,222,128,.1)";
+        statusEl.style.color = "var(--green)";
+        statusEl.innerHTML = `<strong>✅ تم استيراد ${payments.length} دفعة بنجاح</strong>
+          <br>💰 إجمالي: ${sar(totalAmount)}
+          <br>✅ مسدد: ${paidCount} دفعة (${sar(paidAmount)})
+          <br>⏳ غير مسدد: ${unpaidCount} دفعة (${sar(totalAmount - paidAmount)})
+          ${contractNo ? `<br>📋 رقم العقد: ${contractNo}` : ""}`;
+      }
+
+      this.addAudit("استيراد دفعات من إيجار", `${file.name} — ${payments.length} دفعة — الوحدة: ${unit?.name || unitId}`);
+
+      // Re-render to show new payments
+      setTimeout(() => this.render(), 500);
+
+    } catch (err) {
+      console.error("Import error:", err);
+      if (statusEl) {
+        statusEl.style.display = "block";
+        statusEl.style.background = "rgba(248,113,113,.1)";
+        statusEl.style.color = "var(--red)";
+        statusEl.innerHTML = `❌ ${err.message}`;
+      }
+    }
+  }
+
+  // Parse EJAR date format (DD-MM-YYYY or DD/MM/YYYY) to YYYY-MM-DD
+  _parseEjarDate(dateStr) {
+    if (!dateStr) return "";
+    const s = String(dateStr).trim();
+    // Already YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    // DD-MM-YYYY or DD/MM/YYYY
+    const m = s.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+    if (m) {
+      const day = m[1].padStart(2, "0");
+      const month = m[2].padStart(2, "0");
+      return `${m[3]}-${month}-${day}`;
+    }
+    return s;
   }
 
   handleModalSave() {
