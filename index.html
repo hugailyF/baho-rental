@@ -1377,6 +1377,7 @@ class App {
     try {
       const ext = file.name.split(".").pop().toLowerCase();
       let fullText = "";
+      let rows = [];
 
       if (ext === "pdf") {
         if (!window.pdfjsLib) {
@@ -1419,7 +1420,6 @@ class App {
         
         // Build row-based text (items on same Y = same row)
         let lastY = -999;
-        const rows = [];
         let currentRow = [];
         for (const item of allItems) {
           if (Math.abs(item.y - lastY) > 5) {
