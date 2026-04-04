@@ -474,6 +474,7 @@ class App {
         case "projects": html += this.renderProjects(); break;
         case "alerts": html += this.renderAlerts(); break;
         case "audit": html += this.renderAudit(); break;
+        case "ownerReports": html += this.renderOwnerReports(); break;
       }
       html += `</div>`;
       if (s.modal) html += this.renderModal();
@@ -536,6 +537,7 @@ class App {
     else if (s.page === "projects") title = "المشاريع";
     else if (s.page === "alerts") title = "التنبيهات";
     else if (s.page === "audit") title = "سجل العمليات";
+    else if (s.page === "ownerReports") title = "تقارير الملاك";
 
     const showBack = s.page !== "dashboard";
 
@@ -639,6 +641,7 @@ class App {
     <div style="margin-top:24px">
       <div class="sec-title">⚡ اختصارات</div>
       <div class="grid2">
+        <button class="btn btn-gold" style="justify-content:center" data-nav="ownerReports">📄 تقارير الملاك</button>
         <button class="btn btn-ghost" style="justify-content:center" data-nav="maintenance">🔧 الصيانة</button>
         <button class="btn btn-ghost" style="justify-content:center" data-nav="brokers">👥 الوسطاء</button>
         <button class="btn btn-ghost" style="justify-content:center" data-nav="projects">🏗️ المشاريع</button>
@@ -1080,6 +1083,8 @@ class App {
         <div class="grid2">
           <div><label>اسم المالك</label><input id="f-name" value="${f.name||""}"></div>
           <div><label>الهاتف</label><input id="f-phone" value="${f.phone||""}"></div>
+          <div><label>نسبة عمولة الإدارة %</label><input type="number" step="0.5" min="0" max="100" id="f-commission" value="${f.commission||5}" placeholder="5"></div>
+          <div><label>البريد الإلكتروني</label><input id="f-email" value="${f.email||""}"></div>
           <div style="grid-column:1/-1"><label>ملاحظات</label><input id="f-notes" value="${f.notes||""}"></div>
         </div>`;
     } else if (m === "addExp") {
@@ -1204,6 +1209,23 @@ class App {
     $$("[data-goto-unit]").forEach(el => {
       el.onclick = () => this.setState({ page: "unit", selectedUnit: el.dataset.gotoUnit });
     });
+
+    // Owner Reports — select owner
+    $$("[data-select-owner]").forEach(el => {
+      el.onclick = () => {
+        const id = el.dataset.selectOwner;
+        if (id === "back") { this.setState({ selectedOwner: null }); }
+        else { this.setState({ selectedOwner: id, page: "ownerReports" }); }
+      };
+    });
+
+    // Toggle commission visibility
+    if ($("toggle-commission")) {
+      $("toggle-commission").onchange = e => {
+        this.state.showCommission = e.target.checked;
+        this.render();
+      };
+    }
 
     // Add buttons
     if ($("add-prop-btn")) $("add-prop-btn").onclick = () => this.setState({ modal: "addProp", form: {} });
@@ -1369,6 +1391,211 @@ class App {
       };
       reader.readAsText(file);
     };
+  }
+
+  // ============================================================
+  // OWNER REPORTS PAGE
+  // ============================================================
+  renderOwnerReports() {
+    const s = this.state;
+    const selectedOwner = s.selectedOwner ? this.owners.find(o => o.id === s.selectedOwner) : null;
+    const showCommission = s.showCommission !== false; // default: show
+
+    // If no owner selected, show owner selection
+    if (!selectedOwner) {
+      return `
+      <div class="sec-title">📄 تقارير الملاك — اختر المالك</div>
+      ${this.owners.map(o => {
+        const props = this.propsByOwner(o.id);
+        const totalUnits = props.reduce((s,p) => s + this.unitsByProp(p.id).length, 0);
+        const totalRent = props.reduce((s,p) => s + this.unitsByProp(p.id).reduce((s2,u) => s2 + (u.value||0), 0), 0);
+        return `
+        <div class="card" style="margin-bottom:10px;cursor:pointer" data-select-owner="${o.id}">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span style="font-weight:800;color:var(--gold);font-size:16px">${o.name}</span>
+              <div style="font-size:12px;color:var(--txt2);margin-top:4px">${props.length} عقار • ${totalUnits} وحدة • عمولة ${o.commission||5}%</div>
+            </div>
+            <span style="font-size:24px">→</span>
+          </div>
+        </div>`;
+      }).join("")}
+      ${this.owners.length === 0 ? '<div class="empty">لا يوجد ملاك — أضف مالك أولاً من صفحة الملاك</div>' : ""}`;
+    }
+
+    // Generate report for selected owner
+    const owner = selectedOwner;
+    const commRate = (owner.commission || 5) / 100;
+    const props = this.propsByOwner(owner.id);
+    
+    // Gather all data
+    let totalRent = 0, totalPaid = 0, totalDue = 0, totalExpenses = 0;
+    let occupiedCount = 0, vacantCount = 0, totalUnits = 0;
+    const propReports = [];
+    const overdueList = [];
+    const expiringList = [];
+
+    props.forEach(p => {
+      const units = this.unitsByProp(p.id);
+      const exps = this.expensesByProp(p.id);
+      let pRent = 0, pPaid = 0, pDue = 0, pExp = exps.reduce((s,e) => s + (e.amount||0), 0);
+
+      units.forEach(u => {
+        totalUnits++;
+        if (u.status === "مستأجرة") occupiedCount++; else vacantCount++;
+        pRent += u.value || 0;
+        
+        const pays = this.unitPayments(u);
+        pays.forEach(pay => {
+          pDue += pay.amount || 0;
+          const paid = instPaid(pay);
+          pPaid += paid;
+          if (!instIsFull(pay) && daysDiff(pay.dueDate) < 0) {
+            overdueList.push({ tenant: u.tenant, unit: u.name, prop: p.name, amount: instRemaining(pay), days: Math.abs(daysDiff(pay.dueDate)), phone: u.phone });
+          }
+        });
+
+        // Expiring contracts
+        const daysLeft = daysDiff(u.endDate);
+        if (daysLeft >= 0 && daysLeft <= 90 && u.status === "مستأجرة") {
+          expiringList.push({ tenant: u.tenant, unit: u.name, prop: p.name, endDate: u.endDate, daysLeft });
+        }
+      });
+
+      totalRent += pRent; totalPaid += pPaid; totalDue += pDue; totalExpenses += pExp;
+      propReports.push({ name: p.name, units: units.length, occupied: units.filter(u=>u.status==="مستأجرة").length, rent: pRent, paid: pPaid, due: pDue, expenses: pExp });
+    });
+
+    const commissionAmount = Math.round(totalPaid * commRate);
+    const netForOwner = totalPaid - totalExpenses - (showCommission ? commissionAmount : 0);
+    const collectionRate = totalDue > 0 ? totalPaid / totalDue : 0;
+    const occupancyRate = totalUnits > 0 ? occupiedCount / totalUnits : 0;
+
+    overdueList.sort((a,b) => b.days - a.days);
+    expiringList.sort((a,b) => a.daysLeft - b.daysLeft);
+
+    return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <div>
+        <button class="btn btn-ghost btn-sm" data-select-owner="back">→ عودة لقائمة الملاك</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt2);cursor:pointer">
+          <input type="checkbox" id="toggle-commission" ${showCommission ? "checked" : ""} style="width:auto">
+          إظهار العمولة
+        </label>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;text-align:center;padding:24px">
+      <div style="font-size:22px;font-weight:900;color:var(--gold)">${owner.name}</div>
+      <div style="font-size:13px;color:var(--txt2);margin-top:4px">كشف حساب المالك • ${new Date().toLocaleDateString("ar-SA")}</div>
+      <div style="font-size:11px;color:var(--txt3)">عمولة الإدارة: ${owner.commission||5}%</div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid4" style="margin-bottom:20px">
+      <div class="stat-box"><div class="val" style="font-size:16px">${props.length}</div><div class="lbl">عقار</div></div>
+      <div class="stat-box"><div class="val" style="font-size:16px">${totalUnits}</div><div class="lbl">وحدة</div></div>
+      <div class="stat-box"><div class="val" style="font-size:16px;color:var(--green)">${pct(occupancyRate)}</div><div class="lbl">الإشغال</div></div>
+      <div class="stat-box"><div class="val" style="font-size:16px;color:var(--blue)">${pct(collectionRate)}</div><div class="lbl">التحصيل</div></div>
+    </div>
+
+    <!-- Financial Summary -->
+    <div class="sec-title">💰 الملخص المالي</div>
+    <div class="card" style="margin-bottom:16px">
+      <table class="tbl">
+        <tr><td style="font-weight:700">إجمالي الإيجارات السنوية</td><td style="color:var(--gold);font-weight:700">${sar(totalRent)}</td></tr>
+        <tr><td style="font-weight:700">إجمالي المستحق</td><td>${sar(totalDue)}</td></tr>
+        <tr><td style="font-weight:700;color:var(--green)">المحصّل فعلياً</td><td style="color:var(--green);font-weight:700">${sar(totalPaid)}</td></tr>
+        <tr><td style="font-weight:700;color:var(--red)">المتأخرات</td><td style="color:var(--red)">${sar(totalDue - totalPaid)}</td></tr>
+        <tr><td style="font-weight:700;color:var(--orange)">المصروفات التشغيلية</td><td style="color:var(--orange)">${sar(totalExpenses)}</td></tr>
+        ${showCommission ? `
+        <tr style="border-top:2px solid var(--bg4)"><td style="font-weight:700;color:var(--purple)">عمولة الإدارة (${owner.commission||5}%)</td><td style="color:var(--purple)">${sar(commissionAmount)}</td></tr>
+        <tr style="background:rgba(74,222,128,.05)"><td style="font-weight:900;font-size:15px">صافي المستحق للمالك</td><td style="font-weight:900;font-size:15px;color:var(--green)">${sar(netForOwner)}</td></tr>
+        ` : `
+        <tr style="background:rgba(74,222,128,.05)"><td style="font-weight:900;font-size:15px">صافي الدخل</td><td style="font-weight:900;font-size:15px;color:var(--green)">${sar(totalPaid - totalExpenses)}</td></tr>
+        `}
+      </table>
+    </div>
+
+    <!-- Properties Comparison -->
+    <div class="sec-title">🏢 تفصيل العقارات</div>
+    <div class="card" style="margin-bottom:16px;overflow-x:auto">
+      <table class="tbl">
+        <tr><th>العقار</th><th>الوحدات</th><th>الإشغال</th><th>الإيجار</th><th>المحصّل</th><th>المصروفات</th><th>الصافي</th></tr>
+        ${propReports.map(p => `
+          <tr>
+            <td style="font-weight:700">${p.name}</td>
+            <td>${p.units}</td>
+            <td><span class="badge ${p.occupied===p.units?'badge-green':'badge-orange'}">${p.occupied}/${p.units}</span></td>
+            <td>${sar(p.rent)}</td>
+            <td style="color:var(--green)">${sar(p.paid)}</td>
+            <td style="color:var(--orange)">${sar(p.expenses)}</td>
+            <td style="color:${(p.paid-p.expenses)>=0?'var(--green)':'var(--red)'}"><strong>${sar(p.paid - p.expenses)}</strong></td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>
+
+    <!-- Overdue Payments -->
+    ${overdueList.length > 0 ? `
+    <div class="sec-title" style="color:var(--red)">⚠ المتأخرات (${overdueList.length})</div>
+    <div class="card" style="margin-bottom:16px;border-color:var(--red)">
+      <table class="tbl">
+        <tr><th>المستأجر</th><th>الوحدة</th><th>المبلغ</th><th>التأخير</th></tr>
+        ${overdueList.map(o => `
+          <tr>
+            <td style="font-weight:700">${o.tenant}</td>
+            <td>${o.unit} — ${o.prop}</td>
+            <td style="color:var(--red);font-weight:700">${sar(o.amount)}</td>
+            <td><span class="badge badge-red">${o.days} يوم</span></td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>` : `
+    <div class="card" style="margin-bottom:16px;border-color:var(--green);text-align:center;padding:20px">
+      <span style="color:var(--green);font-weight:700">✅ لا توجد متأخرات — جميع الدفعات مسددة</span>
+    </div>`}
+
+    <!-- Expiring Contracts -->
+    ${expiringList.length > 0 ? `
+    <div class="sec-title" style="color:var(--orange)">📅 عقود تنتهي خلال 90 يوم (${expiringList.length})</div>
+    <div class="card" style="margin-bottom:16px">
+      <table class="tbl">
+        <tr><th>المستأجر</th><th>الوحدة</th><th>تاريخ الانتهاء</th><th>متبقي</th></tr>
+        ${expiringList.map(e => `
+          <tr>
+            <td style="font-weight:700">${e.tenant}</td>
+            <td>${e.unit}</td>
+            <td>${e.endDate}</td>
+            <td><span class="badge ${e.daysLeft<=30?'badge-red':e.daysLeft<=60?'badge-orange':'badge-blue'}">${e.daysLeft} يوم</span></td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>` : ""}
+
+    <!-- Expense Breakdown -->
+    <div class="sec-title">💸 توزيع المصروفات</div>
+    <div class="card" style="margin-bottom:16px">
+      ${(() => {
+        const expByType = {};
+        props.forEach(p => {
+          this.expensesByProp(p.id).forEach(e => {
+            expByType[e.type || "أخرى"] = (expByType[e.type || "أخرى"] || 0) + (e.amount || 0);
+          });
+        });
+        const types = Object.entries(expByType).sort((a,b) => b[1] - a[1]);
+        if (types.length === 0) return '<div style="text-align:center;padding:16px;color:var(--txt3)">لا توجد مصروفات مسجلة</div>';
+        return `<table class="tbl">
+          <tr><th>النوع</th><th>المبلغ</th><th>النسبة</th></tr>
+          ${types.map(([type, amount]) => `
+            <tr><td>${type}</td><td>${sar(amount)}</td><td>${totalExpenses > 0 ? pct(amount/totalExpenses) : "0%"}</td></tr>
+          `).join("")}
+          <tr style="border-top:2px solid var(--bg4);font-weight:700"><td>الإجمالي</td><td>${sar(totalExpenses)}</td><td>100%</td></tr>
+        </table>`;
+      })()}
+    </div>`;
   }
 
   // ============================================================
@@ -1900,7 +2127,8 @@ class App {
     } else if (m === "addOwner" || m === "editOwner") {
       const obj = {
         id: m === "editOwner" ? this.state.form.id : uid(),
-        name: getVal("f-name"), phone: getVal("f-phone"), notes: getVal("f-notes")
+        name: getVal("f-name"), phone: getVal("f-phone"), notes: getVal("f-notes"),
+        commission: getNum("f-commission") || 5, email: getVal("f-email")
       };
       if (!obj.name) { this.showToast("أدخل اسم المالك", "error"); return; }
       if (m === "editOwner") {
