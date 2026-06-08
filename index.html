@@ -80,6 +80,25 @@ label{display:block;font-size:12px;color:var(--txt2);margin-bottom:4px;font-weig
   .top-bar{padding:10px 14px}
   body{padding-bottom:70px}
 }
+@media print {
+  body{background:#fff !important;color:#000 !important;padding-bottom:0 !important}
+  .no-print, .top-bar, .nav, .modal-bg{display:none !important}
+  #report-content{padding:0 !important;max-width:100% !important}
+  .card{background:#fff !important;border:1px solid #ccc !important;color:#000 !important;box-shadow:none !important;page-break-inside:avoid}
+  .stat-box{background:#f5f5f5 !important;color:#000 !important;border:1px solid #ddd !important}
+  .stat-box .val{color:#000 !important}
+  .stat-box .lbl{color:#555 !important}
+  .sec-title{color:#333 !important;border-bottom:2px solid #c9a96e;padding-bottom:6px;margin-top:16px !important}
+  .tbl{border:1px solid #ccc}
+  .tbl th{background:#c9a96e !important;color:#fff !important}
+  .tbl td{color:#000 !important;border-bottom:1px solid #ddd}
+  .badge{border:1px solid #999;background:#fff !important}
+  .badge-green{color:#0a7c2f !important;border-color:#0a7c2f !important}
+  .badge-red{color:#c41e1e !important;border-color:#c41e1e !important}
+  .badge-orange{color:#d97706 !important;border-color:#d97706 !important}
+  .badge-blue{color:#1e5fc4 !important;border-color:#1e5fc4 !important}
+  canvas{max-width:100% !important;height:auto !important}
+}
 .wa-btn{background:#25D366;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit}
 .wa-btn:hover{background:#128C7E}
 .inst-row{background:var(--bg3);border-radius:var(--r2);padding:12px 16px;margin-bottom:8px;transition:.2s}
@@ -159,6 +178,8 @@ const Storage = {
 // ============================================================
 const fmt = n => (n||0).toLocaleString("ar-SA");
 const sar = n => `${fmt(n)} ر.س`;
+// XSS protection: escape HTML special chars in any user-supplied string
+const esc = s => { if (s == null) return ""; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); };
 const pct = n => `${Math.round((n||0)*100)}%`;
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const today = () => new Date().toISOString().split("T")[0];
@@ -623,8 +644,8 @@ class App {
       <div class="card" style="margin-bottom:12px;cursor:pointer" data-goto-prop="${p.id}">
         <div style="display:flex;justify-content:space-between;align-items:start">
           <div>
-            <div style="font-weight:800;font-size:16px;color:var(--gold)">${p.name}</div>
-            <div style="font-size:12px;color:var(--txt2)">${p.location || ""} ${owner ? `• ${owner.name}` : ""}</div>
+            <div style="font-weight:800;font-size:16px;color:var(--gold)">${esc(p.name)}</div>
+            <div style="font-size:12px;color:var(--txt2)">${p.location || ""} ${owner ? `• ${esc(owner.name)}` : ""}</div>
           </div>
           <div class="badge badge-blue">${p.type || "سكني"}</div>
         </div>
@@ -673,7 +694,7 @@ class App {
     return `
     <div class="card" style="margin-bottom:16px">
       <div style="display:flex;justify-content:space-between;margin-bottom:12px">
-        <div><div style="font-size:20px;font-weight:900;color:var(--gold)">${p.name}</div><div style="font-size:13px;color:var(--txt2)">${p.location || ""}</div></div>
+        <div><div style="font-size:20px;font-weight:900;color:var(--gold)">${esc(p.name)}</div><div style="font-size:13px;color:var(--txt2)">${p.location || ""}</div></div>
         <div style="display:flex;gap:6px">
           <button class="btn btn-ghost btn-sm" data-edit-prop="${p.id}">✏️</button>
           <button class="btn btn-red btn-sm" data-del-prop="${p.id}">🗑</button>
@@ -702,8 +723,8 @@ class App {
       <div class="card" style="margin-bottom:10px;cursor:pointer;${isOverdue?'border-color:var(--red)':''}" data-goto-unit="${u.id}">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
-            <span style="font-weight:800">${u.name}</span>
-            <span style="font-size:12px;color:var(--txt2);margin-right:8px">${u.tenant || "شاغرة"}</span>
+            <span style="font-weight:800">${esc(u.name)}</span>
+            <span style="font-size:12px;color:var(--txt2);margin-right:8px">${esc(u.tenant) || "شاغرة"}</span>
           </div>
           <span class="badge ${u.status==='مستأجرة'?'badge-green':u.status==='شاغرة'?'badge-red':'badge-orange'}">${u.status}</span>
         </div>
@@ -749,8 +770,8 @@ class App {
     <div class="card" style="margin-bottom:16px">
       <div style="display:flex;justify-content:space-between;margin-bottom:12px">
         <div>
-          <div style="font-size:20px;font-weight:900;color:var(--gold)">${u.name}</div>
-          <div style="font-size:13px;color:var(--txt2)">${prop?.name || ""} • ${u.tenant || "شاغرة"}</div>
+          <div style="font-size:20px;font-weight:900;color:var(--gold)">${esc(u.name)}</div>
+          <div style="font-size:13px;color:var(--txt2)">${esc(prop?.name) || ""} • ${esc(u.tenant) || "شاغرة"}</div>
         </div>
         <div style="display:flex;gap:6px">
           <button class="btn btn-ghost btn-sm" data-edit-unit="${u.id}">✏️</button>
@@ -893,7 +914,7 @@ class App {
       <tr><th>العقار</th><th>الوحدات</th><th>الإشغال</th><th>الإيجار</th><th>المحصّل</th><th>الصافي</th></tr>
       ${propStats.map(p => `
         <tr>
-          <td style="font-weight:700">${p.name}</td>
+          <td style="font-weight:700">${esc(p.name)}</td>
           <td>${p.units}</td>
           <td><span class="badge ${p.occRate>=.8?'badge-green':p.occRate>=.5?'badge-orange':'badge-red'}">${pct(p.occRate)}</span></td>
           <td>${sar(p.rent)}</td>
@@ -923,7 +944,7 @@ class App {
       return `
       <div class="card" style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <div><span style="font-weight:800;color:var(--gold)">${o.name}</span><span style="font-size:12px;color:var(--txt2);margin-right:8px">${props.length} عقار • ${totalUnits} وحدة</span></div>
+          <div><span style="font-weight:800;color:var(--gold)">${esc(o.name)}</span><span style="font-size:12px;color:var(--txt2);margin-right:8px">${props.length} عقار • ${totalUnits} وحدة</span></div>
           <div style="display:flex;gap:6px">
             <button class="btn btn-ghost btn-sm" data-edit-owner="${o.id}">✏️</button>
             <button class="btn btn-red btn-sm" data-del-owner="${o.id}">🗑</button>
@@ -948,7 +969,7 @@ class App {
       <div class="card" style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
-            <span style="font-weight:700">${m.title}</span>
+            <span style="font-weight:700">${esc(m.title)}</span>
             <span style="font-size:12px;color:var(--txt2);margin-right:8px">${unit?.name || ""}</span>
           </div>
           <span class="badge ${statusCls}">${m.status}</span>
@@ -973,7 +994,7 @@ class App {
       <div class="card" style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
-            <span style="font-weight:800;color:var(--gold)">${b.name}</span>
+            <span style="font-weight:800;color:var(--gold)">${esc(b.name)}</span>
             <span style="font-size:12px;color:var(--txt2);margin-right:8px">${b.phone||""} • عمولة ${b.commission||0}%</span>
           </div>
           <span class="badge ${b.active?'badge-green':'badge-red'}">${b.active?"نشط":"غير نشط"}</span>
@@ -996,7 +1017,7 @@ class App {
       const spent = phases.reduce((s,ph) => s + (ph.cost||0), 0);
       return `
       <div class="card" style="margin-bottom:10px">
-        <div style="font-weight:800;color:var(--gold);font-size:16px">${p.name}</div>
+        <div style="font-weight:800;color:var(--gold);font-size:16px">${esc(p.name)}</div>
         <div style="font-size:12px;color:var(--txt2)">${p.location||""} • الميزانية: ${sar(p.budget)}</div>
         <div class="progress" style="margin-top:8px"><div class="progress-fill" style="width:${progress*100}%;background:var(--green)"></div></div>
         <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--txt2);margin-top:4px">
@@ -1044,7 +1065,7 @@ class App {
           <div><label>اسم العقار</label><input id="f-name" value="${f.name||""}"></div>
           <div><label>الموقع</label><input id="f-location" value="${f.location||""}"></div>
           <div><label>النوع</label><select id="f-type"><option value="">-- اختر --</option>${["سكني","تجاري","مكتبي","فندقي","مختلط"].map(t=>`<option ${f.type===t?"selected":""}>${t}</option>`).join("")}</select></div>
-          <div><label>المالك</label><select id="f-ownerId"><option value="">بدون مالك</option>${this.owners.map(o=>`<option value="${o.id}" ${f.ownerId===o.id?"selected":""}>${o.name}</option>`).join("")}</select></div>
+          <div><label>المالك</label><select id="f-ownerId"><option value="">بدون مالك</option>${this.owners.map(o=>`<option value="${o.id}" ${f.ownerId===o.id?"selected":""}>${esc(o.name)}</option>`).join("")}</select></div>
         </div>`;
     } else if (m === "addUnit" || m === "editUnit") {
       title = m === "editUnit" ? "✏️ تعديل وحدة" : "➕ وحدة جديدة";
@@ -1110,7 +1131,7 @@ class App {
       fields = `
         <div class="grid2">
           <div><label>العنوان</label><input id="f-title" value="${f.title||""}"></div>
-          <div><label>الوحدة</label><select id="f-unitId"><option value="">-- اختر --</option>${this.units.map(u=>`<option value="${u.id}" ${f.unitId===u.id?"selected":""}>${u.name}</option>`).join("")}</select></div>
+          <div><label>الوحدة</label><select id="f-unitId"><option value="">-- اختر --</option>${this.units.map(u=>`<option value="${u.id}" ${f.unitId===u.id?"selected":""}>${esc(u.name)}</option>`).join("")}</select></div>
           <div><label>التاريخ</label><input type="date" id="f-date" value="${f.date||today()}"></div>
           <div><label>الحالة</label><select id="f-status">${["جديد","قيد التنفيذ","مكتمل"].map(s=>`<option ${f.status===s?"selected":""}>${s}</option>`).join("")}</select></div>
           <div><label>التكلفة</label><input type="number" id="f-cost" value="${f.cost||""}"></div>
@@ -1225,6 +1246,66 @@ class App {
         this.state.showCommission = e.target.checked;
         this.render();
       };
+    }
+
+    // Period filter buttons
+    $$("[data-period]").forEach(el => {
+      el.onclick = () => {
+        const period = el.dataset.period;
+        this.state.reportPeriod = period;
+        // Compute date range
+        const now = new Date();
+        if (period === "month") {
+          this.state.reportFrom = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+          this.state.reportTo = new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString().split("T")[0];
+        } else if (period === "quarter") {
+          const q = Math.floor(now.getMonth()/3);
+          this.state.reportFrom = new Date(now.getFullYear(), q*3, 1).toISOString().split("T")[0];
+          this.state.reportTo = new Date(now.getFullYear(), q*3+3, 0).toISOString().split("T")[0];
+        } else if (period === "year") {
+          this.state.reportFrom = new Date(now.getFullYear(), 0, 1).toISOString().split("T")[0];
+          this.state.reportTo = new Date(now.getFullYear(), 11, 31).toISOString().split("T")[0];
+        } else if (period === "all") {
+          this.state.reportFrom = null; this.state.reportTo = null;
+        }
+        // For 'custom', keep existing dates
+        this.render();
+      };
+    });
+
+    // Custom date inputs
+    if ($("report-from")) $("report-from").onchange = e => { this.state.reportFrom = e.target.value; this.render(); };
+    if ($("report-to")) $("report-to").onchange = e => { this.state.reportTo = e.target.value; this.render(); };
+
+    // Print / PDF button
+    if ($("print-report")) {
+      $("print-report").onclick = () => window.print();
+    }
+
+    // Excel export button
+    if ($("export-excel")) {
+      $("export-excel").onclick = () => {
+        if (this._lastReportData) {
+          const d = this._lastReportData;
+          this.exportReportToExcel(d.owner, d.propReports, d.totalPaid, d.totalDue, d.totalExpenses, d.commissionAmount, d.netForOwner, d.overdueList, d.expiringList);
+        }
+      };
+    }
+
+    // Render charts after DOM is ready
+    if (this._lastReportData && this.state.page === "ownerReports" && this.state.selectedOwner) {
+      const d = this._lastReportData;
+      const renderCharts = () => {
+        if (!window.Chart) {
+          const s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js";
+          s.onload = () => this.renderReportCharts(d.chartData);
+          document.head.appendChild(s);
+        } else {
+          this.renderReportCharts(d.chartData);
+        }
+      };
+      setTimeout(renderCharts, 100);
     }
 
     // Add buttons
@@ -1413,7 +1494,7 @@ class App {
         <div class="card" style="margin-bottom:10px;cursor:pointer" data-select-owner="${o.id}">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div>
-              <span style="font-weight:800;color:var(--gold);font-size:16px">${o.name}</span>
+              <span style="font-weight:800;color:var(--gold);font-size:16px">${esc(o.name)}</span>
               <div style="font-size:12px;color:var(--txt2);margin-top:4px">${props.length} عقار • ${totalUnits} وحدة • عمولة ${o.commission||5}%</div>
             </div>
             <span style="font-size:24px">→</span>
@@ -1435,9 +1516,17 @@ class App {
     const overdueList = [];
     const expiringList = [];
 
+    // Date filter helper
+    const inRange = (dateStr) => {
+      if (!s.reportFrom || !s.reportTo) return true; // no filter = include all
+      if (!dateStr) return false;
+      return dateStr >= s.reportFrom && dateStr <= s.reportTo;
+    };
+
     props.forEach(p => {
       const units = this.unitsByProp(p.id);
-      const exps = this.expensesByProp(p.id);
+      const allExps = this.expensesByProp(p.id);
+      const exps = allExps.filter(e => inRange(e.date));
       let pRent = 0, pPaid = 0, pDue = 0, pExp = exps.reduce((s,e) => s + (e.amount||0), 0);
 
       units.forEach(u => {
@@ -1447,8 +1536,12 @@ class App {
         
         const pays = this.unitPayments(u);
         pays.forEach(pay => {
+          // Filter by due date in range
+          if (!inRange(pay.dueDate)) return;
           pDue += pay.amount || 0;
-          const paid = instPaid(pay);
+          // Sum only payments made in range
+          const paymentsInRange = (pay.payments || []).filter(pp => inRange(pp.date));
+          const paid = paymentsInRange.reduce((sum,pp) => sum + (pp.amount||0), 0);
           pPaid += paid;
           if (!instIsFull(pay) && daysDiff(pay.dueDate) < 0) {
             overdueList.push({ tenant: u.tenant, unit: u.name, prop: p.name, amount: instRemaining(pay), days: Math.abs(daysDiff(pay.dueDate)), phone: u.phone });
@@ -1474,23 +1567,67 @@ class App {
     overdueList.sort((a,b) => b.days - a.days);
     expiringList.sort((a,b) => a.daysLeft - b.daysLeft);
 
+    // Store for charts and export
+    this._lastReportData = {
+      owner, propReports, totalPaid, totalDue, totalExpenses, commissionAmount, netForOwner, overdueList, expiringList,
+      chartData: {
+        finance: {
+          labels: showCommission ? ["صافي المالك", "المصروفات", "العمولة"] : ["صافي الدخل", "المصروفات", ""],
+          values: showCommission ? [netForOwner, totalExpenses, commissionAmount] : [totalPaid - totalExpenses, totalExpenses, 0]
+        },
+        occupancy: { occupied: occupiedCount, vacant: vacantCount },
+        properties: propReports
+      }
+    };
+
+    // Build period label
+    const periodLabel = s.reportPeriod === "month" ? "شهري" : s.reportPeriod === "quarter" ? "ربع سنوي" : s.reportPeriod === "year" ? "سنوي" : "كامل";
+    const periodFromTo = s.reportFrom && s.reportTo ? `من ${s.reportFrom} إلى ${s.reportTo}` : "كامل البيانات";
+
     return `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-      <div>
-        <button class="btn btn-ghost btn-sm" data-select-owner="back">→ عودة لقائمة الملاك</button>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center">
+    <!-- Toolbar (hidden in print) -->
+    <div class="no-print" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <button class="btn btn-ghost btn-sm" data-select-owner="back">→ عودة</button>
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt2);cursor:pointer">
           <input type="checkbox" id="toggle-commission" ${showCommission ? "checked" : ""} style="width:auto">
           إظهار العمولة
         </label>
       </div>
+
+      <!-- Period filter -->
+      <div class="card" style="padding:12px;margin-bottom:12px">
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:8px;font-weight:700">📅 الفترة الزمنية:</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-sm ${!s.reportPeriod||s.reportPeriod==='all'?'btn-gold':'btn-ghost'}" data-period="all">الكل</button>
+          <button class="btn btn-sm ${s.reportPeriod==='month'?'btn-gold':'btn-ghost'}" data-period="month">هذا الشهر</button>
+          <button class="btn btn-sm ${s.reportPeriod==='quarter'?'btn-gold':'btn-ghost'}" data-period="quarter">هذا الربع</button>
+          <button class="btn btn-sm ${s.reportPeriod==='year'?'btn-gold':'btn-ghost'}" data-period="year">هذه السنة</button>
+          <button class="btn btn-sm ${s.reportPeriod==='custom'?'btn-gold':'btn-ghost'}" data-period="custom">مخصص</button>
+        </div>
+        ${s.reportPeriod==='custom' ? `
+        <div class="grid2" style="margin-top:8px;gap:8px">
+          <div><label style="font-size:11px">من</label><input type="date" id="report-from" value="${s.reportFrom||''}"></div>
+          <div><label style="font-size:11px">إلى</label><input type="date" id="report-to" value="${s.reportTo||''}"></div>
+        </div>` : ''}
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px">
+        <button class="btn btn-blue btn-sm" id="print-report">🖨️ طباعة / PDF</button>
+        <button class="btn btn-green btn-sm" id="export-excel">📊 Excel</button>
+        ${owner.phone ? `<a href="${this.buildOwnerWAUrl(owner, totalPaid, totalExpenses, commissionAmount, netForOwner, showCommission, periodLabel)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;text-decoration:none;text-align:center">📱 واتساب للمالك</a>` : `<button class="btn btn-ghost btn-sm" disabled>📱 لا يوجد جوال</button>`}
+      </div>
     </div>
 
+    <!-- REPORT CONTENT (printable) -->
+    <div id="report-content">
     <div class="card" style="margin-bottom:16px;text-align:center;padding:24px">
-      <div style="font-size:22px;font-weight:900;color:var(--gold)">${owner.name}</div>
-      <div style="font-size:13px;color:var(--txt2);margin-top:4px">كشف حساب المالك • ${new Date().toLocaleDateString("ar-SA")}</div>
-      <div style="font-size:11px;color:var(--txt3)">عمولة الإدارة: ${owner.commission||5}%</div>
+      <div style="font-size:22px;font-weight:900;color:var(--gold)">بهو المدينة العقارية</div>
+      <div style="font-size:14px;color:var(--txt);margin-top:8px;font-weight:700">كشف حساب المالك</div>
+      <div style="font-size:16px;color:var(--gold);margin-top:8px">${esc(owner.name)}</div>
+      <div style="font-size:12px;color:var(--txt2);margin-top:6px">📅 ${periodFromTo} • تقرير ${periodLabel}</div>
+      <div style="font-size:11px;color:var(--txt3);margin-top:4px">تاريخ الإصدار: ${new Date().toLocaleDateString("ar-SA")} • عمولة الإدارة: ${owner.commission||5}%</div>
     </div>
 
     <!-- KPIs -->
@@ -1526,7 +1663,7 @@ class App {
         <tr><th>العقار</th><th>الوحدات</th><th>الإشغال</th><th>الإيجار</th><th>المحصّل</th><th>المصروفات</th><th>الصافي</th></tr>
         ${propReports.map(p => `
           <tr>
-            <td style="font-weight:700">${p.name}</td>
+            <td style="font-weight:700">${esc(p.name)}</td>
             <td>${p.units}</td>
             <td><span class="badge ${p.occupied===p.units?'badge-green':'badge-orange'}">${p.occupied}/${p.units}</span></td>
             <td>${sar(p.rent)}</td>
@@ -1546,8 +1683,8 @@ class App {
         <tr><th>المستأجر</th><th>الوحدة</th><th>المبلغ</th><th>التأخير</th></tr>
         ${overdueList.map(o => `
           <tr>
-            <td style="font-weight:700">${o.tenant}</td>
-            <td>${o.unit} — ${o.prop}</td>
+            <td style="font-weight:700">${esc(o.tenant)}</td>
+            <td>${esc(o.unit)} — ${esc(o.prop)}</td>
             <td style="color:var(--red);font-weight:700">${sar(o.amount)}</td>
             <td><span class="badge badge-red">${o.days} يوم</span></td>
           </tr>
@@ -1566,8 +1703,8 @@ class App {
         <tr><th>المستأجر</th><th>الوحدة</th><th>تاريخ الانتهاء</th><th>متبقي</th></tr>
         ${expiringList.map(e => `
           <tr>
-            <td style="font-weight:700">${e.tenant}</td>
-            <td>${e.unit}</td>
+            <td style="font-weight:700">${esc(e.tenant)}</td>
+            <td>${esc(e.unit)}</td>
             <td>${e.endDate}</td>
             <td><span class="badge ${e.daysLeft<=30?'badge-red':e.daysLeft<=60?'badge-orange':'badge-blue'}">${e.daysLeft} يوم</span></td>
           </tr>
@@ -1595,7 +1732,191 @@ class App {
           <tr style="border-top:2px solid var(--bg4);font-weight:700"><td>الإجمالي</td><td>${sar(totalExpenses)}</td><td>100%</td></tr>
         </table>`;
       })()}
+    </div>
+
+    <!-- Charts -->
+    <div class="sec-title">📊 الرسوم البيانية</div>
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="card" style="padding:12px">
+        <div style="font-size:12px;font-weight:700;margin-bottom:8px;text-align:center">توزيع الإيرادات والمصروفات</div>
+        <canvas id="chart-finance" style="max-height:200px"></canvas>
+      </div>
+      <div class="card" style="padding:12px">
+        <div style="font-size:12px;font-weight:700;margin-bottom:8px;text-align:center">حالة الإشغال</div>
+        <canvas id="chart-occupancy" style="max-height:200px"></canvas>
+      </div>
+    </div>
+    ${propReports.length > 1 ? `
+    <div class="card" style="padding:12px;margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px;text-align:center">مقارنة العقارات</div>
+      <canvas id="chart-properties" style="max-height:250px"></canvas>
+    </div>` : ""}
+
+    <!-- Footer -->
+    <div class="card" style="margin-bottom:16px;text-align:center;padding:16px;font-size:11px;color:var(--txt3)">
+      <div>هذا التقرير صادر من نظام إدارة العقارات — بهو المدينة العقارية</div>
+      <div style="margin-top:4px">${new Date().toLocaleString("ar-SA")}</div>
+    </div>
     </div>`;
+  }
+
+  // Build WhatsApp message URL for owner
+  buildOwnerWAUrl(owner, paid, exp, comm, net, showComm, periodLabel) {
+    if (!owner.phone) return "";
+    let phone = owner.phone.replace(/\D/g,"");
+    if (phone.startsWith("0")) phone = "966" + phone.slice(1);
+    else if (!phone.startsWith("966")) phone = "966" + phone;
+    
+    const lines = [
+      "السلام عليكم ورحمة الله وبركاته",
+      "",
+      `الأستاذ/ ${esc(owner.name)} المحترم`,
+      `نرفق لكم كشف حساب ${periodLabel} لمحفظتكم العقارية:`,
+      "",
+      `💰 إجمالي المحصّل: ${sar(paid)}`,
+      `💸 المصروفات التشغيلية: ${sar(exp)}`,
+    ];
+    if (showComm) lines.push(`📊 عمولة الإدارة (${owner.commission||5}%): ${sar(comm)}`);
+    lines.push(`✅ صافي المستحق: ${sar(net)}`);
+    lines.push("");
+    lines.push("التقرير الكامل متوفر لدى الإدارة.");
+    lines.push("");
+    lines.push("مع خالص التحية،");
+    lines.push("بهو المدينة العقارية");
+    
+    return `https://wa.me/${phone}?text=${encodeURIComponent(lines.join("\n"))}`;
+  }
+
+  // Render charts after page renders
+  renderReportCharts(data) {
+    if (!window.Chart) return; // Chart.js not loaded yet
+    
+    // Finance chart (doughnut)
+    const f1 = document.getElementById("chart-finance");
+    if (f1 && data.finance) {
+      new Chart(f1, {
+        type: "doughnut",
+        data: {
+          labels: data.finance.labels,
+          datasets: [{
+            data: data.finance.values,
+            backgroundColor: ["#4ade80", "#fb923c", "#a78bfa"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: "bottom", labels: { color: "#8899b4", font: { family: "Cairo", size: 11 } } }
+          }
+        }
+      });
+    }
+
+    // Occupancy chart (pie)
+    const f2 = document.getElementById("chart-occupancy");
+    if (f2 && data.occupancy) {
+      new Chart(f2, {
+        type: "pie",
+        data: {
+          labels: ["مؤجرة", "شاغرة"],
+          datasets: [{
+            data: [data.occupancy.occupied, data.occupancy.vacant],
+            backgroundColor: ["#4ade80", "#f87171"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: "bottom", labels: { color: "#8899b4", font: { family: "Cairo", size: 11 } } }
+          }
+        }
+      });
+    }
+
+    // Properties comparison (bar)
+    const f3 = document.getElementById("chart-properties");
+    if (f3 && data.properties && data.properties.length > 1) {
+      new Chart(f3, {
+        type: "bar",
+        data: {
+          labels: data.properties.map(p => p.name),
+          datasets: [
+            { label: "المحصّل", data: data.properties.map(p => p.paid), backgroundColor: "#4ade80" },
+            { label: "المصروفات", data: data.properties.map(p => p.expenses), backgroundColor: "#fb923c" }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: "#8899b4", font: { family: "Cairo", size: 11 } } } },
+          scales: {
+            x: { ticks: { color: "#8899b4", font: { family: "Cairo" } }, grid: { color: "rgba(255,255,255,.05)" } },
+            y: { ticks: { color: "#8899b4", font: { family: "Cairo" } }, grid: { color: "rgba(255,255,255,.05)" } }
+          }
+        }
+      });
+    }
+  }
+
+  // Export report to Excel
+  async exportReportToExcel(owner, propReports, totalPaid, totalDue, totalExpenses, commissionAmount, netForOwner, overdueList, expiringList) {
+    if (!window.XLSX) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+        s.onload = resolve;
+        s.onerror = () => reject(new Error("فشل تحميل المكتبة"));
+        document.head.appendChild(s);
+      });
+    }
+
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1: Summary
+    const summary = [
+      ["كشف حساب المالك"],
+      ["المالك", owner.name],
+      ["نسبة العمولة", (owner.commission||5) + "%"],
+      ["تاريخ التقرير", new Date().toLocaleDateString("ar-SA")],
+      [],
+      ["البند", "المبلغ"],
+      ["إجمالي المستحق", totalDue],
+      ["المحصّل فعلياً", totalPaid],
+      ["المتأخرات", totalDue - totalPaid],
+      ["المصروفات التشغيلية", totalExpenses],
+      ["عمولة الإدارة", commissionAmount],
+      ["صافي المستحق للمالك", netForOwner]
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(summary);
+    XLSX.utils.book_append_sheet(wb, ws1, "الملخص");
+
+    // Sheet 2: Properties
+    const propData = [["العقار", "الوحدات", "المؤجرة", "الإيجار", "المحصّل", "المصروفات", "الصافي"]];
+    propReports.forEach(p => {
+      propData.push([p.name, p.units, p.occupied, p.rent, p.paid, p.expenses, p.paid - p.expenses]);
+    });
+    const ws2 = XLSX.utils.aoa_to_sheet(propData);
+    XLSX.utils.book_append_sheet(wb, ws2, "العقارات");
+
+    // Sheet 3: Overdue
+    if (overdueList.length > 0) {
+      const odData = [["المستأجر", "الوحدة", "العقار", "المبلغ", "أيام التأخير", "الجوال"]];
+      overdueList.forEach(o => odData.push([o.tenant, o.unit, o.prop, o.amount, o.days, o.phone||""]));
+      const ws3 = XLSX.utils.aoa_to_sheet(odData);
+      XLSX.utils.book_append_sheet(wb, ws3, "المتأخرات");
+    }
+
+    // Sheet 4: Expiring
+    if (expiringList.length > 0) {
+      const exData = [["المستأجر", "الوحدة", "العقار", "تاريخ الانتهاء", "متبقي (يوم)"]];
+      expiringList.forEach(e => exData.push([e.tenant, e.unit, e.prop, e.endDate, e.daysLeft]));
+      const ws4 = XLSX.utils.aoa_to_sheet(exData);
+      XLSX.utils.book_append_sheet(wb, ws4, "العقود المنتهية");
+    }
+
+    XLSX.writeFile(wb, `كشف_حساب_${esc(owner.name)}_${today()}.xlsx`);
+    this.showToast("✅ تم تصدير التقرير");
   }
 
   // ============================================================
