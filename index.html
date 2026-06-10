@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بهو المدينة العقارية — مولّد الإعلانات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#283C50;
+    --navy-700:#33485E;
+    --navy-900:#1E2E3F;
+    --gold:#C06C24;
+    --gold-soft:#D6904A;
+    --gold-light:#E0A86E;
+    --cream:#F4ECE2;
+    --cream-2:#EADCCB;
+    --slate-blue:#8293A6;
+    --paper:#FFFFFF;
+    --ink:#283C50;
+    --muted:#7C8694;
+    --line:#E2D8C9;
+    --ok:#1E9E6A;
+    --shadow:0 18px 50px -18px rgba(40,60,80,.45);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Cairo','Tajawal',system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(900px 500px at 100% -10%, rgba(201,162,39,.10), transparent 60%),
+      radial-gradient(800px 500px at 0% 110%, rgba(11,31,58,.06), transparent 60%),
+      var(--cream);
+    direction:rtl;
+    line-height:1.7;
+    min-height:100vh;
+  }
+
+  /* ===== Header ===== */
+  header.topbar{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-900) 100%);
+    color:#fff;
+    border-bottom:3px solid var(--gold);
+    box-shadow:var(--shadow);
+    position:sticky; top:0; z-index:50;
+  }
+  .topbar-inner{
+    max-width:1320px; margin:0 auto;
+    padding:14px 22px;
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  }
+  .brand{display:flex; align-items:center; gap:14px}
+  .logo-badge{
+    width:56px;height:56px;border-radius:14px;flex:0 0 auto;
+    background:#fff;
+    border:1px solid rgba(192,108,36,.35);
+    display:grid;place-items:center;padding:7px;
+    box-shadow:inset 0 0 0 3px rgba(192,108,36,.06);
+  }
+  .logo-badge img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+  .brand-text h1{font-size:1.18rem;font-weight:800;letter-spacing:.3px;line-height:1.2}
+  .brand-text span{font-size:.78rem;color:var(--gold-light);font-weight:500}
+  .spacer{flex:1}
+  .phone-field{
+    display:flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(201,162,39,.4);
+    border-radius:12px;padding:7px 12px;
+  }
+  .phone-field label{font-size:.72rem;color:var(--gold-light);font-weight:600}
+  .phone-field input{
+    background:transparent;border:none;color:#fff;font-family:inherit;
+    font-weight:700;font-size:.95rem;width:130px;text-align:left;direction:ltr;outline:none;
+  }
+  .phone-field input::placeholder{color:rgba(255,255,255,.5)}
+
+  /* ===== Layout ===== */
+  main{
+    max-width:1320px;margin:0 auto;padding:26px 22px 40px;
+    display:grid;grid-template-columns:1.05fr .95fr;gap:26px;align-items:start;
+  }
+  .panel{
+    background:var(--paper);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
+  }
+  .panel-head{
+    padding:16px 20px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:10px;
+    background:linear-gradient(180deg,#fff, #faf7ef);
+  }
+  .panel-head .dot{width:9px;height:9px;border-radius:50%;background:var(--gold)}
+  .panel-head h2{font-size:1.02rem;font-weight:800;color:var(--navy)}
+  .panel-head small{color:var(--muted);font-weight:500;margin-right:auto;font-size:.78rem}
+
+  /* ===== Tabs ===== */
+  .tabs{display:flex;gap:6px;padding:14px 16px 0;background:#faf7ef;border-bottom:1px solid var(--line)}
+  .tab{
+    flex:1;text-align:center;padding:11px 8px;cursor:pointer;
+    font-weight:700;font-size:.92rem;color:var(--muted);
+    border:1px solid transparent;border-bottom:none;border-radius:12px 12px 0 0;
+    transition:.18s;position:relative;top:1px;
+  }
+  .tab:hover{color:var(--navy)}
+  .tab.active{
+    color:var(--navy);background:#fff;border-color:var(--line);
+  }
+  .tab.active::after{
+    content:"";position:absolute;inset-inline:14px;bottom:-2px;height:3px;
+    background:var(--gold);border-radius:3px;
+  }
+  .tab-body{padding:22px 20px;display:none}
+  .tab-body.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ===== Form ===== */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field.full{grid-column:1/-1}
+  .field label{font-size:.82rem;font-weight:700;color:var(--navy)}
+  .field input,.field select,.field textarea{
+    font-family:inherit;font-size:.92rem;color:var(--ink);
+    background:#fcfbf7;border:1.5px solid var(--line);border-radius:11px;
+    padding:11px 12px;outline:none;transition:.16s;width:100%;
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{
+    border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,.15);background:#fff;
+  }
+  .field textarea{resize:vertical;min-height:84px}
+  .hint{font-size:.72rem;color:var(--muted)}
+  .row-hide{display:none !important}
+  .field.flash{border-radius:10px;animation:flashField 1.4s ease}
+  @keyframes flashField{0%,18%{background:rgba(201,162,39,.20)}100%{background:transparent}}
+
+  .seg{display:flex;gap:8px}
+  .seg label{
+    flex:1;text-align:center;border:1.5px solid var(--line);border-radius:11px;
+    padding:10px;cursor:pointer;font-weight:700;font-size:.9rem;background:#fcfbf7;transition:.15s;
+  }
+  .seg input{display:none}
+  .seg input:checked + span{}
+  .seg label:has(input:checked){
+    background:var(--navy);color:#fff;border-color:var(--navy);
+  }
+  .seg label:has(input:checked) .seg-acc{color:var(--gold-light)}
+
+  .check{
+    display:flex;align-items:center;gap:9px;background:#fcfbf7;border:1.5px solid var(--line);
+    border-radius:11px;padding:11px 12px;cursor:pointer;font-weight:600;font-size:.9rem;
+  }
+  .check input{width:18px;height:18px;accent-color:var(--gold)}
+
+  /* features chips */
+  .feat-input{display:flex;gap:8px}
+  .feat-input input{flex:1}
+  .btn-add{
+    background:var(--navy);color:#fff;border:none;border-radius:11px;padding:0 16px;
+    font-family:inherit;font-weight:800;cursor:pointer;font-size:1.1rem;transition:.15s;
+  }
+  .btn-add:hover{background:var(--navy-700)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{
+    display:inline-flex;align-items:center;gap:8px;background:rgba(201,162,39,.14);
+    border:1px solid rgba(201,162,39,.4);color:#7a6310;border-radius:999px;
+    padding:6px 12px;font-size:.84rem;font-weight:700;
+  }
+  .chip b{font-weight:800}
+  .chip button{background:none;border:none;color:#b9434f;cursor:pointer;font-size:1rem;line-height:1;font-weight:800}
+
+  /* ===== Preview ===== */
+  .preview-wrap{padding:20px}
+  /* ===== A3 Poster (matches brand identity) ===== */
+  .ad-poster{
+    position:relative;border-radius:14px;overflow:hidden;
+    border:1px solid var(--line);
+    box-shadow:0 16px 40px -16px rgba(40,60,80,.45);
+    background:linear-gradient(180deg,#FBF6EF 0%,#F1E6D7 32%,#C9C3BE 60%,#5E6B7C 82%,#2E3E50 100%);
+    aspect-ratio:1755/2585;display:flex;flex-direction:column;
+    padding:24px 22px;text-align:center;color:var(--ink);
+  }
+  .ad-poster::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(120% 60% at 50% 120%, rgba(46,62,80,.18), transparent 60%);
+  }
+  .ad-poster .pz{position:relative;z-index:1}
+  .pz-licenses{display:flex;justify-content:space-between;font-size:.6rem;font-weight:700;color:var(--navy);opacity:.85}
+  .pz-logo{margin:6px auto 4px;width:74px}
+  .pz-logo img{width:100%;display:block}
+  .pz-headline{font-size:clamp(1.1rem,3.2vw,1.7rem);font-weight:900;color:var(--navy);line-height:1.35;margin-top:8px}
+  .pz-sub{font-size:clamp(.95rem,2.6vw,1.3rem);font-weight:800;color:var(--gold);margin-top:2px}
+  .pz-stats{display:flex;justify-content:center;gap:6px;margin:14px 0 6px;flex-wrap:wrap}
+  .pz-stat{flex:1;min-width:70px;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px}
+  .pz-stat .ic{color:var(--gold)}
+  .pz-stat .ic svg{width:26px;height:26px}
+  .pz-stat .val{font-size:clamp(.95rem,2.4vw,1.25rem);font-weight:900;color:var(--navy);direction:ltr}
+  .pz-stat .lbl{font-size:.66rem;font-weight:700;color:var(--gold)}
+  .pz-stat + .pz-stat{border-right:1px solid rgba(192,108,36,.35)}
+  .pz-desc{font-size:.8rem;font-weight:600;color:var(--navy);margin:8px 14px;line-height:1.7}
+  .pz-feats{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin:6px 10px}
+  .pz-feats span{background:rgba(192,108,36,.14);border:1px solid rgba(192,108,36,.35);color:#8a4e1a;border-radius:999px;padding:2px 9px;font-size:.66rem;font-weight:700}
+  .pz-price{margin-top:8px;font-size:clamp(1rem,2.8vw,1.35rem);font-weight:900;color:var(--navy)}
+  .pz-price b{color:var(--gold)}
+  .pz-spacer{flex:1}
+  .pz-foot{position:relative;z-index:1;color:#F2E9DD;margin-top:10px;padding-top:10px}
+  .pz-foot .ttl{font-weight:900;font-size:.95rem;color:#fff}
+  .pz-foot .addr{font-size:.72rem;opacity:.9;margin-top:2px}
+  .pz-foot .contact{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:.78rem;font-weight:800}
+  .pz-foot .contact .ph{direction:ltr;color:#fff}
+  .pz-foot .contact .em{color:var(--gold-light);direction:ltr}
+  .pz-foot .hours{font-size:.68rem;opacity:.85;margin-top:6px}
+  .pz-foot .lic{font-size:.6rem;opacity:.8;margin-top:4px}
+  .empty{color:var(--muted);font-weight:600;padding:40px 10px;text-align:center;margin:auto}
+
+  .raw-box{margin-top:18px}
+  .raw-box label{font-size:.8rem;font-weight:700;color:var(--navy);display:block;margin-bottom:6px}
+  .raw-box textarea{
+    width:100%;min-height:150px;font-family:inherit;font-size:.92rem;line-height:1.8;
+    border:1.5px solid var(--line);border-radius:12px;padding:14px;background:#fcfbf7;resize:vertical;color:var(--ink);
+  }
+
+  /* ===== Footer actions ===== */
+  footer.actions{
+    position:sticky;bottom:0;z-index:40;
+    background:linear-gradient(180deg, rgba(246,242,232,0), var(--cream) 32%);
+    padding:14px 22px 18px;
+  }
+  .actions-inner{
+    max-width:1320px;margin:0 auto;display:flex;gap:12px;flex-wrap:wrap;
+    background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);
+  }
+  .act{
+    flex:1;min-width:150px;display:flex;align-items:center;justify-content:center;gap:9px;
+    padding:13px;border-radius:12px;font-family:inherit;font-weight:800;font-size:.96rem;
+    cursor:pointer;border:1.5px solid transparent;transition:.16s;
+  }
+  .act svg{width:18px;height:18px}
+  .act.primary{background:var(--navy);color:#fff}
+  .act.primary:hover{background:var(--navy-700)}
+  .act.gold{background:var(--gold);color:var(--navy-900)}
+  .act.gold:hover{background:var(--gold-soft)}
+  .act.ghost{background:#fff;color:var(--navy);border-color:var(--line)}
+  .act.ghost:hover{border-color:var(--gold);color:var(--navy)}
+  .act.danger{background:#fff;color:#b9434f;border-color:#f0d6d9}
+  .act.danger:hover{background:#fff5f5}
+  .act.import{background:#fff;color:var(--gold);border-color:var(--gold)}
+  .act.import:hover{background:var(--gold);color:var(--navy-900)}
+
+  /* ===== Modal ===== */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(7,21,41,.55);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;z-index:200;padding:20px;
+  }
+  .modal-overlay.show{display:flex;animation:fade .2s ease}
+  .modal{
+    width:100%;max-width:600px;background:#fff;border-radius:18px;overflow:hidden;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.5);border:1px solid var(--gold);
+    max-height:90vh;display:flex;flex-direction:column;
+  }
+  .modal-head{
+    background:linear-gradient(135deg,var(--navy),var(--navy-900));color:#fff;
+    padding:16px 20px;display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--gold);
+  }
+  .modal-head h3{font-size:1.08rem;font-weight:800;flex:1}
+  .modal-head .x{background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;line-height:1;opacity:.8}
+  .modal-head .x:hover{opacity:1}
+  .modal-body{padding:20px;overflow:auto}
+  .drop{
+    border:2px dashed var(--line);border-radius:14px;padding:22px;text-align:center;
+    background:#fcfbf7;cursor:pointer;transition:.15s;
+  }
+  .drop:hover,.drop.over{border-color:var(--gold);background:#fffdf5}
+  .drop .ic{font-size:2rem}
+  .drop b{color:var(--navy);font-weight:800}
+  .drop small{display:block;color:var(--muted);margin-top:4px;font-size:.78rem}
+  .or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.82rem;font-weight:700;margin:16px 0}
+  .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+  .modal-body textarea{
+    width:100%;min-height:150px;font-family:inherit;font-size:.92rem;line-height:1.8;
+    border:1.5px solid var(--line);border-radius:12px;padding:14px;background:#fcfbf7;resize:vertical;color:var(--ink);outline:none;
+  }
+  .modal-body textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,.15)}
+  .modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;background:#faf7ef}
+  .modal-foot button{flex:1;padding:12px;border-radius:11px;font-family:inherit;font-weight:800;cursor:pointer;border:1.5px solid transparent;transition:.15s}
+  .modal-foot .go{background:var(--gold);color:var(--navy-900)}
+  .modal-foot .go:hover{background:var(--gold-soft)}
+  .modal-foot .cancel{background:#fff;color:var(--navy);border-color:var(--line)}
+  .modal-foot .cancel:hover{border-color:var(--navy)}
+  .import-note{font-size:.78rem;color:var(--muted);margin-top:10px;line-height:1.6}
+  .ocr-box{display:none;margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fcfbf7}
+  .ocr-box img{max-width:100%;max-height:170px;border-radius:8px;display:block;margin:0 auto 10px;border:1px solid var(--line)}
+  .ocr-bar{height:8px;border-radius:6px;background:#e9e3d3;overflow:hidden}
+  .ocr-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-soft));transition:width .25s}
+  .ocr-msg{font-size:.82rem;font-weight:700;color:var(--navy);margin-top:8px;text-align:center}
+  .ocr-msg.err{color:#b9434f}
+  .img-actions{display:flex;gap:8px;margin-top:10px}
+  .img-actions .ia{flex:1;padding:11px;border-radius:11px;font-family:inherit;font-weight:800;font-size:.86rem;cursor:pointer;border:1.5px solid transparent;transition:.15s}
+  .img-actions .ia.ai{background:var(--gold);color:var(--navy-900)}
+  .img-actions .ia.ai:hover{background:var(--gold-soft)}
+  .img-actions .ia.ocr{background:#fff;color:var(--navy);border-color:var(--line)}
+  .img-actions .ia.ocr:hover{border-color:var(--gold)}
+  .ai-key-row{display:none;margin-top:10px}
+  .ai-key-row.show{display:block}
+  .ai-key-row input{width:100%;font-family:inherit;font-size:.88rem;border:1.5px solid var(--line);border-radius:11px;padding:10px 12px;background:#fcfbf7;outline:none}
+  .ai-key-row input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(192,108,36,.15)}
+  .ai-key-row small{display:block;color:var(--muted);font-size:.7rem;margin-top:5px;line-height:1.6}
+
+  .toast{
+    position:fixed;bottom:104px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--navy);color:#fff;padding:12px 22px;border-radius:12px;font-weight:700;
+    box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:100;border:1px solid var(--gold);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ===== Responsive ===== */
+  @media (max-width:920px){
+    main{grid-template-columns:1fr}
+    .grid3{grid-template-columns:1fr 1fr}
+    .phone-field input{width:110px}
+  }
+  @media (max-width:560px){
+    .grid2,.grid3{grid-template-columns:1fr}
+    .topbar-inner{padding:12px 14px}
+    main{padding:18px 14px 30px}
+    .tab{font-size:.82rem;padding:10px 4px}
+    .act{min-width:46%}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo-badge"><img id="hdrLogo" alt="بهو المدينة العقارية"></div>
+      <div class="brand-text">
+        <h1>بهو المدينة العقارية</h1>
+        <span>أداة توليد الإعلانات العقارية</span>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="phone-field">
+      <label>رقم التواصل الثابت</label>
+      <input id="phone" type="tel" value="053 621 2552" dir="ltr">
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ RIGHT: FORM ============ -->
+  <section class="panel" aria-label="نموذج الإدخال">
+    <div class="panel-head"><span class="dot"></span><h2>بيانات العقار</h2><small>املأ الحقول لتوليد الإعلان</small></div>
+
+    <div class="tabs" role="tablist">
+      <div class="tab active" data-tab="basics">أساسيات</div>
+      <div class="tab" data-tab="details">تفاصيل</div>
+      <div class="tab" data-tab="features">مزايا</div>
+    </div>
+
+    <!-- TAB: BASICS -->
+    <div class="tab-body active" id="tab-basics">
+      <div class="grid2">
+        <div class="field">
+          <label>نوع العقار</label>
+          <select id="ptype">
+            <option value="أرض">أرض</option>
+            <option value="شقة">شقة</option>
+            <option value="فيلا" selected>فيلا</option>
+            <option value="عمارة">عمارة</option>
+            <option value="مكتب">مكتب</option>
+            <option value="محل">محل تجاري</option>
+            <option value="مستودع">مستودع</option>
+            <option value="مزرعة">مزرعة</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>الغرض</label>
+          <div class="seg" id="purpose">
+            <label><input type="radio" name="purp" value="بيع" checked><span>بيع</span></label>
+            <label><input type="radio" name="purp" value="إيجار"><span>إيجار</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid3" style="margin-top:14px">
+        <div class="field"><label>المدينة</label><input id="city" value="المدينة المنورة"></div>
+        <div class="field"><label>الحي</label><input id="district" placeholder="مثال: النخيل"></div>
+        <div class="field"><label>اسم المخطط</label><input id="plan" placeholder="اختياري"></div>
+      </div>
+
+      <div class="grid3" style="margin-top:14px">
+        <div class="field"><label>المساحة (م²)</label><input id="area" type="number" placeholder="400"></div>
+        <div class="field"><label>السعر (ريال)</label><input id="price" type="number" placeholder="1500000"></div>
+        <div class="field" style="justify-content:flex-end">
+          <label class="check"><input type="checkbox" id="negotiable"> قابل للتفاوض</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: DETAILS -->
+    <div class="tab-body" id="tab-details">
+      <div class="grid3">
+        <div class="field row" data-f="rooms"><label>عدد الغرف</label><input id="rooms" type="number" placeholder="5"></div>
+        <div class="field row" data-f="baths"><label>دورات المياه</label><input id="baths" type="number" placeholder="3"></div>
+        <div class="field row" data-f="halls"><label>الصالات</label><input id="halls" type="number" placeholder="2"></div>
+      </div>
+
+      <div class="grid3" style="margin-top:14px">
+        <div class="field row" data-f="facade">
+          <label>الواجهة</label>
+          <select id="facade">
+            <option value="">—</option>
+            <option>شمالية</option><option>جنوبية</option><option>شرقية</option><option>غربية</option>
+            <option>شمالية شرقية</option><option>شمالية غربية</option>
+            <option>جنوبية شرقية</option><option>جنوبية غربية</option>
+            <option>زاوية (واجهتان)</option><option>ثلاث واجهات</option>
+          </select>
+        </div>
+        <div class="field row" data-f="street"><label>عرض الشارع (م)</label><input id="street" type="number" placeholder="15"></div>
+        <div class="field row" data-f="plot"><label>رقم القطعة</label><input id="plot" placeholder="اختياري"></div>
+      </div>
+
+      <div class="grid3" style="margin-top:14px">
+        <div class="field row" data-f="age"><label>عمر العقار (سنة)</label><input id="age" type="number" placeholder="0 = جديد"></div>
+        <div class="field row" data-f="floor"><label>رقم الدور</label><input id="floor" placeholder="مثال: الأول"></div>
+        <div class="field row" data-f="furnish">
+          <label>التأثيث</label>
+          <select id="furnish">
+            <option value="">—</option>
+            <option>مفروش بالكامل</option>
+            <option>مفروش جزئيًا</option>
+            <option>غير مفروش</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top:14px">
+        <div class="field row" data-f="elevator"><label class="check"><input type="checkbox" id="elevator"> يوجد مصعد</label></div>
+        <div class="field row" data-f="parking"><label class="check"><input type="checkbox" id="parking"> يوجد موقف خاص</label></div>
+      </div>
+    </div>
+
+    <!-- TAB: FEATURES -->
+    <div class="tab-body" id="tab-features">
+      <div class="field full">
+        <label>وصف مختصر</label>
+        <textarea id="desc" placeholder="جملة تسويقية موجزة تُضاف ضمن الإعلان (اختياري)"></textarea>
+      </div>
+
+      <div class="field full" style="margin-top:14px">
+        <label>المزايا الإضافية</label>
+        <div class="feat-input">
+          <input id="featInput" placeholder="اكتب ميزة ثم اضغط إضافة (مثال: قرب المسجد النبوي)">
+          <button class="btn-add" id="featAdd" type="button">＋</button>
+        </div>
+        <div class="chips" id="featChips"></div>
+        <span class="hint">اضغط Enter أو زر الإضافة. اضغط × لحذف الميزة.</span>
+      </div>
+
+      <div class="grid2" style="margin-top:14px">
+        <div class="field"><label>رابط الموقع</label><input id="maplink" placeholder="رابط خرائط قوقل (اختياري)" dir="ltr"></div>
+        <div class="field"><label>رقم ترخيص الإعلان</label><input id="license" placeholder="اختياري — يظهر أعلى الملصق" dir="ltr"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEFT: PREVIEW ============ -->
+  <section class="panel" aria-label="معاينة الإعلان">
+    <div class="panel-head"><span class="dot"></span><h2>المعاينة الفورية</h2><small>تتحدث تلقائيًا أثناء الإدخال</small></div>
+    <div class="preview-wrap">
+      <div class="ad-poster" id="adPoster">
+        <div class="empty">ابدأ بتعبئة البيانات لعرض الإعلان هنا…</div>
+      </div>
+
+      <div class="raw-box">
+        <label>النص النهائي (جاهز للنسخ)</label>
+        <textarea id="rawText" readonly></textarea>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="actions">
+  <div class="actions-inner">
+    <button class="act import" id="btnImport">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9m0 0 4 4m-4-4-4 4"/><path d="M5 3h14"/></svg>
+      استيراد
+    </button>
+    <button class="act primary" id="btnCopy">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+      نسخ النص
+    </button>
+    <button class="act gold" id="btnExport">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg>
+      تصدير صورة
+    </button>
+    <button class="act ghost" id="btnReset">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      إعادة تعيين
+    </button>
+    <button class="act danger" id="btnNew">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      إعلان جديد
+    </button>
+  </div>
+</footer>
+
+<!-- IMPORT MODAL -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <div class="modal-head">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2"><path d="M12 21V9m0 0 4 4m-4-4-4 4"/><path d="M5 3h14"/></svg>
+      <h3>استيراد بيانات العقار</h3>
+      <button class="x" id="impClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="drop" id="dropZone">
+        <div class="ic">📄🖼️</div>
+        <b>اختر ملفًا أو صورة، أو أفلته هنا</b>
+        <small>نصوص: TXT · JSON · CSV — صور إعلانات: PNG · JPG · WEBP (قراءة ضوئية عربية)</small>
+      </div>
+      <input type="file" id="fileInput" accept=".txt,.json,.csv,.text,image/*" style="display:none">
+
+      <div class="ocr-box" id="ocrBox">
+        <img id="ocrPreview" alt="معاينة الصورة">
+        <div class="img-actions" id="imgActions">
+          <button type="button" id="btnAI" class="ia ai">⚡ استخراج ذكي (Claude) — الأدقّ</button>
+          <button type="button" id="btnOCR" class="ia ocr">🔍 قراءة ضوئية (OCR)</button>
+        </div>
+        <div class="ai-key-row" id="aiKeyRow">
+          <input id="aiKey" type="password" placeholder="مفتاح Claude API (sk-ant-...)" dir="ltr" autocomplete="off">
+          <small>يُستخدم في متصفحك فقط ولا يُحفظ. مطلوب فقط عند تشغيل الأداة على استضافة خارجية (Netlify/Firebase). عند تشغيلها داخل Claude لا حاجة له.</small>
+        </div>
+        <div class="ocr-bar"><i id="ocrFill"></i></div>
+        <div class="ocr-msg" id="ocrMsg"></div>
+      </div>
+
+      <div class="or">أو الصق النص مباشرة</div>
+      <textarea id="importText" placeholder="الصق هنا وصف العرض العقاري — مثال:&#10;فيلا للبيع في حي النخيل - المدينة المنورة&#10;المساحة 400م² - 5 غرف - 3 دورات مياه - واجهة شمالية&#10;شارع 15م - مفروشة بالكامل - مصعد وموقف&#10;السعر 1,500,000 ريال قابل للتفاوض"></textarea>
+
+      <div class="import-note">
+        تتعرّف الأداة تلقائيًا على: النوع والغرض، المدينة والحي والمخطط، المساحة والسعر وقابلية التفاوض، الغرف ودورات المياه والصالات، الواجهة وعرض الشارع ورقم القطعة، العمر والدور والتأثيث والمصعد والموقف، والمزايا والرابط ورقم الترخيص. الهوية (الاسم/الرقم/الشعار) تبقى ثابتة ولا تتأثر بالاستيراد. قراءة الصور (OCR) تعمل عند فتح الأداة عبر رابط مستضاف (https) فقط — ولا تعمل عند فتح الملف محليًا من الجهاز. ودقّتها أعلى مع الصور الواضحة. أما لصق النص يدويًا فيعمل في كل الحالات.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="cancel" id="impCancel">إلغاء</button>
+      <button class="go" id="impGo">تحليل واستيراد</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ============ ثابت الهوية ============ */
+const BRAND = "بهو المدينة العقارية";
+const BRAND_PHONE_DEFAULT = "053 621 2552";
+const BRAND_EMAIL = "info@bahoalmadina.sa";
+const BRAND_LIC_AD = "7200623775";
+const BRAND_LIC_FAL = "1200019227";
+const BRAND_HOURS = "أوقات زيارة الموقع: من الساعة 9:00 ص إلى 6:00 م";
+const LOGO = "data:image/png;base64,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";
+
+/* ============ منطق إظهار/إخفاء الحقول حسب النوع ============ */
+const FIELD_MAP = {
+  rooms:    ["شقة","فيلا","عمارة","مزرعة"],
+  baths:    ["شقة","فيلا","عمارة","مكتب","محل","مزرعة"],
+  halls:    ["شقة","فيلا"],
+  facade:   ["أرض","فيلا","عمارة","محل","مكتب","مستودع","مزرعة"],
+  street:   ["أرض","فيلا","عمارة","محل","مكتب","مستودع","مزرعة"],
+  plot:     ["أرض","فيلا","عمارة","مزرعة"],
+  age:      ["شقة","فيلا","عمارة","مكتب","محل","مستودع"],
+  floor:    ["شقة","مكتب","محل"],
+  furnish:  ["شقة","فيلا","مكتب"],
+  elevator: ["شقة","فيلا","عمارة","مكتب"],
+  parking:  ["شقة","فيلا","عمارة","مكتب","محل","مستودع"]
+};
+
+/* ============ عبارات الافتتاح حسب النوع/الغرض ============ */
+const OPENERS = {
+  "أرض":     {بيع:"📐 فرصة استثمارية مميزة | أرض للبيع", إيجار:"📐 أرض للإيجار بموقع استراتيجي"},
+  "شقة":     {بيع:"🏢 تملّك شقتك المثالية | شقة للبيع", إيجار:"🏢 شقة عصرية للإيجار"},
+  "فيلا":    {بيع:"🏡 فرصة سكنية فاخرة | فيلا للبيع", إيجار:"🏡 فيلا أنيقة للإيجار"},
+  "عمارة":   {بيع:"🏢 عمارة استثمارية مدرّة للدخل | للبيع", إيجار:"🏢 عمارة كاملة للإيجار"},
+  "مكتب":    {بيع:"🏬 مكتب تجاري بموقع متميز | للبيع", إيجار:"🏬 مكتب تجاري جاهز للإيجار"},
+  "محل":     {بيع:"🛍️ محل تجاري بإطلالة حيوية | للبيع", إيجار:"🛍️ محل تجاري للإيجار بموقع حيوي"},
+  "مستودع":  {بيع:"📦 مستودع واسع بموقع لوجستي | للبيع", إيجار:"📦 مستودع للإيجار بموقع لوجستي"},
+  "مزرعة":   {بيع:"🌿 مزرعة منتجة بإطلالة ساحرة | للبيع", إيجار:"🌿 مزرعة للإيجار بإطلالة ساحرة"}
+};
+
+/* ============ حالة المزايا ============ */
+let features = [];
+
+/* ============ أدوات مساعدة ============ */
+const $ = id => document.getElementById(id);
+const v = id => ($(id) ? $(id).value.trim() : "");
+const numFmt = n => Number(n).toLocaleString("en-US");
+function get(id){ return v(id); }
+function checked(id){ return $(id) && $(id).checked; }
+
+function currentType(){ return $("ptype").value; }
+function currentPurpose(){ return document.querySelector('input[name="purp"]:checked').value; }
+
+/* ============ إظهار/إخفاء الحقول ============ */
+function applyFieldVisibility(){
+  const t = currentType();
+  document.querySelectorAll(".tab-body .row[data-f]").forEach(row=>{
+    const f = row.getAttribute("data-f");
+    const show = (FIELD_MAP[f] || []).includes(t);
+    row.classList.toggle("row-hide", !show);
+  });
+}
+
+/* ============ بناء نص الإعلان ============ */
+function buildAd(){
+  const t = currentType();
+  const purp = currentPurpose();
+  const phone = v("phone") || "05XXXXXXXX";
+
+  // العنوان الجاذب
+  const opener = (OPENERS[t] && OPENERS[t][purp]) || `${t} ${purp}`;
+  const city = get("city");
+  const district = get("district");
+  const plan = get("plan");
+
+  let locParts = [];
+  if(district) locParts.push("حي " + district);
+  if(plan) locParts.push("مخطط " + plan);
+  if(city) locParts.push(city);
+  const loc = locParts.join(" - ");
+
+  const headline = loc ? `${opener} في ${loc}` : opener;
+
+  // أسطر المواصفات (تُضاف فقط الحقول الظاهرة والمعبّأة)
+  const visible = f => (FIELD_MAP[f]||[]).includes(t);
+  const specs = [];
+
+  if(get("area")) specs.push(`المساحة: ${numFmt(get("area"))}م²`);
+  if(visible("rooms") && get("rooms")) specs.push(`${get("rooms")} غرف`);
+  if(visible("halls") && get("halls")) specs.push(`${get("halls")} صالة`);
+  if(visible("baths") && get("baths")) specs.push(`${get("baths")} دورات مياه`);
+  if(visible("facade") && get("facade")) specs.push(`واجهة ${get("facade")}`);
+  if(visible("street") && get("street")) specs.push(`شارع ${get("street")}م`);
+  if(visible("plot") && get("plot")) specs.push(`قطعة رقم ${get("plot")}`);
+  if(visible("floor") && get("floor")) specs.push(`الدور ${get("floor")}`);
+
+  if(visible("age") && get("age")!==""){
+    const a = parseInt(get("age"),10);
+    if(!isNaN(a)) specs.push(a===0 ? "عقار جديد" : `عمر العقار ${a} سنة`);
+  }
+  if(visible("furnish") && get("furnish")) specs.push(get("furnish"));
+  if(visible("elevator") && checked("elevator")) specs.push("مصعد");
+  if(visible("parking") && checked("parking")) specs.push("موقف خاص");
+
+  // تجزئة المواصفات على أسطر (3 لكل سطر) لقراءة أنيقة
+  const specLines = [];
+  for(let i=0;i<specs.length;i+=3){
+    specLines.push(specs.slice(i,i+3).join(" | "));
+  }
+
+  // إحصائيات الملصق (قيمة + تسمية + أيقونة)
+  const stats = [];
+  if(get("area")) stats.push({k:"area", val:numFmt(get("area"))+" م²", lbl:"المساحة"});
+  if(visible("rooms") && get("rooms")) stats.push({k:"rooms", val:get("rooms"), lbl:"عدد الغرف"});
+  if(visible("baths") && get("baths")) stats.push({k:"baths", val:get("baths"), lbl:"دورات المياه"});
+  if(visible("halls") && get("halls")) stats.push({k:"halls", val:get("halls"), lbl:"الصالات"});
+  if(visible("street") && get("street")) stats.push({k:"street", val:get("street")+" م", lbl:"عرض الشارع"});
+  if(visible("floor") && get("floor")) stats.push({k:"floor", val:get("floor"), lbl:"الدور"});
+  const statsTop = stats.slice(0,4);
+  const titleClean = opener.replace(/^[^\u0600-\u06FFA-Za-z0-9]+/,"").trim();
+
+  // الوصف والمزايا
+  const desc = get("desc");
+  const featLine = features.length ? "✦ " + features.join(" • ") : "";
+
+  // السعر
+  let priceLine = "";
+  let priceMain = "", negotiable = checked("negotiable");
+  if(get("price")){
+    const unit = purp==="إيجار" ? "ريال سنويًا" : "ريال";
+    priceMain = `${numFmt(get("price"))} ${unit}`;
+    priceLine = `السعر: ${priceMain}` + (negotiable ? " (قابل للتفاوض)" : "");
+  }
+
+  // رابط/ترخيص
+  const extra = [];
+  if(get("maplink")) extra.push(`📍 الموقع: ${get("maplink")}`);
+  if(get("license")) extra.push(`ترخيص فال: ${get("license")}`);
+
+  // تركيب النص النهائي
+  const parts = [];
+  parts.push(headline);
+  if(desc) parts.push(desc);
+  if(specLines.length) parts.push(specLines.join("\n"));
+  if(featLine) parts.push(featLine);
+  if(priceLine) parts.push(priceLine);
+  if(extra.length) parts.push(extra.join("\n"));
+  parts.push(`للتواصل: ${BRAND} ${phone}`);
+
+  return { text: parts.join("\n"), headline, titleClean, loc, statsTop, desc,
+           featLine, priceLine, priceMain, negotiable, extra, phone,
+           license:get("license"), features:features.slice() };
+}
+
+/* ============ تحديث المعاينة (ملصق A3) ============ */
+const STAT_ICONS = {
+  area:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V3h4M21 7V3h-4M3 17v4h4M21 17v4h-4"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>',
+  rooms:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18h18M6 10V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/></svg>',
+  baths:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M6 12V6a2 2 0 0 1 2-2h1"/><path d="M9 4v3"/></svg>',
+  halls:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M3 11a2 2 0 0 1 2 2v3h14v-3a2 2 0 0 1 2-2"/><path d="M5 19v2M19 19v2"/></svg>',
+  street:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21 8 3M20 21 16 3M12 5v3M12 11v3M12 17v3"/></svg>',
+  floor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>'
+};
+function render(){
+  applyFieldVisibility();
+  const ad = buildAd();
+  $("rawText").value = ad.text;
+
+  const hasData = get("district") || get("area") || get("price") || get("desc");
+  const P = $("adPoster");
+  if(!hasData){
+    P.innerHTML = '<div class="empty">ابدأ بتعبئة البيانات لعرض الإعلان هنا…</div>';
+    return;
+  }
+
+  let stats = "";
+  ad.statsTop.forEach(s=>{
+    stats += `<div class="pz-stat"><span class="ic">${STAT_ICONS[s.k]||""}</span><span class="val">${esc(s.val)}</span><span class="lbl">${esc(s.lbl)}</span></div>`;
+  });
+  let feats = "";
+  if(ad.features.length){ feats = '<div class="pz-feats">' + ad.features.map(f=>`<span>${esc(f)}</span>`).join("") + '</div>'; }
+
+  const adLic = ad.license || BRAND_LIC_AD;
+
+  P.innerHTML = `
+    <div class="pz pz-licenses"><span>رقم ترخيص الإعلان: ${esc(adLic)}</span><span>رخصة فال: ${BRAND_LIC_FAL}</span></div>
+    <div class="pz pz-logo"><img src="${LOGO}" alt="بهو المدينة"></div>
+    <div class="pz pz-headline">${esc(ad.titleClean)}</div>
+    ${ad.loc ? `<div class="pz pz-sub">${esc(ad.loc)}</div>` : ""}
+    ${stats ? `<div class="pz pz-stats">${stats}</div>` : ""}
+    ${ad.desc ? `<div class="pz pz-desc">${esc(ad.desc)}</div>` : ""}
+    ${feats}
+    ${ad.priceMain ? `<div class="pz pz-price">السعر: <b>${esc(ad.priceMain)}</b>${ad.negotiable ? " (قابل للتفاوض)" : ""}</div>` : ""}
+    <div class="pz-spacer"></div>
+    <div class="pz-foot">
+      <div class="ttl">${BRAND}</div>
+      ${ad.loc ? `<div class="addr">📍 ${esc(ad.loc)}</div>` : ""}
+      <div class="contact"><span class="ph">📞 ${esc(ad.phone)}</span><span class="em">✉ ${BRAND_EMAIL}</span></div>
+      <div class="hours">${BRAND_HOURS}</div>
+    </div>`;
+}
+function esc(s){ return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])).replace(/\n/g,"<br>"); }
+
+/* ============ المزايا الإضافية ============ */
+function renderChips(){
+  const box = $("featChips");
+  box.innerHTML = "";
+  features.forEach((f,i)=>{
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    chip.innerHTML = `<b>✦</b> ${esc(f)} <button type="button" data-i="${i}">×</button>`;
+    box.appendChild(chip);
+  });
+  box.querySelectorAll("button").forEach(b=>{
+    b.addEventListener("click",()=>{ features.splice(+b.dataset.i,1); renderChips(); render(); });
+  });
+}
+function addFeature(){
+  const val = $("featInput").value.trim();
+  if(val){ features.push(val); $("featInput").value=""; renderChips(); render(); }
+  $("featInput").focus();
+}
+
+/* ============ التبويبات ============ */
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".tab-body").forEach(b=>b.classList.remove("active"));
+    tab.classList.add("active");
+    $("tab-"+tab.dataset.tab).classList.add("active");
+  });
+});
+
+/* ============ التوست ============ */
+let toastTimer;
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("show"),1900);
+}
+
+/* ============ نسخ ============ */
+$("btnCopy").addEventListener("click",async()=>{
+  const txt = $("rawText").value;
+  if(!txt){ toast("لا يوجد نص بعد"); return; }
+  try{ await navigator.clipboard.writeText(txt); toast("✓ تم نسخ نص الإعلان"); }
+  catch(e){ $("rawText").select(); document.execCommand("copy"); toast("✓ تم النسخ"); }
+});
+
+/* ============ تصدير صورة (ملصق A3) ============ */
+$("btnExport").addEventListener("click",()=>{
+  const ad = buildAd();
+  if(!(get("district")||get("area")||get("price")||get("desc"))){ toast("أكمل البيانات أولًا"); return; }
+  exportImage(ad).catch(()=>toast("تعذّر التصدير"));
+});
+
+function loadImage(src){ return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=src; }); }
+function roundRect(x,rx,ry,w,h,r){ x.beginPath(); x.moveTo(rx+r,ry); x.arcTo(rx+w,ry,rx+w,ry+h,r); x.arcTo(rx+w,ry+h,rx,ry+h,r); x.arcTo(rx,ry+h,rx,ry,r); x.arcTo(rx,ry,rx+w,ry,r); x.closePath(); }
+function wrapCenter(x,text,cx,y,maxW,lineH){
+  const words=String(text).split(/\s+/); let line="",lines=[];
+  for(const w of words){ const test=line?line+" "+w:w; if(x.measureText(test).width>maxW&&line){lines.push(line);line=w;} else line=test; }
+  if(line) lines.push(line);
+  lines.forEach((ln,i)=>x.fillText(ln,cx,y+i*lineH));
+  return y+lines.length*lineH;
+}
+
+async function exportImage(ad){
+  const W=1240, H=Math.round(W*2585/1755);
+  const c=document.createElement("canvas"); c.width=W; c.height=H;
+  const x=c.getContext("2d"); x.direction="rtl"; x.textAlign="center"; x.textBaseline="alphabetic";
+  const cx=W/2, pad=70;
+
+  // خلفية متدرّجة (كريمي → أزرق رمادي) مطابقة لهوية الملصق
+  const g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,"#FBF6EF"); g.addColorStop(.32,"#F1E6D7"); g.addColorStop(.60,"#C9C3BE"); g.addColorStop(.82,"#5E6B7C"); g.addColorStop(1,"#2E3E50");
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+
+  let y=64;
+  // أرقام التراخيص
+  x.font="700 22px Cairo,sans-serif"; x.fillStyle="#283C50";
+  x.textAlign="right"; x.fillText("رقم ترخيص الإعلان: "+(ad.license||BRAND_LIC_AD), W-pad, y);
+  x.textAlign="left";  x.fillText("رخصة فال: "+BRAND_LIC_FAL, pad, y);
+  x.textAlign="center";
+
+  // الشعار
+  try{ const im=await loadImage(LOGO); const lw=160, lh=lw*im.height/im.width; x.drawImage(im,cx-lw/2,y+18,lw,lh); y+=18+lh+46; }
+  catch(e){ y+=90; }
+
+  // العنوان
+  x.fillStyle="#283C50"; x.font="900 60px Cairo,sans-serif";
+  y=wrapCenter(x,ad.titleClean,cx,y,W-2*pad,76)+8;
+  // الموقع
+  if(ad.loc){ x.fillStyle="#C06C24"; x.font="800 42px Cairo,sans-serif"; y=wrapCenter(x,ad.loc,cx,y,W-2*pad,54)+8; }
+
+  // الإحصائيات
+  if(ad.statsTop.length){
+    y+=48; const n=ad.statsTop.length, colW=(W-2*pad)/n;
+    ad.statsTop.forEach((s,i)=>{
+      const sx=W-pad-colW*i-colW/2;
+      x.fillStyle="#C06C24"; x.fillRect(sx-13,y-50,26,26);
+      x.fillStyle="#283C50"; x.font="900 42px Cairo,sans-serif"; x.fillText(s.val,sx,y+6);
+      x.fillStyle="#C06C24"; x.font="700 23px Cairo,sans-serif"; x.fillText(s.lbl,sx,y+42);
+      if(i>0){ const dx=W-pad-colW*i; x.strokeStyle="rgba(192,108,36,.45)"; x.lineWidth=2; x.beginPath(); x.moveTo(dx,y-50); x.lineTo(dx,y+42); x.stroke(); }
+    });
+    y+=92;
+  }
+
+  // الوصف
+  if(ad.desc){ x.fillStyle="#283C50"; x.font="600 30px Cairo,sans-serif"; y=wrapCenter(x,ad.desc,cx,y+26,W-2*pad-50,42)+6; }
+
+  // المزايا
+  if(ad.features.length){
+    x.fillStyle="#8a4e1a"; x.font="700 28px Cairo,sans-serif";
+    y=wrapCenter(x,"✦ "+ad.features.join("  •  "),cx,y+34,W-2*pad-30,42)+6;
+  }
+
+  // السعر
+  if(ad.priceMain){
+    y+=42; x.font="900 50px Cairo,sans-serif"; x.fillStyle="#283C50";
+    x.fillText("السعر: "+ad.priceMain+(ad.negotiable?" (قابل للتفاوض)":""),cx,y);
+  }
+
+  // الفوتر (على المنطقة الداكنة)
+  const fy=H-272;
+  x.fillStyle="#F4ECDF"; x.font="900 46px Cairo,sans-serif"; x.fillText(BRAND,cx,fy);
+  if(ad.loc){ x.font="600 27px Cairo,sans-serif"; x.fillStyle="#D8CFC2"; x.fillText("📍 "+ad.loc,cx,fy+44); }
+  x.direction="ltr";
+  x.font="800 34px Cairo,sans-serif"; x.fillStyle="#FFFFFF"; x.fillText("📞 "+ad.phone,cx,fy+96);
+  x.font="700 30px Cairo,sans-serif"; x.fillStyle="#E0A86E"; x.fillText("✉ "+BRAND_EMAIL,cx,fy+138);
+  x.direction="rtl";
+  x.font="600 25px Cairo,sans-serif"; x.fillStyle="#C9BFB2"; x.fillText(BRAND_HOURS,cx,fy+182);
+
+  const a=document.createElement("a"); a.download=`اعلان_${currentType()}_${currentPurpose()}.png`; a.href=c.toDataURL("image/png"); a.click();
+  toast("✓ تم تصدير صورة الإعلان");
+}
+
+/* ============ إعادة تعيين / إعلان جديد ============ */
+function clearForm(){
+  ["district","plan","area","price","rooms","baths","halls","street","plot","age","floor","desc","maplink","license","featInput"]
+    .forEach(id=>{ if($(id)) $(id).value=""; });
+  ["facade","furnish"].forEach(id=>{ if($(id)) $(id).value=""; });
+  ["negotiable","elevator","parking"].forEach(id=>{ if($(id)) $(id).checked=false; });
+  features = []; renderChips(); render();
+}
+$("btnReset").addEventListener("click",()=>{ clearForm(); toast("تمت إعادة التعيين"); });
+$("btnNew").addEventListener("click",()=>{
+  clearForm();
+  $("ptype").value="فيلا";
+  document.querySelector('input[name="purp"][value="بيع"]').checked = true;
+  $("city").value="المدينة المنورة";
+  document.querySelector('.tab[data-tab="basics"]').click();
+  render(); window.scrollTo({top:0,behavior:"smooth"});
+  toast("إعلان جديد جاهز");
+});
+
+/* ============ ربط الأحداث ============ */
+document.addEventListener("input", render);
+document.addEventListener("change", render);
+$("ptype").addEventListener("change", render);
+$("featAdd").addEventListener("click", addFeature);
+$("featInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); addFeature(); } });
+
+/* ============ الاستيراد ============ */
+const IMP = $("importModal");
+function openImport(){ $("ocrBox").style.display="none"; setOcr("",0); IMP.classList.add("show"); $("importText").focus(); }
+function closeImport(){ IMP.classList.remove("show"); }
+$("btnImport").addEventListener("click", openImport);
+$("impClose").addEventListener("click", closeImport);
+$("impCancel").addEventListener("click", closeImport);
+IMP.addEventListener("click", e=>{ if(e.target===IMP) closeImport(); });
+
+// اختيار ملف / صورة
+$("dropZone").addEventListener("click", ()=> $("fileInput").click());
+$("fileInput").addEventListener("change", e=>{ handleFile(e.target.files[0]); });
+// السحب والإفلات
+const dz = $("dropZone");
+["dragover","dragenter"].forEach(ev=> dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.add("over"); }));
+["dragleave","drop"].forEach(ev=> dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.remove("over"); }));
+dz.addEventListener("drop", e=>{ handleFile(e.dataTransfer.files[0]); });
+
+function isImage(f){ return f.type.startsWith("image/") || /\.(png|jpe?g|webp|bmp|gif)$/i.test(f.name); }
+let currentImageFile = null;
+function handleFile(f){
+  if(!f) return;
+  if(isImage(f)){ showImagePanel(f); }
+  else{
+    const r = new FileReader();
+    r.onload = ()=>{ $("importText").value = r.result; $("ocrBox").style.display="none"; toast("✓ تم تحميل الملف — اضغط تحليل واستيراد"); };
+    r.readAsText(f, "UTF-8");
+  }
+}
+function showImagePanel(f){
+  currentImageFile = f;
+  $("ocrBox").style.display="block";
+  $("imgActions").style.display="flex";
+  $("aiKeyRow").classList.remove("show");
+  $("ocrPreview").src = URL.createObjectURL(f);
+  setOcr("اختر طريقة الاستخراج: «الذكي» يعطي أعلى دقّة للعربية، و«القراءة الضوئية» تعمل دون إنترنت إضافي.", 0);
+}
+$("btnAI").addEventListener("click", ()=> aiExtractFlow(currentImageFile));
+$("btnOCR").addEventListener("click", ()=>{ if(location.protocol==="file:"){ setOcr("قراءة الصور لا تعمل عند فتح الملف محليًا (file://). افتح الأداة عبر رابط مستضاف (https) أو الصق النص يدويًا.",0,true); return;} runOCR(currentImageFile); });
+
+/* ============ الاستخراج الذكي عبر Claude ============ */
+function fileToB64(file){
+  return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(",")[1]); r.onerror=rej; r.readAsDataURL(file); });
+}
+const AI_PROMPT = `أنت مستخرِج بيانات عقارية. حلّل صورة الإعلان العقاري وأعِد JSON فقط بلا أي شرح أو أسوار شفرة.
+استخدم هذه المفاتيح فقط عند توفّر قيمتها (احذف غير المعروف):
+ptype (أحد: أرض، شقة، فيلا، عمارة، مكتب، محل، مستودع، مزرعة)،
+purpose (بيع أو إيجار)، city، district، plan، area (رقم بالمتر المربع)، price (رقم)،
+negotiable (true/false)، rooms، baths، halls، facade (مثل: شمالية، جنوبية، شرقية، غربية، زاوية)،
+street (عرض الشارع رقم)، plot (رقم القطعة)، age (رقم بالسنوات، 0 للجديد)، floor، furnish (مفروش بالكامل/مفروش جزئيًا/غير مفروش)،
+elevator (true/false)، parking (true/false)، desc (وصف مختصر)، features (مصفوفة نصية للمزايا)، license (رقم ترخيص الإعلان).
+أعِد JSON صالحًا فقط.`;
+
+async function aiExtract(file, key){
+  const b64 = await fileToB64(file);
+  let media = (file.type||"").toLowerCase();
+  if(!/^image\/(jpeg|png|gif|webp)$/.test(media)) media = "image/png";
+  const body = {
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 1024,
+    messages: [{ role:"user", content:[
+      { type:"image", source:{ type:"base64", media_type:media, data:b64 } },
+      { type:"text", text: AI_PROMPT }
+    ]}]
+  };
+  const headers = { "Content-Type":"application/json" };
+  if(key){ headers["x-api-key"]=key; headers["anthropic-version"]="2023-06-01"; headers["anthropic-dangerous-direct-browser-access"]="true"; }
+  const r = await fetch("https://api.anthropic.com/v1/messages",{ method:"POST", headers, body:JSON.stringify(body) });
+  if(!r.ok) throw new Error("api-"+r.status);
+  const data = await r.json();
+  const txt = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+  const clean = txt.replace(/```json|```/g,"").trim();
+  const m = clean.match(/\{[\s\S]*\}/);
+  return JSON.parse(m ? m[0] : clean);
+}
+
+async function aiExtractFlow(file){
+  if(!file){ toast("اختر صورة أولًا"); return; }
+  const key = $("aiKey").value.trim();
+  $("imgActions").style.display="none";
+  setOcr("جارٍ التحليل الذكي للصورة عبر Claude…", 35);
+  try{
+    const json = await aiExtract(file, key);
+    const data = fromJson(json);
+    const n = applyImported(data);
+    setOcr("✓ تم الاستخراج الذكي", 100);
+    closeImport();
+    document.querySelector('.tab[data-tab="basics"]').click();
+    window.scrollTo({top:0,behavior:"smooth"});
+    toast(n ? ("✓ استُخرجت البيانات وعُبّئت " + n + " حقلًا") : "تم الاستخراج");
+  }catch(e){
+    $("imgActions").style.display="flex";
+    if(!key){
+      $("aiKeyRow").classList.add("show");
+      setOcr("التحليل الذكي يعمل تلقائيًا عند تشغيل الأداة داخل Claude. على الاستضافة الخارجية أدخل مفتاح Claude API أعلاه ثم أعد المحاولة، أو استخدم القراءة الضوئية.", 0, true);
+    }else{
+      setOcr("تعذّر التحليل الذكي (تحقق من صحة المفتاح والاتصال). أعد المحاولة أو استخدم القراءة الضوئية.", 0, true);
+    }
+  }
+}
+
+/* ============ قراءة الصور (OCR عربي) ============ */
+function setOcr(msg, pct, err){
+  $("ocrFill").style.width = Math.max(0,Math.min(100,pct||0)) + "%";
+  const m = $("ocrMsg"); m.textContent = msg; m.classList.toggle("err", !!err);
+}
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    const s=document.createElement("script"); s.src=src; s.async=true;
+    s.onload=res; s.onerror=()=>rej(new Error("load fail: "+src));
+    document.head.appendChild(s);
+  });
+}
+const TESS_VER = "5.1.1";
+const TESS_CDNS = [
+  "https://cdn.jsdelivr.net/npm/tesseract.js@"+TESS_VER+"/dist/tesseract.min.js",
+  "https://unpkg.com/tesseract.js@"+TESS_VER+"/dist/tesseract.min.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/"+TESS_VER+"/tesseract.min.js"
+];
+async function ensureTesseract(){
+  if(typeof Tesseract!=="undefined") return true;
+  for(const src of TESS_CDNS){
+    try{ await loadScript(src); if(typeof Tesseract!=="undefined") return true; }
+    catch(e){ /* جرّب المصدر التالي */ }
+  }
+  return typeof Tesseract!=="undefined";
+}
+// تكبير الصورة وتحويلها رمادية مع رفع التباين لتحسين دقّة العربية
+async function prepImage(srcUrl){
+  try{
+    const img = await loadImage(srcUrl);
+    const scale = Math.min(3, Math.max(1, 1900/Math.max(img.width||1,img.height||1)));
+    const cw = Math.round((img.width||800)*scale), ch = Math.round((img.height||600)*scale);
+    const cv = document.createElement("canvas"); cv.width=cw; cv.height=ch;
+    const cx = cv.getContext("2d");
+    cx.drawImage(img,0,0,cw,ch);
+    const id = cx.getImageData(0,0,cw,ch), d = id.data;
+    for(let i=0;i<d.length;i+=4){
+      let g = 0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+      g = (g-128)*1.28+132; d[i]=d[i+1]=d[i+2] = g<0?0:g>255?255:g;
+    }
+    cx.putImageData(id,0,0);
+    return cv;
+  }catch(e){ return srcUrl; }
+}
+async function runOCR(file){
+  const url = URL.createObjectURL(file);
+  $("ocrBox").style.display="block";
+  $("ocrPreview").src = url;
+
+  // الفتح المحلي (file://) يمنع تشغيل عامل القراءة في المتصفح
+  if(location.protocol === "file:"){
+    URL.revokeObjectURL(url);
+    setOcr("قراءة الصور لا تعمل عند فتح الملف محليًا من الجهاز (file://). افتح الأداة عبر الرابط المستضاف (https) لتعمل القراءة، أو الصق نص الإعلان يدويًا في الصندوق أدناه.", 0, true);
+    return;
+  }
+
+  setOcr("جارٍ تجهيز محرّك القراءة الضوئية…", 6);
+  $("imgActions").style.display="none";
+  try{
+    const ready = await ensureTesseract();
+    if(!ready) throw new Error("engine-unavailable");
+
+    setOcr("تحميل بيانات اللغة العربية (مرة واحدة)…", 16);
+    const worker = await Tesseract.createWorker(["ara","eng"], 1, {
+      langPath: "https://tessdata.projectnaptha.com/4.0.0",
+      logger: m=>{
+        if(m.status==="recognizing text") setOcr("قراءة النص… " + Math.round(m.progress*100) + "%", 20 + m.progress*75);
+        else if(m.status) setOcr("تجهيز… " + m.status, 18);
+      }
+    });
+    const ocrSrc = await prepImage(url);
+    const { data:{ text } } = await worker.recognize(ocrSrc);
+    await worker.terminate();
+    URL.revokeObjectURL(url);
+    const out = (text||"").trim();
+    if(!out){ setOcr("لم يُعثر على نص واضح في الصورة. جرّب صورة أوضح، أو الصق النص يدويًا.", 0, true); return; }
+    $("importText").value = out;
+    setOcr("✓ تم استخراج النص — راجِعه وعدّله ثم اضغط «تحليل واستيراد»", 100);
+    toast("✓ تم قراءة الصورة");
+  }catch(e){
+    URL.revokeObjectURL(url);
+    const msg = (e && e.message==="engine-unavailable")
+      ? "تعذّر تحميل محرّك القراءة من الإنترنت (قد يكون محجوبًا على شبكتك). تأكد من الاتصال وأعد المحاولة، أو الصق نص الإعلان يدويًا."
+      : "تعذّرت قراءة الصورة (قد تكون منخفضة الجودة أو تعذّر تحميل بيانات اللغة). جرّب صورة أوضح، أو الاستخراج الذكي، أو الصق نص الإعلان يدويًا.";
+    setOcr(msg, 0, true);
+    $("imgActions").style.display="flex";
+  }
+}
+
+// تنفيذ
+$("impGo").addEventListener("click", ()=>{
+  const raw = $("importText").value.trim();
+  if(!raw){ toast("الصق نصًا أو اختر ملفًا أولًا"); return; }
+  const data = parseListing(raw);
+  const meaningful = Object.keys(data).filter(k=>!["negotiable","elevator","parking"].includes(k) || data[k]===true).length;
+  if(meaningful===0){ toast("تعذّر التعرف على بيانات — راجع النص"); return; }
+  const n = applyImported(data);
+  closeImport();
+  $("importText").value = "";
+  document.querySelector('.tab[data-tab="basics"]').click();
+  window.scrollTo({top:0,behavior:"smooth"});
+  toast(n ? ("✓ تم إنشاء إعلان جديد وتعبئة " + n + " حقلًا") : "تم الاستيراد");
+});
+
+// تحويل الأرقام العربية إلى لاتينية
+function normDigits(s){
+  return String(s)
+    .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+}
+
+/* المُحلِّل الرئيسي: JSON ثم «حقل: قيمة» ثم نص حرّ */
+function parseListing(input){
+  let txt = normDigits(input);
+  const out = {};
+
+  // 1) محاولة JSON
+  try{
+    const j = JSON.parse(input);
+    if(j && typeof j==="object"){ return fromJson(j); }
+  }catch(e){/* ليس JSON */}
+
+  // 2) صيغة «حقل: قيمة»
+  const kv = {};
+  txt.split(/\r?\n/).forEach(line=>{
+    const m = line.match(/^\s*([^:：]+)[:：]\s*(.+)$/);
+    if(m) kv[m[1].trim()] = m[2].trim();
+  });
+  const pick = (...keys)=>{ for(const k of keys){ for(const key in kv){ if(key.replace(/\s/g,"").includes(k.replace(/\s/g,""))) return kv[key]; } } return ""; };
+
+  // 3) النوع
+  const types = ["مستودع","عمارة","مزرعة","فيلا","فلة","شقة","مكتب","محل","أرض","ارض"];
+  for(const t of types){ if(txt.includes(t)){ out.ptype = ({"فلة":"فيلا","ارض":"أرض"})[t]||t; break; } }
+  const kvType = pick("نوعالعقار","النوع");
+  if(kvType){ for(const t of types){ if(kvType.includes(t)){ out.ptype = ({"فلة":"فيلا","ارض":"أرض"})[t]||t; break; } } }
+
+  // 4) الغرض
+  if(/إيجار|ايجار|للإيجار|للايجار/.test(txt)) out.purpose = "إيجار";
+  else if(/بيع|للبيع|تمليك/.test(txt)) out.purpose = "بيع";
+
+  // 5) المدينة / الحي / المخطط
+  const cities = ["المدينة المنورة","مكة المكرمة","الرياض","جدة","الدمام","الطائف","ينبع","المدينة"];
+  for(const c of cities){ if(txt.includes(c)){ out.city = c==="المدينة"?"المدينة المنورة":c; break; } }
+  let mDist = pick("الحي") || (txt.match(/حي\s+([^\n،,|\-–]+?)(?:\s*[-–،,|\n]|$)/)||[])[1];
+  if(mDist) out.district = mDist.replace(/^حي\s+/,"").trim();
+  let mPlan = pick("اسمالمخطط","المخطط") || (txt.match(/مخطط\s+([^\n،,|\-–]+?)(?:\s*[-–،,|\n]|$)/)||[])[1];
+  if(mPlan){
+    out.plan = mPlan.replace(/^مخطط\s+/,"")
+                    .replace(/\s*ب?(المدينة المنورة|مكة المكرمة|الرياض|جدة|الدمام|الطائف|ينبع|المدينة).*$/,"")
+                    .replace(/\s+(في|على|قرب|بحي|حي)$/,"")
+                    .trim();
+    if(!out.plan) delete out.plan;
+  }
+
+  // 6) المساحة
+  let area = pick("المساحة") || (txt.match(/(\d[\d,\.]*)\s*(?:م2|م²|متر|m²)/)||[])[1];
+  if(area){ const am=String(area).match(/\d[\d,]*/); if(am) out.area = am[0].replace(/[^\d]/g,""); }
+
+  // 7) السعر + التفاوض
+  let price = pick("السعر","الإيجار","الايجار");
+  if(price){ price = (price.match(/[\d,\.]+/)||[])[0]; }
+  if(!price){ const pm = txt.match(/([\d,]{4,})\s*ريال/); if(pm) price = pm[1]; }
+  if(price) out.price = price.replace(/[^\d]/g,"");
+  out.negotiable = /قابل\s*للتفاوض|قابلة\s*للتفاوض/.test(txt);
+
+  // 8) الغرف / الحمامات / الصالات
+  let rooms = pick("عددالغرف","الغرف") || (txt.match(/(\d+)\s*(?:غرف|غرفة|غرف نوم)/)||[])[1];
+  if(rooms) out.rooms = (rooms.match(/\d+/)||[])[0];
+  let baths = pick("دوراتالمياه","الحمامات","دورةمياه") || (txt.match(/(\d+)\s*(?:دورات?\s*مياه|حمام)/)||[])[1];
+  if(baths) out.baths = (baths.match(/\d+/)||[])[0];
+  let halls = pick("الصالات","صالة") || (txt.match(/(\d+)\s*(?:صالة|صالات|صالون)/)||[])[1];
+  if(halls) out.halls = (halls.match(/\d+/)||[])[0];
+
+  // 9) الواجهة
+  const dirs = ["شمالية شرقية","شمالية غربية","جنوبية شرقية","جنوبية غربية","شمالية","جنوبية","شرقية","غربية"];
+  const fmatch = txt.match(/واجه[ةه]\s*([^\n،,|\-–]*)/);
+  if(fmatch){ for(const d of dirs){ if(fmatch[1].includes(d)||txt.includes("واجهة "+d)){ out.facade = d; break; } } }
+  if(!out.facade){ for(const d of dirs){ if(txt.includes(d)){ out.facade = d; break; } } }
+  if(/زاوية|واجهتين|واجهتان/.test(txt)) out.facade = "زاوية (واجهتان)";
+  if(/ثلاث\s*واجهات|3\s*واجهات/.test(txt)) out.facade = "ثلاث واجهات";
+
+  // 10) عرض الشارع / رقم القطعة
+  let street = pick("عرضالشارع","الشارع") || (txt.match(/شارع\s*(\d+)\s*م/)||[])[1];
+  if(street) out.street = (street.match(/\d+/)||[])[0];
+  let plot = pick("رقمالقطعة","القطعة") || (txt.match(/قطعة\s*(?:رقم)?\s*([\w\d]+)/)||[])[1];
+  if(plot) out.plot = plot.trim();
+
+  // 11) العمر / الدور
+  if(/جديد|جديدة/.test(txt)) out.age = "0";
+  let age = pick("عمرالعقار","العمر") || (txt.match(/عمر[ه]?\s*(?:العقار)?\s*(\d+)\s*سنة/)||[])[1];
+  if(age) out.age = (age.match(/\d+/)||[])[0];
+  let floor = pick("الدور","رقمالدور");
+  if(!floor){ const fm = txt.match(/الدور\s+([^\n،,|\-–]+?)(?:\s*[-–،,|\n]|$)/); if(fm) floor = fm[1]; }
+  if(floor) out.floor = floor.replace(/^الدور\s*/,"").trim();
+
+  // 12) التأثيث
+  if(/غير\s*مفروش/.test(txt)) out.furnish = "غير مفروش";
+  else if(/مفروش[ة]?\s*جزئ/.test(txt)) out.furnish = "مفروش جزئيًا";
+  else if(/مفروش[ة]?(?:\s*بالكامل)?/.test(txt)) out.furnish = "مفروش بالكامل";
+
+  // 13) المصعد / الموقف
+  out.elevator = /مصعد/.test(txt);
+  out.parking = /موقف|مواقف|كراج|جراج/.test(txt);
+
+  // 14) المزايا
+  const featStr = pick("المزايا","مزايا");
+  if(featStr){ out.features = featStr.split(/[•،,\|\-–✦]/).map(s=>s.trim()).filter(Boolean); }
+  else{
+    const fl = txt.match(/✦\s*(.+)/);
+    if(fl) out.features = fl[1].split(/[•،,]/).map(s=>s.trim()).filter(Boolean);
+  }
+
+  // 15) الرابط / الترخيص
+  let link = pick("رابطالموقع","الموقع") || (txt.match(/https?:\/\/[^\s]+/)||[])[0];
+  if(link && /https?:\/\//.test(link)) out.maplink = (link.match(/https?:\/\/[^\s]+/)||[])[0];
+  let lic = pick("رقمترخيصالإعلان","رقمالترخيص","ترخيصالإعلان","الترخيص");
+  if(!lic){
+    let lm = txt.match(/ترخيص(?:\s*الإعلان)?[^\d]{0,12}(\d{6,})/) || txt.match(/فال[^\d]{0,12}(\d{6,})/);
+    if(lm) lic = lm[1];
+  }
+  if(lic) out.license = (String(lic).match(/\d{4,}/)||[lic])[0];
+
+  // 16) الوصف المختصر
+  let desc = pick("الوصفالمختصر","الوصف","وصف");
+  if(desc) out.desc = desc.trim();
+
+  // تنظيف القيم الفارغة
+  Object.keys(out).forEach(k=>{ if(out[k]===""||out[k]==null) delete out[k]; });
+  return out;
+}
+
+/* استيراد من كائن JSON بمفاتيح عربية أو إنجليزية */
+function fromJson(j){
+  const map = {
+    ptype:["ptype","النوع","نوع العقار","type"], purpose:["purpose","الغرض"],
+    city:["city","المدينة"], district:["district","الحي"], plan:["plan","المخطط","اسم المخطط"],
+    area:["area","المساحة"], price:["price","السعر"], negotiable:["negotiable","قابل للتفاوض"],
+    rooms:["rooms","الغرف","عدد الغرف"], baths:["baths","دورات المياه","الحمامات"], halls:["halls","الصالات"],
+    facade:["facade","الواجهة"], street:["street","عرض الشارع"], plot:["plot","رقم القطعة"],
+    age:["age","العمر","عمر العقار"], floor:["floor","الدور"], furnish:["furnish","التأثيث"],
+    elevator:["elevator","المصعد"], parking:["parking","الموقف"],
+    desc:["desc","الوصف"], features:["features","المزايا"], maplink:["maplink","الموقع","رابط الموقع"], license:["license","الترخيص","رقم الترخيص"]
+  };
+  const out = {};
+  for(const key in map){ for(const alias of map[key]){ if(j[alias]!=null&&j[alias]!==""){ out[key]=j[alias]; break; } } }
+  if(typeof out.features==="string") out.features = out.features.split(/[•،,]/).map(s=>s.trim()).filter(Boolean);
+  return out;
+}
+
+/* تطبيق البيانات المُستوردة على النموذج */
+function markFilled(el){
+  if(!el) return;
+  const t = el.closest(".field") || el;
+  t.classList.add("flash");
+  setTimeout(()=>t.classList.remove("flash"), 1400);
+}
+function setV(id,val){
+  if(val!=null && val!=="" && $(id)){ $(id).value = String(val); markFilled($(id)); return true; }
+  return false;
+}
+function applyImported(d){
+  // إصدار إعلان جديد نظيف ثم تعبئته من البيانات المستوردة
+  clearForm();
+  let n = 0;
+
+  $("city").value = d.city || "المدينة المنورة"; markFilled($("city"));
+  if(d.ptype){ $("ptype").value = d.ptype; markFilled($("ptype")); n++; }
+  if(d.purpose){ const r=document.querySelector(`input[name="purp"][value="${d.purpose}"]`); if(r){ r.checked=true; markFilled(r); n++; } }
+
+  [["district",d.district],["plan",d.plan],["area",d.area],["price",d.price],
+   ["rooms",d.rooms],["baths",d.baths],["halls",d.halls],["street",d.street],
+   ["plot",d.plot],["age",d.age],["floor",d.floor],["desc",d.desc],
+   ["maplink",d.maplink],["license",d.license]
+  ].forEach(([id,val])=>{ if(setV(id,val)) n++; });
+
+  if(d.facade && setSelect("facade",d.facade)) n++;
+  if(d.furnish && setSelect("furnish",d.furnish)) n++;
+
+  if(d.negotiable){ $("negotiable").checked=true; markFilled($("negotiable")); n++; }
+  if(d.elevator){ $("elevator").checked=true; markFilled($("elevator")); n++; }
+  if(d.parking){ $("parking").checked=true; markFilled($("parking")); n++; }
+
+  if(Array.isArray(d.features) && d.features.length){ features = d.features.slice(); renderChips(); n += d.features.length; }
+
+  applyFieldVisibility();
+  render();
+  return n;
+}
+function setSelect(id,val){
+  const sel=$(id); if(!sel) return false;
+  for(const o of sel.options){ if(o.value===val||o.text===val){ sel.value=o.value; markFilled(sel); return true; } }
+  for(const o of sel.options){ if(o.value && String(val).includes(o.value)){ sel.value=o.value; markFilled(sel); return true; } }
+  return false;
+}
+
+/* ============ تشغيل أولي ============ */
+$("hdrLogo").src = LOGO;
+applyFieldVisibility();
+render();
+</script>
+</body>
+</html>
